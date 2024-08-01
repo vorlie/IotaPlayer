@@ -141,14 +141,14 @@ class PlaylistMaker(QDialog):
         logging.info(f"Found {len(song_files)} MP3 files in the folder.")
 
         for filename in song_files:
-            match = re.match(r'(.+) - (.+) \[([^\]]+)\]\.mp3', filename)
+            match = re.match(r'(.+) - (.+)(?: \[([^\]]+)\])?\.mp3', filename)
             if match:
                 artist, title, youtube_id = match.groups()
                 path = os.path.join(folder, filename)
                 song_data = {
                     'artist': artist,
                     'title': title,
-                    'youtube_id': youtube_id,
+                    'youtube_id': youtube_id if youtube_id else '',
                     'path': path.replace('/', '\\')
                 }
                 self.songs.append(song_data)

@@ -1,7 +1,8 @@
 # Music Player Application
 
-[Contributing](CONTRIBUTING.md) [Gallery](#gallery)
-
+[License](LICENSE) • [Contributing](CONTRIBUTING.md) • [Gallery](#gallery) •  [Installation](#installation) • [Troubleshooting](#troubleshooting) • [Configuration](#configuration) •
+[Core Features](#core-features) • [User Interface](#user-interface) • [Shortcuts](#shortcuts) • [Logging](#logging) • [Playlist Maker](#playlist-maker) •
+[Usage](#usage)
 
 A feature-rich music player application with playlist management, playback controls, song information display, volume and progress tracking, Discord integration, and more.
 

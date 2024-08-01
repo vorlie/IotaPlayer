@@ -119,25 +119,25 @@ A feature-rich music player application with playlist management, playback contr
     - If you want console output:
       - Change the `console` value to `True` in the `MusicPlayerWIN.spec` file. If you decide to leave it as `False`, then be aware of how PyInstaller works, it can trigger your anti virus.
         ```spec
-        exe = EXE(
-          pyz,
-          a.scripts,
-          [],
-          exclude_binaries=True,
-          name='MusicPlayer',
-          debug=False,
-          bootloader_ignore_signals=False,
-          strip=False,
-          upx=True,
-          console=False,
-          disable_windowed_traceback=False,
-          argv_emulation=False,
-          target_arch=None,
-          codesign_identity=None,
-          entitlements_file=None,
-          icon=['icon.ico'],
-        )
-      ```
+          exe = EXE(
+            pyz,
+            a.scripts,
+            [],
+            exclude_binaries=True,
+            name='MusicPlayer',
+            debug=False,
+            bootloader_ignore_signals=False,
+            strip=False,
+            upx=True,
+            console=False,
+            disable_windowed_traceback=False,
+            argv_emulation=False,
+            target_arch=None,
+            codesign_identity=None,
+            entitlements_file=None,
+            icon=['icon.ico'],
+          )
+        ```
 ## Usage
 
 1. **Run the application:**

@@ -58,6 +58,14 @@ A feature-rich music player application with playlist management, playback contr
 - **Dialogs:**
   - **Open Playlist Dialog:** Select and load playlists.
 
+### Shortcuts
+
+- **Delete Playlist**: Select a playlist and press the `Delete` key to remove it from the list.
+  - **Delete Song**: [(From Playlist Maker)](#playlist-maker) Select the song and press the `Delete` key to remove it from the playlist.
+- **Play/Pause**: Use the `Media Play/Pause` (`FN + F7`) key to toggle play/pause.
+- **Next Track**: Use the `Media Next` (`FN + F6`) key to skip to the next track.
+- **Previous Track**: Use the `Media Previous` (`FN + F5`) key to return to the previous track.
+
 ### Logging
 
 - **Logging Setup:**

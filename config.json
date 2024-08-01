@@ -1,0 +1,13 @@
+{   
+    "discord_client_id_comment": "Enter your Discord Client ID. You can find it in your Discord Developer Portal. You can modify this ID as required. It will be used to connect to Discord and will change the name of the application that's seen in Discord. The default value is '1150680286649143356'.",
+    "discord_client_id": "1150680286649143356",
+
+    "root_playlist_folder_comment": "Specify the directory where your playlists are saved. You can change this path if needed. The default value is 'playlists'.",
+    "root_playlist_folder": "playlists",
+
+    "default_playlist_comment": "Enter the name of the default playlist that will be loaded initially. You can modify this name as required.",
+    "default_playlist": "name_test",
+
+    "colorization_color_comment": "Enter the hex color code of the accent color. You can modify this color as required. The default value is 'automatic'. Which will use the system's colorization color.",
+    "colorization_color": "automatic"
+}

@@ -1,0 +1,20 @@
+{
+    "playlist_name": "name_test",
+    "song_count": 2,
+    "songs": [
+        {
+            "artist": "Artist 1",
+            "title": "Title 1",
+            "youtube_id": "dQw4w9WgXcQ",
+            "path": "C:\\Users\\USER\\Music\\FOLDER\\Artist 1 - Title 1 [dQw4w9WgXcQ].mp3",
+            "playlist": "name_test"
+        },
+        {
+            "artist": "Artist 2",
+            "title": "Title 2",
+            "youtube_id": "dQw4w9WgXcQ",
+            "path": "C:\\Users\\USER\\Music\\FOLDER\\Artist 2 - Title 2 [dQw4w9WgXcQ].mp3",
+            "playlist": "name_test"
+        }
+    ]
+}

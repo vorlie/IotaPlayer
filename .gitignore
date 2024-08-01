@@ -1,0 +1,8 @@
+# Ignore List for Folders
+build/
+dist/
+__pycache__/
+
+# Ignore List for Files
+*.log
+test.py

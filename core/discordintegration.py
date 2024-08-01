@@ -10,7 +10,7 @@ class DiscordIntegration(QObject):
     with open('config.json', 'r') as f:
         config = json.load(f)
         discord_client_id = config.get('discord_client_id', '1150680286649143356')
-        large_image_key = config.get('large_image_key', 'musicplayer')
+        large_image_key = config.get('large_image_key', 'https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg')
     def __init__(self, client_id=discord_client_id):
         super().__init__()
         self.client_id = client_id
@@ -48,7 +48,7 @@ class DiscordIntegration(QObject):
             self.RPC.update(
                 state=f"{artist_name}",
                 details=f"{song_title}",
-                large_image="https://cdn.discordapp.com/avatars/614807913302851594/c30648aca504f0ef9261ebba7f3c2e7f.png",
+                large_image=self.large_image_key,
                 large_text="Music Player",
                 start=start_time,
                 end=end_time,

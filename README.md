@@ -92,7 +92,7 @@ A feature-rich music player application with playlist management, playback contr
 2. **Navigate to the project directory:**
 
     ```bash
-    cd music-player
+    cd vorlies-music-player
     ```
 
 3. **Install the required dependencies:**
@@ -105,8 +105,40 @@ A feature-rich music player application with playlist management, playback contr
     - Create a `config.json` file with necessary configuration details.
         - Otherwise the application will generate a default configuration.
     - Add your Discord client ID in the appropriate place if needed.
-        - The default value is '1150680286649143356'.
+        - The default value is `1150680286649143356`.
 
+5. **Building from source using pyinstaller:**
+    - If planning to build from source.
+
+      ```bash
+      pip install pyinstaller==6.6.0
+      ```
+
+    - If you want console output:
+      - Change the `console` value to `True` in the `MusicPlayerWIN.spec` file. If you decide to leave it as `False`, then be aware of how PyInstaller works, it can trigger your anti virus.
+        ```spec
+        exe = EXE(
+          pyz,
+          a.scripts,
+          [],
+          exclude_binaries=True,
+          name='MusicPlayer',
+          debug=False,
+          bootloader_ignore_signals=False,
+          strip=False,
+          upx=True,
+          console=False,
+          disable_windowed_traceback=False,
+          argv_emulation=False,
+          target_arch=None,
+          codesign_identity=None,
+          entitlements_file=None,
+          icon=['icon.ico'],
+        )
+      ```
+      ```bash
+      pyinstaller MusicPlayerWIN.spec
+      ```
 ## Usage
 
 1. **Run the application:**
@@ -114,7 +146,8 @@ A feature-rich music player application with playlist management, playback contr
     ```bash
     python main.py
     ```
-
+    or use the executable you built in the previous step.
+    
 2. **Control the application:**
     - Use the UI buttons to control playback, manage playlists, and access external actions.
     - Use media keys on your keyboard to control playback.
@@ -238,9 +271,6 @@ For automatic recognition, the song files in the selected folder should follow t
     mutagen==1.47.0
     pynput==1.7.7
     pyqtdarktheme==2.1.0
-
-    # If planning to build from source
-    pyinstaller==6.6.0
     ```
 
 - **Check Discord connection:**

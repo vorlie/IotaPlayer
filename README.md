@@ -113,7 +113,9 @@ A feature-rich music player application with playlist management, playback contr
       ```bash
       pip install pyinstaller==6.6.0
       ```
-
+      ```bash
+      pyinstaller MusicPlayerWIN.spec
+      ```
     - If you want console output:
       - Change the `console` value to `True` in the `MusicPlayerWIN.spec` file. If you decide to leave it as `False`, then be aware of how PyInstaller works, it can trigger your anti virus.
         ```spec
@@ -135,9 +137,6 @@ A feature-rich music player application with playlist management, playback contr
           entitlements_file=None,
           icon=['icon.ico'],
         )
-      ```
-      ```bash
-      pyinstaller MusicPlayerWIN.spec
       ```
 ## Usage
 

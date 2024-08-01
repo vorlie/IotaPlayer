@@ -27,6 +27,9 @@ class MusicPlayer(QMainWindow):
             self.config = {   
                 "discord_client_id_comment": "Enter your Discord Client ID. You can find it in your Discord Developer Portal. You can modify this ID as required. It will be used to connect to Discord and will change the name of the application that's seen in Discord. The default value is '1150680286649143356'.",
                 "discord_client_id": "1150680286649143356",
+                
+                "large_image_key_comment": "Enter the name of the large image key. You can use links. You can modify this key as required. The default value is 'large_image_key'.",
+                "large_image_key": "https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg",
 
                 "root_playlist_folder_comment": "Specify the directory where your playlists are saved. You can change this path if needed. The default value is 'playlists'.",
                 "root_playlist_folder": "playlists",

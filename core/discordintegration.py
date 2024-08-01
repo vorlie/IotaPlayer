@@ -13,7 +13,7 @@ class DiscordIntegration(QObject):
         # Load config
         with open('config.json', 'r') as f:
             self.config = json.load(f)
-            self.discord_client_id = self.config.get('discord_client_id', '1150680286649143356')
+            self.client_id = self.config.get('discord_client_id', '1150680286649143356')
             self.large_image_key = self.config.get('large_image_key', 'https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg')
             self.connect_to_discord = self.config.get('connect_to_discord', True)
         
@@ -52,8 +52,12 @@ class DiscordIntegration(QObject):
         start_time = int(time.time())
         end_time = int(start_time + song_duration)
 
-        buttons = [{"label": "Open in YouTube", "url": f"https://www.youtube.com/watch?v={youtube_id}"}] if youtube_id else []
-        
+        # Always include this button
+        buttons = [{"label": "Source Code", "url": "https://github.com/vorlie/vorlies-music-player"}]
+
+        # Conditionally add the YouTube button
+        if youtube_id:
+            buttons.append({"label": "Open in YouTube", "url": f"https://www.youtube.com/watch?v={youtube_id}"})
         try:
             self.RPC.update(
                 state=f"{artist_name}",

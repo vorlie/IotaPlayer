@@ -98,7 +98,7 @@ A feature-rich music player application with playlist management, playback contr
 3. **Install the required dependencies:**
 
     ```bash
-    pip install -r requirements.txt
+    pip install -r requirements.txt --ignore-requires-python
     ```
 
 4. **Ensure you have the necessary environment variables and configuration files:**
@@ -108,14 +108,6 @@ A feature-rich music player application with playlist management, playback contr
         - The default value is '1150680286649143356'.
 
 ## Usage
-0. **Install the required dependencies:**
-    - If you already have python installed, skip this step.
-        - [`Python`](https://www.python.org/downloads/)
-        
-    - Install the required dependencies.
-        ```bash
-        pip install -r requirements.txt --ignore-requires-python
-        ```
 
 1. **Run the application:**
 

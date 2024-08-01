@@ -7,17 +7,24 @@ discord_logger = logging.getLogger('discord')
 
 class DiscordIntegration(QObject):
     connection_status_changed = pyqtSignal(bool)
-    with open('config.json', 'r') as f:
-        config = json.load(f)
-        discord_client_id = config.get('discord_client_id', '1150680286649143356')
-        large_image_key = config.get('large_image_key', 'https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg')
-    def __init__(self, client_id=discord_client_id):
+
+    def __init__(self):
         super().__init__()
-        self.client_id = client_id
+        # Load config
+        with open('config.json', 'r') as f:
+            self.config = json.load(f)
+            self.discord_client_id = self.config.get('discord_client_id', '1150680286649143356')
+            self.large_image_key = self.config.get('large_image_key', 'https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg')
+            self.connect_to_discord = self.config.get('connect_to_discord', True)
+        
         self.RPC = None
-        self.connect()
+        if self.connect_to_discord:
+            self.connect()
 
     def connect(self):
+        if not self.connect_to_discord:
+            discord_logger.info("Discord integration is disabled.")
+            return
         try:
             self.RPC = Presence(self.client_id)
             self.RPC.connect()
@@ -32,6 +39,9 @@ class DiscordIntegration(QObject):
         return self.RPC is not None
 
     def update_presence(self, song_title, artist_name, song_duration, youtube_id=None, is_playing=True):
+        if not self.connect_to_discord:
+            discord_logger.info("Discord integration is disabled. Skipping presence update.")
+            return
         if not self.is_connected():
             discord_logger.warning("RPC not connected. Attempting to reconnect...")
             self.connect()
@@ -65,6 +75,9 @@ class DiscordIntegration(QObject):
                 self.connect()
 
     def clear_presence(self):
+        if not self.connect_to_discord:
+            discord_logger.info("Discord integration is disabled. Skipping presence clear.")
+            return
         if not self.is_connected():
             discord_logger.warning("RPC not connected. Attempting to reconnect...")
             self.connect()

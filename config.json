@@ -1,4 +1,7 @@
 {   
+    "connect_to_discord_comment": "Connect to Discord? If set to true, application will try to connect to discord in order to set your presence. Set it to false if you don't want to connect to Discord. The default value is 'true'.",
+    "connect_to_discord": true,
+    
     "discord_client_id_comment": "Enter your Discord Client ID. You can find it in your Discord Developer Portal. You can modify this ID as required. It will be used to connect to Discord and will change the name of the application that's seen in Discord. The default value is '1150680286649143356'.",
     "discord_client_id": "1150680286649143356",
 

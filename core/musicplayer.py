@@ -25,6 +25,9 @@ class MusicPlayer(QMainWindow):
                 self.config = json.load(f)
         except FileNotFoundError:
             self.config = {   
+                "connect_to_discord_comment": "Connect to Discord? If set to true, application will try to connect to discord in order to set your presence. Set it to false if you don't want to connect to Discord. The default value is 'true'.",
+                "connect_to_discord": True,
+                
                 "discord_client_id_comment": "Enter your Discord Client ID. You can find it in your Discord Developer Portal. You can modify this ID as required. It will be used to connect to Discord and will change the name of the application that's seen in Discord. The default value is '1150680286649143356'.",
                 "discord_client_id": "1150680286649143356",
                 
@@ -545,22 +548,28 @@ class MusicPlayer(QMainWindow):
         self.setWindowTitle(f"Music Player • {self.playlist_name_var} • {self.song_info_var}")
 
         # Update Discord presence
-        if self.is_playing:
-            if self.is_paused:
-                self.discord_integration.update_presence(f"Paused: {self.current_song['title']}", f" By: {self.current_song['artist']}", 0, is_playing=False)
-            else:
-                title = f"Listening to: {self.current_song['title']}" if self.current_song else "No song playing"
-                artist = f"By: {self.current_song['artist']}" if self.current_song else "No artist"
-                song_duration = self.get_song_length(self.current_song['path']) if self.current_song else 0
-                self.discord_integration.update_presence(
-                    title,
-                    artist,
-                    song_duration,
-                    self.current_song.get('youtube_id') if self.current_song else None,
-                    is_playing=True
-                )
-        else:
-            self.discord_integration.update_presence("Stopped", "No song", 0, is_playing=False)
+        if self.config['connect_to_discord']:  # Check if Discord connection is enabled
+            if self.is_playing:  # Check if something is playing
+                if self.is_paused:  # Check if it is paused
+                    self.discord_integration.update_presence(
+                        f"Paused: {self.current_song['title']}",
+                        f" By: {self.current_song['artist']}",
+                        0, 
+                        is_playing=False
+                    )
+                else:  # Playing and not paused
+                    title = f"Listening to: {self.current_song['title']}" if self.current_song else "No song playing"
+                    artist = f"By: {self.current_song['artist']}" if self.current_song else "No artist"
+                    song_duration = self.get_song_length(self.current_song['path']) if self.current_song else 0
+                    self.discord_integration.update_presence(
+                        title,
+                        artist,
+                        song_duration,
+                        self.current_song.get('youtube_id') if self.current_song else None,
+                        is_playing=True
+                    )
+            else:  # No song is playing
+                self.discord_integration.update_presence("Stopped", "No song", 0, is_playing=False)
 
     def update_progress(self):
         if mixer.music.get_busy():

@@ -1,6 +1,7 @@
 # Music Player Application
 
-[Contributing](CONTRIBUTING.md)
+[Contributing](CONTRIBUTING.md) [Gallery](#gallery)
+
 
 A feature-rich music player application with playlist management, playback controls, song information display, volume and progress tracking, Discord integration, and more.
 

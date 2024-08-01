@@ -50,9 +50,10 @@ A feature-rich music player application with playlist management, playback contr
 ### User Interface
 
 - **Accent Color:**
-  - **Use System Accent Color:** Use the system's accent color.
-    - In order to use the system's accent color, you must set the `automatic` value for the `colorization_color` in the [config.json](config.json#L15) file. If you don't want to use the system's accent color, you can set the color manually. Also will not work on system's other than Windows. 
-
+  - **Use System Accent Color (WINDOWS ONLY):** Use the system's accent color.
+    - In order to use the system's accent color, you must set the `automatic` value for the `colorization_color` in the [config.json](config.json#L15) file.
+  - **Set your own Accent Color:** Specify the hex color code of the accent color.
+    - In order to use your own accent color, you must set the `your_hex_color` value for the `colorization_color` in the [config.json](config.json#L15) file.
 
 - **Playlists and Songs Display:**
   - **Playlist List:** Show available playlists and their song counts.

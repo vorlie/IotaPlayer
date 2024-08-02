@@ -1,6 +1,12 @@
 import os
 import re
 
+"""
+File renamer utility for cleaning and renaming files in a directory.
+
+Configure it to your liking and use it as needed.
+"""
+
 def clean_text(text):
     # Replace arrows with "-"
     text = text.replace("⧸", "-")

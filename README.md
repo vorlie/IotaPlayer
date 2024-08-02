@@ -53,7 +53,7 @@ A feature-rich music player application with playlist management, playback contr
 
 - **Accent Color:**
   - With settings page added, you can change most of the settings directly from the application.
-  - **Use System Accent Color (WINDOWS ONLY):** Use the system's accent color.
+  - **Use System Accent Color:** Use the system's accent color.
     - In order to use the system's accent color, you must set the `automatic` value for the `colorization_color` in the [config.json](config.json#L15) file.
   - **Set your own Accent Color:** Specify the hex color code of the accent color.
     - In order to use your own accent color, you must set the `your_hex_color` value for the `colorization_color` in the [config.json](config.json#L15) file.

@@ -13,6 +13,7 @@ A feature-rich music player application with playlist management, playback contr
     - Currently it only shows the current song progress. Can't move to a certain moment in the song.
 - **Add favourites:** Add songs to a playlist as favourites.
 - **Get MacOS accent color:** So we can use the system's accent color.
+- If you wish to have some additional features, please let us know.
 
 ### Core Features
 

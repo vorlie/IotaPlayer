@@ -307,7 +307,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Thanks
 
 - **[PyQt5](https://www.riverbankcomputing.com/software/pyqt/intro)**: A set of Python bindings for the Qt application framework, which provides the GUI capabilities for this application.
-- **[qdarktheme](https://pypi.org/project/pyqtdarktheme/)**: A library for applying dark themes to PyQt5 applications, enhancing the visual appeal of the interface.
+- **[qdarktheme](https://github.com/vorlie/PyQtDarkTheme)**: A library for applying dark themes to PyQt5 applications, enhancing the visual appeal of the interface.
 - **[pygame](https://www.pygame.org/)**: A cross-platform set of Python modules designed for writing video games, providing functionality for sound and music.
 - **[pypresence](https://pypi.org/project/pypresence/)**: A Python library for integrating with Discord's Rich Presence, allowing you to display custom activity information.
 - **[mutagen](https://mutagen.readthedocs.io/en/latest/)**: A Python module used for handling audio metadata, enabling the application to read and write metadata in audio files.

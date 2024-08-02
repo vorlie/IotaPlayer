@@ -52,6 +52,7 @@ A feature-rich music player application with playlist management, playback contr
 ### User Interface
 
 - **Accent Color:**
+  - With settings page added, you can change most of the settings directly from the application.
   - **Use System Accent Color (WINDOWS ONLY):** Use the system's accent color.
     - In order to use the system's accent color, you must set the `automatic` value for the `colorization_color` in the [config.json](config.json#L15) file.
   - **Set your own Accent Color:** Specify the hex color code of the accent color.
@@ -100,7 +101,12 @@ A feature-rich music player application with playlist management, playback contr
 3. **Install the required dependencies:**
 
     ```bash
-    pip install -r requirements.txt --ignore-requires-python
+    pip install PyQt5==5.15.10
+    pip install pygame==2.6.0
+    pip install pypresence==4.3.0
+    pip install mutagen==1.47.0
+    pip install pynput==1.7.7
+    pip install git+https://github.com/vorlie/PyQtDarkTheme.git@main --ignore-requires-python
     ```
 
 4. **Ensure you have the necessary environment variables and configuration files:**
@@ -160,7 +166,7 @@ A feature-rich music player application with playlist management, playback contr
     - The application will automatically update your Discord status with the current song info if connected.
 
 ## Configuration
-
+**With settings page added, you can change most of the settings directly from the application.**
 - **`config.json`:** Place your configuration settings here. Example:
     - If file is not present, application will create it with default values.
     ```json
@@ -274,7 +280,7 @@ For automatic recognition, the song files in the selected folder should follow t
     pypresence==4.3.0
     mutagen==1.47.0
     pynput==1.7.7
-    pyqtdarktheme==2.1.0
+    git+https://github.com/vorlie/PyQtDarkTheme.git@main 
     ```
 
 - **Check Discord connection:**

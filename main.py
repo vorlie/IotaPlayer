@@ -45,7 +45,7 @@ default_settings = {
         "3": "If you do increase, just so you know that it will have a bit of delay to change the color :)",
         "4": "The default value is '1000'."
     },
-    "auto_color_interval": 10000
+    "auto_color_interval": 1000
 }
 
 class AccentThread(QThread):

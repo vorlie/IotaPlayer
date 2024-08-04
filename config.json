@@ -4,7 +4,18 @@
         "2": "Set it to false if you don't want to connect to Discord.",
         "3": "The default value is 'true'."
     },
+{
+    "connect_to_discord_comment": {
+        "1": "Connect to Discord? If set to true, application will try to connect to discord in order to set your presence.",
+        "2": "Set it to false if you don't want to connect to Discord.",
+        "3": "The default value is 'true'."
+    },
     "connect_to_discord": true,
+    "root_playlist_folder_comment": {
+        "1": "Specify the directory where your playlists are saved. You can change this path if needed.",
+        "2": "The default value is 'playlists'."
+    },
+    "root_playlist_folder": "C:\\Users\\karol\\Music\\",
     "root_playlist_folder_comment": {
         "1": "Specify the directory where your playlists are saved. You can change this path if needed.",
         "2": "The default value is 'playlists'."

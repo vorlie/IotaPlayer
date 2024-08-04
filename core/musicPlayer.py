@@ -1,22 +1,24 @@
 import os, webbrowser, threading, logging, json, re
-from logging.handlers import RotatingFileHandler
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QPushButton, QListWidget, QFileDialog, QLabel, QSlider, QHBoxLayout, QMessageBox
+from PyQt5.QtWidgets import ( QMainWindow, 
+    QVBoxLayout, QWidget, QPushButton, QListWidget, 
+    QFileDialog, QLabel, QSlider, QHBoxLayout, QSizePolicy, 
+    QSpacerItem, QMessageBox )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, Qt
 from pygame import mixer
 from pynput import keyboard
 from mutagen.mp3 import MP3
-from config import ICON_PATH
-from utils.playlistmanager import PlaylistManager
-from core.discordintegration import DiscordIntegration
-from utils.playlistmaker import PlaylistMaker
+from core.discordIntegration import DiscordIntegration
+from utils.playlistMaker import PlaylistMaker, PlaylistManager
+from utils.settingManager import SettingsDialog
 from core.logger import setup_logging
 
 class MusicPlayer(QMainWindow):
-    def __init__(self):
+    def __init__(self, settings, icon_path, config_path):
         super().__init__()
-        if os.path.exists(ICON_PATH):
-            self.setWindowIcon(QIcon(ICON_PATH))
+        self.icon_path = icon_path
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Music Player")
         self.setGeometry(100, 100, 800, 600)
 
@@ -24,25 +26,8 @@ class MusicPlayer(QMainWindow):
             with open('config.json', 'r') as f:
                 self.config = json.load(f)
         except FileNotFoundError:
-            self.config = {   
-                "connect_to_discord_comment": "Connect to Discord? If set to true, application will try to connect to discord in order to set your presence. Set it to false if you don't want to connect to Discord. The default value is 'true'.",
-                "connect_to_discord": True,
-                
-                "discord_client_id_comment": "Enter your Discord Client ID. You can find it in your Discord Developer Portal. You can modify this ID as required. It will be used to connect to Discord and will change the name of the application that's seen in Discord. The default value is '1150680286649143356'.",
-                "discord_client_id": "1150680286649143356",
-                
-                "large_image_key_comment": "Enter the name of the large image key. You can use links. You can modify this key as required. The default value is 'large_image_key'.",
-                "large_image_key": "https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg",
-
-                "root_playlist_folder_comment": "Specify the directory where your playlists are saved. You can change this path if needed. The default value is 'playlists'.",
-                "root_playlist_folder": "playlists",
-
-                "default_playlist_comment": "Enter the name of the default playlist that will be loaded initially. You can modify this name as required.",
-                "default_playlist": "",
-
-                "colorization_color_comment": "Enter the hex color code of the accent color. You can modify this color as required. The default value is 'automatic'. Which will use the system's colorization color.",
-                "colorization_color": "automatic"
-            }
+            self.config = settings
+            print(settings)
             try:
                 with open('config.json', 'w') as f:
                     json.dump(self.config, f, indent=4)
@@ -64,6 +49,7 @@ class MusicPlayer(QMainWindow):
         self.listener_thread.start()
         self.playlist_manager = PlaylistManager()
         self.discord_integration = DiscordIntegration()
+        self.settings_manager = SettingsDialog(settings, icon_path, config_path)
         self.discord_integration.connection_status_changed.connect(self.update_discord_status)
         self.current_song = None
         self.songs = []
@@ -165,13 +151,19 @@ class MusicPlayer(QMainWindow):
         self.right_frame_layout.setSpacing(10)
         self.right_frame.setLayout(self.right_frame_layout)
         self.top_layout.addWidget(self.right_frame)
-
-        # Song List
+        self.right_frame_scnd_layout = QHBoxLayout()
+        self.right_frame_layout.addLayout(self.right_frame_scnd_layout)
+        
+        # Song List, Settings
         self.song_list_label = QLabel("Song List:")
-        self.right_frame_layout.addWidget(self.song_list_label)
+        self.settings_button = QPushButton("Settings")
+        self.settings_button.setFixedWidth(70)
+        self.right_frame_scnd_layout.addWidget(self.song_list_label)
+        self.right_frame_scnd_layout.addWidget(self.settings_button)
         self.song_list = QListWidget()
         self.song_list.currentItemChanged.connect(self.play_selected_song)
         self.right_frame_layout.addWidget(self.song_list)
+        
 
         # Bottom Layout: Music Control, Progress, Volume
         self.bottom_layout = QVBoxLayout()
@@ -179,8 +171,14 @@ class MusicPlayer(QMainWindow):
 
         # Music Control Buttons
         self.music_control_layout = QHBoxLayout()
-        self.bottom_layout.addLayout(self.music_control_layout)
+        self.music_control_layout.setContentsMargins(0, 0, 0, 0)
+        self.music_control_layout.setSpacing(10)
 
+        # Add a left spacer
+        self.left_spacer = QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.music_control_layout.addItem(self.left_spacer)
+
+        # Create buttons
         self.prev_button = QPushButton("Previous")
         self.pause_button = QPushButton("Pause")
         self.play_button = QPushButton("Play")
@@ -188,12 +186,29 @@ class MusicPlayer(QMainWindow):
         self.resume_button = QPushButton("Resume")
         self.next_button = QPushButton("Next")
 
+        # Set fixed width for buttons
+        button_width = 70
+        self.prev_button.setFixedWidth(button_width)
+        self.pause_button.setFixedWidth(button_width)
+        self.play_button.setFixedWidth(button_width)
+        self.stop_button.setFixedWidth(button_width)
+        self.resume_button.setFixedWidth(button_width)
+        self.next_button.setFixedWidth(button_width)
+
+        # Add buttons to layout
         self.music_control_layout.addWidget(self.prev_button)
         self.music_control_layout.addWidget(self.pause_button)
         self.music_control_layout.addWidget(self.play_button)
         self.music_control_layout.addWidget(self.stop_button)
         self.music_control_layout.addWidget(self.resume_button)
         self.music_control_layout.addWidget(self.next_button)
+
+        # Add a right spacer
+        self.right_spacer = QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.music_control_layout.addItem(self.right_spacer)
+
+        # Add layout to the bottom layout or your main layout
+        self.bottom_layout.addLayout(self.music_control_layout)
 
         # Song Info, Progress and Volume
         self.info_layout = QHBoxLayout()
@@ -222,7 +237,6 @@ class MusicPlayer(QMainWindow):
         self.volume_slider.valueChanged.connect(self.adjust_volume)
         self.info_layout.addWidget(self.volume_slider)
 
-        # Discord Status
         self.discord_status_label = QLabel("Discord Status: Disconnected")
         self.bottom_layout.addWidget(self.discord_status_label)
 
@@ -240,6 +254,13 @@ class MusicPlayer(QMainWindow):
         self.reload_button.clicked.connect(self.reload_playlists)
         self.delete_button.clicked.connect(self.delete_playlist)
         self.playlist_maker_button.clicked.connect(self.open_playlist_maker)
+        self.settings_button.clicked.connect(self.open_settings)
+
+
+    def open_settings(self):
+        """Open the settings dialog."""
+        logging.info("Opening settings dialog.")
+        self.settings_manager.show()
 
     def get_playlist_names(self):
         """Retrieve available playlist names and song counts from the predefined directory."""
@@ -286,7 +307,6 @@ class MusicPlayer(QMainWindow):
                 self.load_playlist(playlist_name)
             else:
                 logging.error(f"Error loading playlist: Playlist file not found: {playlist_path}")
-
 
     def load_playlist(self, playlist_name):
         logging.info(f"Loading playlist: {playlist_name}")
@@ -434,7 +454,6 @@ class MusicPlayer(QMainWindow):
                 self.pause_music()
             else:
                 self.play_music()
-
 
     def play_selected_song(self, item):
         """Play the song selected from the song list."""
@@ -646,5 +665,5 @@ class MusicPlayer(QMainWindow):
             
     def open_playlist_maker(self):
         logging.info("Opening Playlist Maker")
-        self.playlist_maker_window = PlaylistMaker()
+        self.playlist_maker_window = PlaylistMaker(self.icon_path)
         self.playlist_maker_window.show()

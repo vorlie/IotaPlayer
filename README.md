@@ -12,7 +12,6 @@ A feature-rich music player application with playlist management, playback contr
 - **Move song slider:** So we can skip to a certain moment in the song.
     - Currently it only shows the current song progress. Can't move to a certain moment in the song.
 - **Add favourites:** Add songs to a playlist as favourites.
-- **Get MacOS accent color:** So we can use the system's accent color.
 - If you wish to have some additional features, please let us know.
 
 ### Core Features
@@ -52,7 +51,8 @@ A feature-rich music player application with playlist management, playback contr
 ### User Interface
 
 - **Accent Color:**
-  - **Use System Accent Color (WINDOWS ONLY):** Use the system's accent color.
+  - With the settings page added, you can change most of the settings directly from the application.
+  - **Use System Accent Color:** Use the system's accent color. (Windows and macOS only)
     - In order to use the system's accent color, you must set the `automatic` value for the `colorization_color` in the [config.json](config.json#L15) file.
   - **Set your own Accent Color:** Specify the hex color code of the accent color.
     - In order to use your own accent color, you must set the `your_hex_color` value for the `colorization_color` in the [config.json](config.json#L15) file.
@@ -100,7 +100,12 @@ A feature-rich music player application with playlist management, playback contr
 3. **Install the required dependencies:**
 
     ```bash
-    pip install -r requirements.txt --ignore-requires-python
+    pip install PyQt5==5.15.10
+    pip install pygame==2.6.0
+    pip install pypresence==4.3.0
+    pip install mutagen==1.47.0
+    pip install pynput==1.7.7
+    pip install git+https://github.com/vorlie/PyQtDarkTheme.git@main --ignore-requires-python
     ```
 
 4. **Ensure you have the necessary environment variables and configuration files:**
@@ -160,7 +165,7 @@ A feature-rich music player application with playlist management, playback contr
     - The application will automatically update your Discord status with the current song info if connected.
 
 ## Configuration
-
+**With the settings page added, you can change most of the settings directly from the application.**
 - **`config.json`:** Place your configuration settings here. Example:
     - If file is not present, application will create it with default values.
     ```json
@@ -283,7 +288,7 @@ For automatic recognition, the song files in the selected folder should follow t
     pypresence==4.3.0
     mutagen==1.47.0
     pynput==1.7.7
-    pyqtdarktheme==2.1.0
+    git+https://github.com/vorlie/PyQtDarkTheme.git@main 
     ```
 
 - **Check Discord connection:**
@@ -310,7 +315,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Thanks
 
 - **[PyQt5](https://www.riverbankcomputing.com/software/pyqt/intro)**: A set of Python bindings for the Qt application framework, which provides the GUI capabilities for this application.
-- **[qdarktheme](https://pypi.org/project/pyqtdarktheme/)**: A library for applying dark themes to PyQt5 applications, enhancing the visual appeal of the interface.
+- **[qdarktheme](https://github.com/vorlie/PyQtDarkTheme)**: A library for applying dark themes to PyQt5 applications, enhancing the visual appeal of the interface.
 - **[pygame](https://www.pygame.org/)**: A cross-platform set of Python modules designed for writing video games, providing functionality for sound and music.
 - **[pypresence](https://pypi.org/project/pypresence/)**: A Python library for integrating with Discord's Rich Presence, allowing you to display custom activity information.
 - **[mutagen](https://mutagen.readthedocs.io/en/latest/)**: A Python module used for handling audio metadata, enabling the application to read and write metadata in audio files.

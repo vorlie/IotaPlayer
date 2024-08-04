@@ -208,14 +208,20 @@ class MusicPlayer(QMainWindow):
 
         # Add layout to the bottom layout or your main layout
         self.bottom_layout.addLayout(self.music_control_layout)
-
+        
         # Song Info, Progress and Volume
         self.info_layout = QHBoxLayout()
-        self.bottom_layout.addLayout(self.info_layout)
-
+        self.center_sil_layout = QHBoxLayout()
+        self.center_sil_layout.setContentsMargins(0, 0, 0, 0)
+        self.center_sil_layout.setAlignment(Qt.AlignCenter)
+        
+        # Centered song info label
+        self.bottom_layout.addLayout(self.center_sil_layout)
         self.song_info_label = QLabel("No song playing")
-        self.info_layout.addWidget(self.song_info_label)
-
+        self.song_info_label.setAlignment(Qt.AlignCenter)
+        self.center_sil_layout.addWidget(self.song_info_label)
+        
+        self.bottom_layout.addLayout(self.info_layout)
         self.time_label = QLabel("00:00 / 00:00")
         self.info_layout.addWidget(self.time_label)
 

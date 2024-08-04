@@ -14,7 +14,7 @@ from utils.settingManager import SettingsDialog
 from core.logger import setup_logging
 
 class MusicPlayer(QMainWindow):
-    def __init__(self, settings, icon_path):
+    def __init__(self, settings, icon_path, config_path):
         super().__init__()
         self.icon_path = icon_path
         if os.path.exists(icon_path):
@@ -49,7 +49,7 @@ class MusicPlayer(QMainWindow):
         self.listener_thread.start()
         self.playlist_manager = PlaylistManager()
         self.discord_integration = DiscordIntegration()
-        self.settings_manager = SettingsDialog(settings, icon_path)
+        self.settings_manager = SettingsDialog(settings, icon_path, config_path)
         self.discord_integration.connection_status_changed.connect(self.update_discord_status)
         self.current_song = None
         self.songs = []

@@ -12,7 +12,6 @@ A feature-rich music player application with playlist management, playback contr
 - **Move song slider:** So we can skip to a certain moment in the song.
     - Currently it only shows the current song progress. Can't move to a certain moment in the song.
 - **Add favourites:** Add songs to a playlist as favourites.
-- **Get MacOS accent color:** So we can use the system's accent color.
 - If you wish to have some additional features, please let us know.
 
 ### Core Features
@@ -52,8 +51,8 @@ A feature-rich music player application with playlist management, playback contr
 ### User Interface
 
 - **Accent Color:**
-  - With settings page added, you can change most of the settings directly from the application.
-  - **Use System Accent Color:** Use the system's accent color.
+  - With the settings page added, you can change most of the settings directly from the application.
+  - **Use System Accent Color:** Use the system's accent color. (Windows and macOS only)
     - In order to use the system's accent color, you must set the `automatic` value for the `colorization_color` in the [config.json](config.json#L15) file.
   - **Set your own Accent Color:** Specify the hex color code of the accent color.
     - In order to use your own accent color, you must set the `your_hex_color` value for the `colorization_color` in the [config.json](config.json#L15) file.
@@ -166,7 +165,7 @@ A feature-rich music player application with playlist management, playback contr
     - The application will automatically update your Discord status with the current song info if connected.
 
 ## Configuration
-**With settings page added, you can change most of the settings directly from the application.**
+**With the settings page added, you can change most of the settings directly from the application.**
 - **`config.json`:** Place your configuration settings here. Example:
     - If file is not present, application will create it with default values.
     ```json

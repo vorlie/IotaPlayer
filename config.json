@@ -20,7 +20,7 @@
     },
     "root_playlist_folder": "C:\\Users\\karol\\Music\\",
     "default_playlist_comment": "Enter the name of the default playlist that will be loaded initially. You can modify this name as required.",
-    "default_playlist": "Nightcore",
+    "default_playlist": "default",
     "colorization_color_comment": {
         "1": "Enter the hex color code of the accent color. You can modify this color as required.",
         "2": "If set to 'automatic' the application will use the system's accent color.",

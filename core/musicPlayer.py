@@ -77,7 +77,7 @@ class MusicPlayer(QMainWindow):
 
         mixer.init()
         mixer.music.set_endevent(1)
-        
+        self.on_start()
         self.has_started = False
         self.is_paused = False
 
@@ -255,7 +255,6 @@ class MusicPlayer(QMainWindow):
         self.playlist_maker_button.clicked.connect(self.open_playlist_maker)
         self.settings_button.clicked.connect(self.open_settings)
 
-
     def on_start(self):
         time.sleep(0.2)
         self.load_playlist(self.config['default_playlist'])
@@ -300,6 +299,7 @@ class MusicPlayer(QMainWindow):
 
         logging.info(f"Available playlists: {playlists}")
         return playlists
+    
     def load_playlist_from_list(self, current, previous):
         if current:
             selected_playlist = current.text()

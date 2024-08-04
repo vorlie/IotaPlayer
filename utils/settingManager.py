@@ -7,7 +7,7 @@ from PyQt5.QtGui import QIcon
 
 
 class SettingsDialog(QDialog):
-    def __init__(self, settings, icon_path, config_path='config.json'):
+    def __init__(self, settings, icon_path, config_path):
         super().__init__()
         self.settings = settings
         self.config_path = config_path

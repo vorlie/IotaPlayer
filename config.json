@@ -4,18 +4,7 @@
         "2": "Set it to false if you don't want to connect to Discord.",
         "3": "The default value is 'true'."
     },
-{
-    "connect_to_discord_comment": {
-        "1": "Connect to Discord? If set to true, application will try to connect to discord in order to set your presence.",
-        "2": "Set it to false if you don't want to connect to Discord.",
-        "3": "The default value is 'true'."
-    },
     "connect_to_discord": true,
-    "root_playlist_folder_comment": {
-        "1": "Specify the directory where your playlists are saved. You can change this path if needed.",
-        "2": "The default value is 'playlists'."
-    },
-    "root_playlist_folder": "C:\\Users\\karol\\Music\\",
     "root_playlist_folder_comment": {
         "1": "Specify the directory where your playlists are saved. You can change this path if needed.",
         "2": "The default value is 'playlists'."
@@ -35,7 +24,7 @@
         "3": "If you do increase, just so you know that it will have a bit of delay to change the color :)",
         "4": "The default value is '1000'."
     },
-    "auto_color_interval": 1000,
+    "auto_color_interval": 10000,
     "discord_client_id": "1150680286649143356",
     "large_image_key": "https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg"
 }

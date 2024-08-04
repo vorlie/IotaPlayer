@@ -1,4 +1,4 @@
-import os, webbrowser, threading, logging, json, re
+import os, webbrowser, threading, logging, json, re, time
 from PyQt5.QtWidgets import ( QMainWindow, 
     QVBoxLayout, QWidget, QPushButton, QListWidget, 
     QFileDialog, QLabel, QSlider, QHBoxLayout, QSizePolicy, 
@@ -77,8 +77,7 @@ class MusicPlayer(QMainWindow):
 
         mixer.init()
         mixer.music.set_endevent(1)
-        self.load_playlist(self.config['default_playlist'])
-
+        
         self.has_started = False
         self.is_paused = False
 
@@ -257,6 +256,10 @@ class MusicPlayer(QMainWindow):
         self.settings_button.clicked.connect(self.open_settings)
 
 
+    def on_start(self):
+        time.sleep(0.2)
+        self.load_playlist(self.config['default_playlist'])
+
     def open_settings(self):
         """Open the settings dialog."""
         logging.info("Opening settings dialog.")
@@ -272,6 +275,8 @@ class MusicPlayer(QMainWindow):
             return []
 
         playlists = []
+        default_playlist_name = self.config.get('default_playlist', 'default')
+
         for f in os.listdir(playlist_folder):
             if f.endswith('.json'):
                 playlist_path = os.path.join(playlist_folder, f)
@@ -290,9 +295,11 @@ class MusicPlayer(QMainWindow):
         if not playlists:
             logging.info("No playlists found in the folder.")
         
+        # Move the default playlist to the top
+        playlists = sorted(playlists, key=lambda x: x[0] == default_playlist_name, reverse=True)
+
         logging.info(f"Available playlists: {playlists}")
         return playlists
-    
     def load_playlist_from_list(self, current, previous):
         if current:
             selected_playlist = current.text()

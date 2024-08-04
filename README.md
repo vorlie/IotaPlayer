@@ -189,7 +189,7 @@ A feature-rich music player application with playlist management, playback contr
               "1": "Specify the directory where your playlists are saved. You can change this path if needed.",
               "2": "The default value is 'playlists'."
           },
-          "root_playlist_folder": "C:\\Users\\karol\\Music\\",
+          "root_playlist_folder": "playlists",
           "default_playlist_comment": "Enter the name of the default playlist that will be loaded initially. You can modify this name as required.",
           "default_playlist": "default",
           "colorization_color_comment": {

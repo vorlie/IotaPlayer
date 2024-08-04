@@ -212,8 +212,6 @@ class MusicPlayer(QMainWindow):
         # Song Info, Progress and Volume
         self.info_layout = QHBoxLayout()
         self.center_sil_layout = QHBoxLayout()
-        self.center_sil_layout.setContentsMargins(0, 0, 0, 0)
-        self.center_sil_layout.setAlignment(Qt.AlignCenter)
         
         # Centered song info label
         self.bottom_layout.addLayout(self.center_sil_layout)

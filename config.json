@@ -28,7 +28,7 @@
     },
     "colorization_color": "automatic",
     "auto_color_interval_comment": {
-        "1": "Enter the interval in seconds at which the automatic color will change.",
+        "1": "Enter the interval in milliseconds at which the automatic color will change.",
         "2": "If you find that application is using too much resources (CPU mostly), you can increase this value. 1000 is 1 second, 10000 is 10 seconds, etc.",
         "3": "If you do increase, just so you know that it will have a bit of delay to change the color :)",
         "4": "The default value is '1000'."

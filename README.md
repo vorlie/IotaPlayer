@@ -6,6 +6,10 @@
 
 A feature-rich music player application with playlist management, playback controls, song information display, volume and progress tracking, Discord integration, and more.
 
+## Very Special Thanks!
+ - [DarkDetect](https://github.com/albertosottile/darkdetect) for the source code for windows dark mode detection.
+    - Where used? It was used as a base for getting ColorizationColor from the registry.
+
 ## Features
 
 ### TODO:

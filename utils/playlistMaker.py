@@ -197,7 +197,7 @@ class PlaylistMaker(QDialog):
         song_files = [f for f in os.listdir(folder) if f.endswith(".mp3")]
 
         for filename in song_files:
-            match = re.match(r'(.+) - (.+)\[([^\]]*)\]\.mp3', filename)
+            match = re.match(r'(.+) - (.+) \[([^\]]*)\]\.mp3', filename)
             if match:
                 artist, title, youtube_id = match.groups()
                 path = os.path.join(folder, filename)

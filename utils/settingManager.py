@@ -109,9 +109,10 @@ class SettingsDialog(QDialog):
     def toggle_colorization_color(self):
         is_checked = self.use_system_accent_checkbox.isChecked()
         self.colorization_color_edit.setEnabled(not is_checked)
+        self.color_picker_button.setEnabled(not is_checked)
         if is_checked:
             self.colorization_color_edit.setText("automatic")
-
+            
     def open_color_picker(self):
         color = QColorDialog.getColor()
         if color.isValid():

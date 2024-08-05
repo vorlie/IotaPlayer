@@ -260,7 +260,7 @@ class PlaylistMaker(QDialog):
                 json.dump(playlist_data, f, indent=4)
             QMessageBox.information(self, "Playlist Saved", f"Playlist '{playlist_name}' saved to {playlist_path}.")
             logging.info(f"Playlist saved to {playlist_path}")
-            
+
     def open_playlist(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly

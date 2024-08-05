@@ -195,28 +195,25 @@ class PlaylistMaker(QDialog):
         self.songs = []
         self.song_table.setRowCount(0)
         song_files = [f for f in os.listdir(folder) if f.endswith(".mp3")]
-        
-        # Debugging: Log the number of files found
-        logging.info(f"Found {len(song_files)} MP3 files in the folder.")
 
         for filename in song_files:
-            match = re.match(r'(.+) - (.+)(?: \[([^\]]+)\])?\.mp3', filename)
+            match = re.match(r'(.+) - (.+)(?: \[([^\]]*)\])?\.mp3', filename)
             if match:
                 artist, title, youtube_id = match.groups()
                 path = os.path.join(folder, filename)
                 song_data = {
                     'artist': artist,
                     'title': title,
-                    'youtube_id': youtube_id if youtube_id else '',
+                    'youtube_id': youtube_id or '',  # Ensure youtube_id is an empty string if None
                     'path': path.replace('/', '\\')
                 }
                 self.songs.append(song_data)
                 self.add_song_to_table(song_data)
             else:
-                # Debugging: Log files that don't match the pattern
+                # Optionally log or handle files that don’t match the pattern
                 logging.warning(f"File '{filename}' does not match the expected pattern.")
 
-        # Debugging: Log the total number of songs processed
+        # Optionally log the total number of songs processed
         logging.info(f"Processed {len(self.songs)} songs.")
 
     def add_song_to_table(self, song_data):
@@ -236,7 +233,7 @@ class PlaylistMaker(QDialog):
             song_data = {
                 'artist': artist,
                 'title': title,
-                'youtube_id': youtube_id,
+                'youtube_id': youtube_id if youtube_id else '',
                 'path': path.replace('/', '\\')
             }
             self.songs.append(song_data)

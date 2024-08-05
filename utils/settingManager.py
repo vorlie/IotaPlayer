@@ -51,12 +51,15 @@ class SettingsDialog(QDialog):
 
         # General settings
         self.root_playlist_folder_edit = QLineEdit()
+        self.root_playlist_folder_edit.setPlaceholderText("playlists")
         self.root_playlist_folder_edit.setText(self.settings.get("root_playlist_folder", "playlists"))
         
         self.default_playlist_edit = QLineEdit()
-        self.default_playlist_edit.setText(self.settings.get("default_playlist", "name_test"))
+        self.default_playlist_edit.setPlaceholderText("default")
+        self.default_playlist_edit.setText(self.settings.get("default_playlist", "default"))
 
         self.colorization_color_edit = QLineEdit()
+        self.colorization_color_edit.setPlaceholderText("automatic or #RRGGBB")
         color = self.settings.get("colorization_color", "automatic")
         if color.startswith("#"):
             self.colorization_color_edit.setText(color)

@@ -44,6 +44,7 @@ class PlaylistManager:
 
         # Extract playlist name and songs
         playlist_name = data.get("playlist_name", playlist_name)  # Fallback to provided playlist_name
+        playlist_image = data.get("playlist_large_image_key", None)
         songs = data.get("songs", [])
 
         # Store the playlist and reset shuffle states
@@ -51,7 +52,7 @@ class PlaylistManager:
         self.shuffle_states[playlist_name] = False
         self.shuffled_songs[playlist_name] = []
 
-        return playlist_name, songs
+        return playlist_name, songs, playlist_image
 
     def shuffle_songs(self, playlist_name):
         """Shuffle the songs for a specific playlist."""
@@ -108,8 +109,17 @@ class PlaylistMaker(QDialog):
         self.left_layout.addWidget(self.playlist_name_label)
 
         self.playlist_name_input = QLineEdit()
+        self.playlist_name_input.setPlaceholderText("Playlist Name")
         self.left_layout.addWidget(self.playlist_name_input)
 
+        # Discord image key input
+        self.discord_large_image_key = QLabel("Set a playlist image (Discord presence):")
+        self.left_layout.addWidget(self.discord_large_image_key)
+        
+        self.discord_large_image_key_input = QLineEdit()
+        self.discord_large_image_key_input.setPlaceholderText("Use an image URL or an image key")
+        self.left_layout.addWidget(self.discord_large_image_key_input)
+        
         # Add songs manually
         self.add_songs_label = QLabel("Add songs manually:")
         self.left_layout.addWidget(self.add_songs_label)
@@ -245,6 +255,7 @@ class PlaylistMaker(QDialog):
 
     def save_playlist(self):
         playlist_name = self.playlist_name_input.text()
+        playlist_image = self.discord_large_image_key_input.text()
         if playlist_name and self.songs:
             # Add "playlist" field and "song_count" to each song entry
             for song in self.songs:
@@ -253,6 +264,7 @@ class PlaylistMaker(QDialog):
             playlist_data = {
                 "playlist_name": playlist_name,
                 "song_count": len(self.songs), 
+                "playlist_large_image_key": playlist_image,
                 "songs": self.songs
             }
             playlist_path = os.path.join(self.config.get('root_playlist_folder', "playlists"), f"{playlist_name}.json")
@@ -285,6 +297,7 @@ class PlaylistMaker(QDialog):
                     self.songs = playlist_data.get("songs", [])
                     self.update_table()
                     self.playlist_name_input.setText(playlist_data.get("playlist_name", ""))
+                    self.discord_large_image_key_input.setText(playlist_data.get("playlist_large_image_key", ""))
                 logging.info(f"Playlist loaded from {file_path}")
             except Exception as e:
                 logging.error(f"Failed to load playlist: {e}")

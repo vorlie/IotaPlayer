@@ -38,7 +38,7 @@ class DiscordIntegration(QObject):
     def is_connected(self):
         return self.RPC is not None
 
-    def update_presence(self, song_title, artist_name, song_duration, youtube_id=None, is_playing=True):
+    def update_presence(self, song_title, artist_name, song_duration, image_text, youtube_id=None, image_key=None, ):
         if not self.connect_to_discord:
             discord_logger.info("Discord integration is disabled. Skipping presence update.")
             return
@@ -54,7 +54,12 @@ class DiscordIntegration(QObject):
 
         # Always include this button
         buttons = [{"label": "Source Code", "url": "https://github.com/vorlie/vorlies-music-player"}]
-
+        # Add an image key if specified
+        if image_key is not None:
+            large_image_key = image_key
+        else: 
+            large_image_key = self.large_image_key
+            
         # Conditionally add the YouTube button
         if youtube_id:
             buttons.append({"label": "Open in YouTube", "url": f"https://www.youtube.com/watch?v={youtube_id}"})
@@ -62,8 +67,8 @@ class DiscordIntegration(QObject):
             self.RPC.update(
                 state=f"{artist_name}",
                 details=f"{song_title}",
-                large_image=self.large_image_key,
-                large_text="Music Player",
+                large_image=large_image_key,
+                large_text=image_text,
                 start=start_time,
                 end=end_time,
                 buttons=buttons if youtube_id else None 

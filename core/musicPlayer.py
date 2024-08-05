@@ -51,6 +51,7 @@ class MusicPlayer(QMainWindow):
         self.discord_integration = DiscordIntegration()
         self.settings_manager = SettingsDialog(settings, icon_path, config_path)
         self.discord_integration.connection_status_changed.connect(self.update_discord_status)
+        self.current_playlist_image = None
         self.current_song = None
         self.songs = []
         self.song_index = 0
@@ -110,7 +111,7 @@ class MusicPlayer(QMainWindow):
         # Playlist List
         self.playlist_list = QListWidget()
         playlists = self.get_playlist_names()
-        for name, _, count in playlists:
+        for name, _, count, _ in playlists:
             self.playlist_list.addItem(f"{name} ({count} Songs)")
         self.playlist_list.currentItemChanged.connect(self.load_playlist_from_list)
         self.playlist_list_layout.addWidget(self.playlist_list)
@@ -287,9 +288,10 @@ class MusicPlayer(QMainWindow):
                     with open(playlist_path, 'r') as file:
                         data = json.load(file)
                         name = data.get("playlist_name", os.path.splitext(f)[0])
+                        playlist_image = data.get("playlist_large_image_key", None)
                         song_count = data.get("song_count", 0)
                         # Store both name and file path for later use
-                        playlists.append((name, playlist_path, song_count))
+                        playlists.append((name, playlist_path, song_count, playlist_image))
                 except json.JSONDecodeError:
                     logging.error(f"Error decoding JSON in playlist file: {playlist_path}")
                 except IOError as e:
@@ -323,7 +325,7 @@ class MusicPlayer(QMainWindow):
         logging.info(f"Loading playlist: {playlist_name}")
 
         try:
-            playlist_name, self.songs = self.playlist_manager.load_playlist(playlist_name)
+            playlist_name, self.songs, playlist_image = self.playlist_manager.load_playlist(playlist_name)
         except FileNotFoundError as e:
             logging.error(f"Error loading playlist: {e}")
             return
@@ -332,6 +334,7 @@ class MusicPlayer(QMainWindow):
             return
 
         self.current_playlist = playlist_name
+        self.current_playlist_image = playlist_image
         self.playlist_name_var = playlist_name
 
         self.song_list.clear()
@@ -378,7 +381,7 @@ class MusicPlayer(QMainWindow):
         
         # Clear and update the playlist list widget
         self.playlist_list.clear()
-        for name, _, count in playlists:
+        for name, _, count, _ in playlists:
             self.playlist_list.addItem(f"{name} ({count} Songs)")
 
         logging.info("Playlists reloaded.")
@@ -497,6 +500,7 @@ class MusicPlayer(QMainWindow):
         else:
             logging.warning("No song selected for playback.")
             pass
+        
     def pause_music(self):
         logging.info("Pausing music.")
         if mixer.music.get_busy() and not self.is_paused:
@@ -579,13 +583,16 @@ class MusicPlayer(QMainWindow):
 
         # Update Discord presence
         if self.config['connect_to_discord']:  # Check if Discord connection is enabled
+            image_text = self.current_playlist
             if self.is_playing:  # Check if something is playing
                 if self.is_paused:  # Check if it is paused
                     self.discord_integration.update_presence(
                         f"Paused: {self.current_song['title']}",
                         f" By: {self.current_song['artist']}",
-                        0, 
-                        is_playing=False
+                        0,
+                        image_text,
+                        0,
+                        self.current_playlist_image if self.current_playlist else None
                     )
                 else:  # Playing and not paused
                     title = f"Listening to: {self.current_song['title']}" if self.current_song else "No song playing"
@@ -595,11 +602,12 @@ class MusicPlayer(QMainWindow):
                         title,
                         artist,
                         song_duration,
+                        image_text,
                         self.current_song.get('youtube_id') if self.current_song else None,
-                        is_playing=True
+                        self.current_playlist_image if self.current_playlist else None
                     )
             else:  # No song is playing
-                self.discord_integration.update_presence("Stopped", "No song", 0, is_playing=False)
+                self.discord_integration.update_presence("Stopped", "No song", 0, "No playlist", None, None)
 
     def update_progress(self):
         if mixer.music.get_busy():

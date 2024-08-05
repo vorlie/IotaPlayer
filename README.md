@@ -44,6 +44,7 @@ A feature-rich music player application with playlist management, playback contr
 
 - **Discord Integration:**
   - **Update Discord Status:** Display the current song info in Discord status.
+  - **Custom Presence Images:** Display custom playlist images in Discord status.
   - **Check Discord Connection:** Monitor and display connection status to Discord.
 
 - **Key Bindings:**
@@ -234,6 +235,7 @@ The `PlaylistMaker` class provides a user-friendly interface for creating and ma
 
 3. **Save Playlist**:
    - Enter a name for the playlist in the "Enter playlist name" field.
+   - Add a playlist image if you want to. It's optional after all.
    - Click the "Save Playlist" button to save the playlist as a JSON file.
 
 4. **Open Existing Playlist**:
@@ -264,6 +266,7 @@ For automatic recognition, the song files in the selected folder should follow t
 ```json
 {
     "playlist_name": "name_test",
+    "playlist_large_image_key":"https://i.pinimg.com/236x/42/43/03/424303bef006eb35803ae00505248d7a.jpg",
     "song_count": 2,
     "songs": [
         {

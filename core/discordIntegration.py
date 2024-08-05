@@ -14,7 +14,7 @@ class DiscordIntegration(QObject):
         with open('config.json', 'r') as f:
             self.config = json.load(f)
             self.client_id = self.config.get('discord_client_id', '1150680286649143356')
-            self.large_image_key = self.config.get('large_image_key', 'https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg')
+            self.large_image_key = self.config.get('large_image_key', 'default_image')
             self.connect_to_discord = self.config.get('connect_to_discord', True)
         
         self.RPC = None
@@ -53,7 +53,7 @@ class DiscordIntegration(QObject):
         end_time = int(start_time + song_duration)
 
         # Always include this button
-        buttons = [{"label": "Source Code", "url": "https://github.com/vorlie/vorlies-music-player"}]
+        buttons = [{"label": "Source Code", "url": "https://github.com/vorlie/IotaPlayer"}]
         # Add an image key if specified
         if image_key is not None:
             large_image_key = image_key

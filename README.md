@@ -1,4 +1,4 @@
-# Music Player Application
+# Iota Player
 
 [License](LICENSE) • [Contributing](CONTRIBUTING.md) • [Gallery](#gallery) •  [Installation](#installation) • [Troubleshooting](#troubleshooting) • [Configuration](#configuration) •
 [Core Features](#core-features) • [User Interface](#user-interface) • [Shortcuts](#shortcuts) • [Logging](#logging) • [Playlist Maker](#playlist-maker) •
@@ -183,12 +183,12 @@ A feature-rich music player application with playlist management, playback contr
               "5": {
                   "1":"Enter your Discord Large Image Key. You can find it in your Discord Developer Portal.",
                   "2":"You can use links as well.",
-                  "3":"The default value is 'https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg'."
+                  "3":"The default value is 'default_image'."
               }
           },
           "connect_to_discord": true,
           "discord_client_id": "1150680286649143356",
-          "large_image_key": "https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg",
+          "large_image_key": "default_image",
 
           "root_playlist_folder_comment": {
               "1": "Specify the directory where your playlists are saved. You can change this path if needed.",
@@ -207,7 +207,7 @@ A feature-rich music player application with playlist management, playback contr
     ```
 
 - **Logging Configuration:**
-    - In `musicplayer.py` there are commented logging configurations. Uncomment them to use them.
+    - In `musicPlayer.py` there are commented logging configurations. Uncomment them to use them.
         - Logs are written to `combined_app.log` for application and discord logs.
 
 ## Playlist Maker

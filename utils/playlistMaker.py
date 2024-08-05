@@ -67,7 +67,7 @@ class PlaylistMaker(QDialog):
     def __init__(self, icon_path):
         super().__init__()
         self.icon_path = icon_path
-        self.setWindowTitle("Playlist Maker")
+        self.setWindowTitle("Iota Player • Playlist Maker")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
         self.setGeometry(100, 100, 1200, 800)

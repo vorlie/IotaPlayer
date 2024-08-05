@@ -19,7 +19,7 @@ class MusicPlayer(QMainWindow):
         self.icon_path = icon_path
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle("Music Player")
+        self.setWindowTitle("Iota Player • Music Player")
         self.setGeometry(100, 100, 800, 600)
 
         try:
@@ -56,12 +56,12 @@ class MusicPlayer(QMainWindow):
         self.songs = []
         self.song_index = 0
         self.is_looping = "Off"
-        logging.info(f"Initialized MusicPlayer with is_looping = {self.is_looping}")
+        logging.info(f"Initialized Iota Player with is_looping = {self.is_looping}")
         self.is_playing = False
-        logging.info(f"Initialized MusicPlayer with is_playing = {self.is_playing}")
+        logging.info(f"Initialized Iota Player with is_playing = {self.is_playing}")
         self.is_shuffling = False
         self.shuffled_index = 0
-        logging.info(f"Initialized MusicPlayer with is_shuffling = {self.is_shuffling}; shuffled_index = {self.shuffled_index}")
+        logging.info(f"Initialized Iota Player with is_shuffling = {self.is_shuffling}; shuffled_index = {self.shuffled_index}")
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_progress)
@@ -344,7 +344,7 @@ class MusicPlayer(QMainWindow):
             if mixer.music.get_busy():
                 logging.info("Current song is playing, not updating title and song info.")
             else:
-                self.setWindowTitle(f"Music Player • {playlist_name}")
+                self.setWindowTitle(f"Iota Player • {playlist_name}")
                 self.song_index = 0
                 self.current_song = self.songs[self.song_index]
                 self.update_song_info()
@@ -579,7 +579,7 @@ class MusicPlayer(QMainWindow):
             self.song_info_var = "No song playing"
             self.song_info_label.setText(self.song_info_var)
         
-        self.setWindowTitle(f"Music Player • {self.playlist_name_var} • {self.song_info_var}")
+        self.setWindowTitle(f"Iota Player • {self.current_playlist} • {self.song_info_var}")
 
         # Update Discord presence
         if self.config['connect_to_discord']:  # Check if Discord connection is enabled
@@ -617,7 +617,7 @@ class MusicPlayer(QMainWindow):
             total_str = self.format_time(total_time)
             self.time_label.setText(f"{elapsed_str} / {total_str}")
             self.progress_bar.setValue(int((elapsed_time / total_time) * 100))
-            self.setWindowTitle(f"Music Player • {self.playlist_name_var} ({len(self.songs)} songs) • {self.song_info_var} • {elapsed_str} / {total_str}")
+            self.setWindowTitle(f"Iota Player • {self.current_playlist} ({len(self.songs)} songs) • {self.song_info_var} • {elapsed_str} / {total_str}")
 
     def check_song_end(self):
         if self.has_started and not mixer.music.get_busy() and self.current_song:

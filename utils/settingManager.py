@@ -12,7 +12,7 @@ class SettingsDialog(QDialog):
         self.settings = settings
         self.config_path = config_path
         self.icon_path = icon_path
-        self.setWindowTitle("Settings")
+        self.setWindowTitle("Iota Player • Settings")
         if os.path.exists(self.icon_path):
             self.setWindowIcon(QIcon(self.icon_path))
         self.load_settings()

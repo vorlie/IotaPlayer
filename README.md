@@ -13,10 +13,7 @@ A feature-rich music player application with playlist management, playback contr
 ## Features
 
 ### TODO:
-- **Move song slider:** So we can skip to a certain moment in the song.
-    - Currently it only shows the current song progress. Can't move to a certain moment in the song.
-- **Add favourites:** Add songs to a playlist as favourites.
-- If you wish to have some additional features, please let us know.
+[Moved here](https://github.com/users/vorlie/projects/3/views/1)
 
 ### Core Features
 

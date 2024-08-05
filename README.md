@@ -308,10 +308,14 @@ For automatic recognition, the song files in the selected folder should follow t
 <details>
   <summary>Show Gallery</summary>
 
-  ![Main Interface](images/MainWindow.png)
+  ![Main Interface](images/MusicPlayer_MainWindow.png)
 
-  ![Playlist Maker](images/PlaylistMaker.png)
+  ![Playlist Maker](images/MusicPlayer_PlaylistMaker.png)
 
+  ![Settings Main](images/MusicPlayer_Settings.png)
+
+  ![Settings Discord](images/MusicPlayer_Settings2.png)
+  
 </details>
 
 ## License

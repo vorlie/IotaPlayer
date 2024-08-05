@@ -70,16 +70,11 @@ class SettingsDialog(QDialog):
         self.use_system_accent_checkbox.setChecked(color == "automatic")
         self.use_system_accent_checkbox.stateChanged.connect(self.toggle_colorization_color)
         
-        self.auto_color_interval_edit = QLineEdit()
-        self.auto_color_interval_edit.setText(str(self.settings.get("auto_color_interval", 1000)))
-        self.auto_color_interval_edit.setPlaceholderText("Interval in milliseconds")
-        
         self.general_layout.addRow(QLabel("Root Playlist Folder:"), self.root_playlist_folder_edit)
         self.general_layout.addRow(QLabel("Default Playlist:"), self.default_playlist_edit)
         self.general_layout.addRow(self.use_system_accent_checkbox)
         self.general_layout.addRow(QLabel("Colorization Color:"), self.colorization_color_edit)
         self.general_layout.addRow(self.color_picker_button, QLabel())
-        self.general_layout.addRow(QLabel("Auto Color Change Interval:"), self.auto_color_interval_edit)
         
         # Discord settings
         self.connect_to_discord_checkbox = QCheckBox("Connect to Discord")
@@ -135,15 +130,6 @@ class SettingsDialog(QDialog):
             else:
                 QMessageBox.warning(self, "Invalid Color", "Please enter a valid hex color code.")
                 return
-        
-        try:
-            interval = int(self.auto_color_interval_edit.text())
-            if interval <= 0:
-                raise ValueError("Interval must be a positive integer.")
-            self.settings["auto_color_interval"] = interval
-        except ValueError as e:
-            QMessageBox.warning(self, "Invalid Interval", str(e))
-            return
         
         self.settings["connect_to_discord"] = self.connect_to_discord_checkbox.isChecked()
         self.settings["discord_client_id"] = self.discord_client_id_edit.text()

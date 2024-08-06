@@ -191,6 +191,7 @@ A feature-rich music player application with playlist management, playback contr
           "connect_to_discord": true,
           "discord_client_id": "1150680286649143356",
           "large_image_key": "default_image",
+          "use_playing_status": false,
 
           "root_playlist_folder_comment": {
               "1": "Specify the directory where your playlists are saved. You can change this path if needed.",

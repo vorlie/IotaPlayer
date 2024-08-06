@@ -18,6 +18,7 @@ default_settings = {
     "connect_to_discord": True,
     "discord_client_id": "1150680286649143356",
     "large_image_key": "default_image",
+    "use_playing_status": False,
 
     "root_playlist_folder_comment": {
         "1": "Specify the directory where your playlists are saved. You can change this path if needed.",

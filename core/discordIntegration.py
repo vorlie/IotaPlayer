@@ -16,6 +16,7 @@ class DiscordIntegration(QObject):
             self.client_id = self.config.get('discord_client_id', '1150680286649143356')
             self.large_image_key = self.config.get('large_image_key', 'default_image')
             self.connect_to_discord = self.config.get('connect_to_discord', True)
+            self.use_playing_status = self.config.get('use_playing_status', False)
         
         self.RPC = None
         if self.connect_to_discord:
@@ -59,13 +60,18 @@ class DiscordIntegration(QObject):
             large_image_key = image_key
         else: 
             large_image_key = self.large_image_key
-            
+        
+        if self.use_playing_status is True:
+            use_playing_status = ActivityType.PLAYING
+        else: 
+            use_playing_status = ActivityType.LISTENING
+        
         # Conditionally add the YouTube button
         if youtube_id:
             buttons.append({"label": "Open in YouTube", "url": f"https://www.youtube.com/watch?v={youtube_id}"})
         try:
             self.RPC.update(
-                activity_type = ActivityType.LISTENING,
+                activity_type = use_playing_status,
                 state=f"{artist_name}",
                 details=f"{song_title}",
                 large_image=large_image_key,

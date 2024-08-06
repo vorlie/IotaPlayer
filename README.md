@@ -1,5 +1,10 @@
 # Iota Player
 
+[![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=for-the-badge&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
+![GitHub top language](https://img.shields.io/github/languages/top/vorlie/IotaPlayer.svg?style=for-the-badge)
+[![license](https://img.shields.io/github/license/vorlie/IotaPlayer.svg?style=for-the-badge)](https://github.com/vorlie/IotaPlayer/blob/master/LICENSE) 
+![GitHub last commit](https://img.shields.io/github/last-commit/vorlie/IotaPlayer.svg?style=for-the-badge)
+
 [License](LICENSE) • [Contributing](CONTRIBUTING.md) • [Gallery](#gallery) •  [Installation](#installation) • [Troubleshooting](#troubleshooting) • [Configuration](#configuration) •
 [Core Features](#core-features) • [User Interface](#user-interface) • [Shortcuts](#shortcuts) • [Logging](#logging) • [Playlist Maker](#playlist-maker) •
 [Usage](#usage)
@@ -104,7 +109,7 @@ A feature-rich music player application with playlist management, playback contr
     ```bash
     pip install PyQt5==5.15.10
     pip install pygame==2.6.0
-    pip install pypresence==4.3.0
+    pip install git+https://github.com/qwertyquerty/pypresence.git@master
     pip install mutagen==1.47.0
     pip install pynput==1.7.7
     pip install git+https://github.com/vorlie/PyQtDarkTheme.git@main --ignore-requires-python
@@ -291,7 +296,7 @@ For automatic recognition, the song files in the selected folder should follow t
     ```
     PyQt5==5.15.10
     pygame==2.6.0
-    pypresence==4.3.0
+    git+https://github.com/qwertyquerty/pypresence.git@master
     mutagen==1.47.0
     pynput==1.7.7
     git+https://github.com/vorlie/PyQtDarkTheme.git@main 

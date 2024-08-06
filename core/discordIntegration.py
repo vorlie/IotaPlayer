@@ -1,4 +1,4 @@
-from pypresence import Presence
+from pypresence import Presence, ActivityType
 import time, logging, json
 from PyQt5.QtCore import QObject, pyqtSignal
 from core.logger import setup_logging
@@ -65,6 +65,7 @@ class DiscordIntegration(QObject):
             buttons.append({"label": "Open in YouTube", "url": f"https://www.youtube.com/watch?v={youtube_id}"})
         try:
             self.RPC.update(
+                activity_type = ActivityType.LISTENING,
                 state=f"{artist_name}",
                 details=f"{song_title}",
                 large_image=large_image_key,

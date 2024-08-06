@@ -90,13 +90,13 @@ A feature-rich music player application with playlist management, playback contr
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/vorlie/vorlies-music-player.git
+    git clone https://github.com/vorlie/IotaPlayer.git
     ```
 
 2. **Navigate to the project directory:**
 
     ```bash
-    cd vorlies-music-player
+    cd IotaPlayer
     ```
 
 3. **Install the required dependencies:**
@@ -123,17 +123,17 @@ A feature-rich music player application with playlist management, playback contr
       pip install pyinstaller==6.6.0
       ```
       ```bash
-      pyinstaller MusicPlayerWIN.spec
+      pyinstaller IotaPlayerWIN.spec
       ```
     - If you want console output:
-      - Change the `console` value to `True` in the `MusicPlayerWIN.spec` file. If you decide to leave it as `False`, then be aware of how PyInstaller works, it can trigger your anti virus.
+      - Change the `console` value to `True` in the `IotaPlayerWIN.spec` file. If you decide to leave it as `False`, then be aware of how PyInstaller works, it can trigger your anti virus.
         ```spec
           exe = EXE(
             pyz,
             a.scripts,
             [],
             exclude_binaries=True,
-            name='MusicPlayer',
+            name='IotaPlayer',
             debug=False,
             bootloader_ignore_signals=False,
             strip=False,

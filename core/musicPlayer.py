@@ -479,9 +479,10 @@ class MusicPlayer(QMainWindow):
                 # Find the full song info based on artist and title
                 for song in self.songs:
                     if song['artist'] == artist and song['title'] == title:
-                        self.current_song = song
-                        logging.info(f"Selected song: {self.current_song['artist']} - {self.current_song['title']}")
-                        self.play_music()
+                        if self.current_song != song:
+                            self.current_song = song
+                            logging.info(f"Selected song: {self.current_song['artist']} - {self.current_song['title']}")
+                            self.play_music()
                         return
                 logging.warning(f"Song not found in playlist: {artist} - {title}")
             else:
@@ -571,6 +572,20 @@ class MusicPlayer(QMainWindow):
             self.current_song = self.songs[self.song_index]
         self.play_music()
 
+    def highlight_current_song(self):
+        """Highlight the currently playing song in the song list."""
+        if self.is_shuffling:
+            current_song_title = f"{self.current_song['artist']} - {self.current_song['title']}"
+            items = [self.song_list.item(i).text() for i in range(self.song_list.count())]
+            try:
+                index = items.index(current_song_title)
+                self.song_list.setCurrentRow(index)
+            except ValueError:
+                logging.warning(f"Current song {current_song_title} not found in song list.")
+        else:
+            if self.song_index is not None:
+                self.song_list.setCurrentRow(self.song_index)
+
     def update_song_info(self):
         if self.current_song:
             self.song_info_var = f"{self.current_song['artist']} - {self.current_song['title']}"
@@ -578,6 +593,15 @@ class MusicPlayer(QMainWindow):
         else:
             self.song_info_var = "No song playing"
             self.song_info_label.setText(self.song_info_var)
+        
+        # Temporarily disconnect the signal while updating the selection
+        self.song_list.currentItemChanged.disconnect(self.play_selected_song)
+
+        # Update UI elements
+        self.highlight_current_song()
+
+        # Reconnect the signal
+        self.song_list.currentItemChanged.connect(self.play_selected_song)
         
         self.setWindowTitle(f"Iota Player • {self.current_playlist} • {self.song_info_var}")
 

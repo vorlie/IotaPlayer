@@ -607,7 +607,7 @@ class MusicPlayer(QMainWindow):
 
         # Update Discord presence
         if self.config['connect_to_discord']:  # Check if Discord connection is enabled
-            image_text = f"Playlist: {self.current_playlist} • State: "
+            image_text = f"{self.current_playlist} • "
             if self.is_playing:  # Check if something is playing
                 if self.is_paused:  # Check if it is paused
                     self.discord_integration.update_presence(

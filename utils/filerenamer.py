@@ -39,7 +39,11 @@ def clean_text(text):
         str: The cleaned and normalized text.
     """
     # Replace arrows with "-"
-    text = text.replace("⧸", "-")
+    text = text.replace("⧸", "+")
+    text = text.replace("｜", "+")
+    text = text.replace("⧹", "+")
+    text = text.replace("【Dubstep】", "")
+    text = text.replace("Melodic Dubstep", "")
     # Remove special characters, keeping only those usable on a US keyboard
     text = re.sub(r'[^A-Za-z0-9\s!@#$%^&*()_+=\-\[\]{}|\\;:\'",.<>/?`~]', '', text)
 
@@ -89,6 +93,6 @@ def clean_filenames(directory):
                 print(f'Renamed: {filename} -> {new_filename}')
 
 # Specify the directory containing your .mp3 files
-directory = 'C:\\Users\\karol\\Music\\Nightcore'
+directory = 'C:\\Users\\karol\\Music\\Dubstep2'
 
 clean_filenames(directory)

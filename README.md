@@ -103,9 +103,15 @@ A feature-rich music player application with playlist management, playback contr
     ```bash
     cd IotaPlayer
     ```
+3. **Make virtual environment:**
+
+    ```bash
+    python -m venv venv
+    ./venv/bin/activate
+    ```
 
 3. **Install the required dependencies:**
-
+  (To install using git, you must install [Git](https://git-scm.com/downloads).)
     ```bash
     pip install PyQt5==5.15.10
     pip install pygame==2.6.0

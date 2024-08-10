@@ -81,7 +81,7 @@ class MusicPlayer(QMainWindow):
         self.on_start()
         self.has_started = False
         self.is_paused = False
-
+                    
     def initUI(self):
         # Main widget and layout
         self.central_widget = QWidget()

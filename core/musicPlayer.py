@@ -1,4 +1,4 @@
-import os, webbrowser, threading, logging, json, re, time
+import os, webbrowser, threading, logging, json, re, time, darkdetect
 from PyQt5.QtWidgets import ( QMainWindow, 
     QVBoxLayout, QWidget, QPushButton, QListWidget, 
     QFileDialog, QLabel, QSlider, QHBoxLayout, QSizePolicy, 
@@ -9,19 +9,19 @@ from pygame import mixer
 from pynput import keyboard
 from mutagen.mp3 import MP3
 from core.discordIntegration import DiscordIntegration
-from utils.playlistMaker import PlaylistMaker, PlaylistManager
-from utils.settingManager import SettingsDialog
+from core.playlistMaker import PlaylistMaker, PlaylistManager
+from core.settingManager import SettingsDialog
 from core.logger import setup_logging
 
 class MusicPlayer(QMainWindow):
-    def __init__(self, settings, icon_path, config_path):
+    def __init__(self, settings, icon_path, config_path, theme):
         super().__init__()
         self.icon_path = icon_path
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Iota Player • Music Player")
-        self.setGeometry(100, 100, 800, 600)
-
+        self.setMinimumSize(800, 600)
+    
         try:
             with open('config.json', 'r') as f:
                 self.config = json.load(f)
@@ -44,6 +44,7 @@ class MusicPlayer(QMainWindow):
             logging.info(f"Created playlist folder: {playlist_folder}")
             
         self.initUI()
+        self.set_stylesheet(theme)
         self.listener = keyboard.Listener(on_press=self.on_key_press)
         self.listener_thread = threading.Thread(target=self.listener.start)
         self.listener_thread.start()
@@ -81,7 +82,22 @@ class MusicPlayer(QMainWindow):
         self.on_start()
         self.has_started = False
         self.is_paused = False
-                    
+        
+    def set_stylesheet(self, theme):
+        if theme == 'dark':
+            stylesheet = """
+                QPushButton {
+                    color: #FFFFFF;
+                }
+            """
+        else:  # Light mode
+            stylesheet = """
+                QPushButton {
+                    color: #000000;
+                }
+            """
+        self.setStyleSheet(stylesheet)
+        
     def initUI(self):
         # Main widget and layout
         self.central_widget = QWidget()
@@ -101,11 +117,16 @@ class MusicPlayer(QMainWindow):
         self.left_frame.setLayout(self.left_frame_layout)
         self.left_frame.setFixedWidth(300)
         self.top_layout.addWidget(self.left_frame, alignment=Qt.AlignTop | Qt.AlignLeft)
+        self.left_frame_scnd_layout = QHBoxLayout()
+        self.left_frame_layout.addLayout(self.left_frame_scnd_layout)
 
         # Playlist List and Controls Layout
         self.playlist_list_layout = QVBoxLayout()
         self.playlist_list_label = QLabel("Playlists:")
-        self.playlist_list_layout.addWidget(self.playlist_list_label)
+        self.playlist_maker_button = QPushButton("Manage")
+        self.playlist_maker_button.setFixedWidth(70)
+        self.left_frame_scnd_layout.addWidget(self.playlist_list_label)
+        self.left_frame_scnd_layout.addWidget(self.playlist_maker_button)
         self.left_frame_layout.addLayout(self.playlist_list_layout)
 
         # Playlist List
@@ -120,26 +141,24 @@ class MusicPlayer(QMainWindow):
         self.playlist_control_label = QLabel("Playlist Controls:")
         self.playlist_list_layout.addWidget(self.playlist_control_label)
         
-        self.four_button_layout = QHBoxLayout()
+        self.three_button_layout = QHBoxLayout()
         self.two_button_layout = QHBoxLayout()
         self.one_button_layout = QHBoxLayout()
         
-        self.playlist_list_layout.addLayout(self.four_button_layout)
+        self.playlist_list_layout.addLayout(self.three_button_layout)
         self.playlist_list_layout.addLayout(self.two_button_layout)
         self.playlist_list_layout.addLayout(self.one_button_layout)
 
         self.load_button = QPushButton("Load")
         self.reload_button = QPushButton("Reload")
         self.delete_button = QPushButton("Delete")
-        self.playlist_maker_button = QPushButton("Create/Edit")
         self.shuffle_button = QPushButton("Shuffle Off")
         self.loop_button = QPushButton("Loop Off")
         self.youtube_button = QPushButton("Open current song on Youtube")
 
-        self.four_button_layout.addWidget(self.load_button)
-        self.four_button_layout.addWidget(self.reload_button)
-        self.four_button_layout.addWidget(self.delete_button)
-        self.four_button_layout.addWidget(self.playlist_maker_button)
+        self.three_button_layout.addWidget(self.load_button)
+        self.three_button_layout.addWidget(self.reload_button)
+        self.three_button_layout.addWidget(self.delete_button)
         self.two_button_layout.addWidget(self.shuffle_button)
         self.two_button_layout.addWidget(self.loop_button)
         self.one_button_layout.addWidget(self.youtube_button)

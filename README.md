@@ -320,17 +320,17 @@ For automatic recognition, the song files in the selected folder should follow t
 <details>
   <summary>Show Gallery</summary>
 
-  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
-    <a href="images/IotaPlayer_MainWindowDark.png"><img src="images/IotaPlayer_MainWindowDark.png" alt="Main Interface Dark" style="width: 150px; height: auto;"></a>
-    <a href="images/IotaPlayer_MainWindowLight.png"><img src="images/IotaPlayer_MainWindowLight.png" alt="Main Interface Light" style="width: 150px; height: auto;"></a>
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;">
+    <a href="images/IotaPlayer_MainWindowDark.png"><img src="images/IotaPlayer_MainWindowDark.png" alt="Main Interface Dark" style="width: 300px; height: auto;"></a>
+    <a href="images/IotaPlayer_MainWindowLight.png"><img src="images/IotaPlayer_MainWindowLight.png" alt="Main Interface Light" style="width: 300px; height: auto;"></a>
   </div>
-  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
-    <a href="images/IotaPlayer_PlaylistMakerDark.png"><img src="images/IotaPlayer_PlaylistMakerDark.png" alt="Playlist Maker Dark" style="width: 150px; height: auto;"></a>
-    <a href="images/IotaPlayer_PlaylistMakerLight.png"><img src="images/IotaPlayer_PlaylistMakerLight.png" alt="Playlist Maker Light" style="width: 150px; height: auto;"></a>
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;">
+    <a href="images/IotaPlayer_PlaylistMakerDark.png"><img src="images/IotaPlayer_PlaylistMakerDark.png" alt="Playlist Maker Dark" style="width: 300px; height: auto;"></a>
+    <a href="images/IotaPlayer_PlaylistMakerLight.png"><img src="images/IotaPlayer_PlaylistMakerLight.png" alt="Playlist Maker Light" style="width: 300px; height: auto;"></a>
   </div>
-  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
-    <a href="images/IotaPlayer_SettingsDark.png"><img src="images/IotaPlayer_SettingsDark.png" alt="Settings Dark" style="width: 150px; height: auto;"></a>
-    <a href="images/IotaPlayer_SettingsLight.png"><img src="images/IotaPlayer_SettingsLight.png" alt="Settings Light" style="width: 150px; height: auto;"></a>
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;">
+    <a href="images/IotaPlayer_SettingsDark.png"><img src="images/IotaPlayer_SettingsDark.png" alt="Settings Dark" style="width: 300px; height: auto;"></a>
+    <a href="images/IotaPlayer_SettingsLight.png"><img src="images/IotaPlayer_SettingsLight.png" alt="Settings Light" style="width: 300px; height: auto;"></a>
   </div>
 </details>
 

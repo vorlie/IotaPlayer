@@ -8,6 +8,13 @@ from winreg import HKEY_CURRENT_USER, QueryValueEx, OpenKey
 
 advapi32 = ctypes.windll.advapi32
 
+colorValues = {
+    "dark": 0.9,
+    "light": 0.7,
+    "dark_alt": 0.2,
+    "light_alt": 0.1
+}
+
 def hex_to_rgba(hex_color, alpha):
     """Convert a HEX color to RGBA format with the given alpha."""
     hex_color = hex_color.lstrip('#')
@@ -44,22 +51,22 @@ def get_colorization_colors():
         green = (colorization_color >> 8) & 0xFF
         blue = colorization_color & 0xFF
 
-        accent_color_hex = '#{:02X}{:02X}{:02X}'.format(red, green, blue)
+        accent = '#{:02X}{:02X}{:02X}'.format(red, green, blue)
         
-        darkened_color_hex = darken_color(accent_color_hex, 0.9)
-        darkened_color_alt_hex = darken_color(accent_color_hex, 0.2)
-        lightened_color_hex = lighten_color(accent_color_hex, 0.7)
-        lightened_color_alt_hex = lighten_color(accent_color_hex, 0.1)
+        dark = darken_color(accent, colorValues['dark'])
+        dark_alt = darken_color(accent, colorValues['dark_alt'])
+        light = lighten_color(accent, colorValues['light'])
+        light_alt = lighten_color(accent, colorValues['light_alt'])
         
-        return accent_color_hex, darkened_color_hex, darkened_color_alt_hex, lightened_color_hex, lightened_color_alt_hex
+        return accent, dark, dark_alt, light, light_alt
     except Exception as e:
-        default_color_hex = "#ff50aa"
-        darkened_color_hex = darken_color(default_color_hex, 0.9)
-        darkened_color_alt_hex = darken_color(default_color_hex, 0.2)
-        lightened_color_hex = lighten_color(default_color_hex, 0.7)
-        lightened_color_alt_hex = lighten_color(default_color_hex, 0.1)
+        accent = "#ff50aa"
+        dark = darken_color(accent, colorValues['dark'])
+        dark_alt = darken_color(accent, colorValues['dark_alt'])
+        light = lighten_color(accent, colorValues['light'])
+        light_alt = lighten_color(accent, colorValues['light_alt'])
 
-        return default_color_hex, darkened_color_hex, darkened_color_alt_hex, lightened_color_hex, lightened_color_alt_hex
+        return accent, dark, dark_alt, light, light_alt
 
 def get_system_theme():
     """Detect current system theme (light or dark)."""
@@ -132,13 +139,13 @@ def listener(callback):
             green = (queryValue.value >> 8) & 0xFF
             blue = queryValue.value & 0xFF
 
-            accent_color_hex = '#{:02X}{:02X}{:02X}'.format(red, green, blue)
+            accent = '#{:02X}{:02X}{:02X}'.format(red, green, blue)
             
             # Apply darken and lighten functions with appropriate factors
-            darkened_color_hex = darken_color(accent_color_hex, 0.9)
-            darkened_color_alt_hex = darken_color(accent_color_hex, 0.2)
-            lightened_color_hex = lighten_color(accent_color_hex, 0.7)
-            lightened_color_alt_hex = lighten_color(accent_color_hex, 0.1)
+            dark = darken_color(accent, colorValues['dark'])
+            dark_alt = darken_color(accent, colorValues['dark_alt'])
+            light = lighten_color(accent, colorValues['light'])
+            light_alt = lighten_color(accent, colorValues['light_alt'])
 
             # Call the callback with the system theme and colors
-            callback(accent_color_hex, darkened_color_hex, darkened_color_alt_hex, lightened_color_hex, lightened_color_alt_hex)
+            callback(accent, dark, dark_alt, light, light_alt)

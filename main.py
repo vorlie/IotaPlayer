@@ -79,24 +79,26 @@ def update_theme(normal, dark, dark_alt, light, light_alt, theme):
 def main():
     qdt.enable_hi_dpi()
     app = QApplication(sys.argv)
-    player = MusicPlayer(settings=default_settings, icon_path=ICON_PATH, config_path=CONFIG_PATH, theme=darkdetect.theme().lower())
+    clr = utils.get_colorization_colors()[0]
+    player = MusicPlayer(settings=default_settings, icon_path=ICON_PATH, config_path=CONFIG_PATH, theme=darkdetect.theme().lower(), normal=clr)
     player.show()
 
     config = load_config()
     color = config.get("colorization_color", "automatic")
-
+    
     def handle_color_change(normal, dark, dark_alt, light, light_alt):
         current_theme = darkdetect.theme().lower()
         logging.info(f"Handling color change: {normal}, {dark}, {dark_alt}, {light}, {light_alt} for theme: {current_theme}")
+        normal, dark, dark_alt, light, light_alt = utils.get_colorization_colors()
         update_theme(normal, dark, dark_alt, light, light_alt, current_theme)
-        player.set_stylesheet(current_theme)
+        player.set_stylesheet(current_theme, normal)
 
     def handle_theme_change(theme):
         logging.info(f"Handling theme change to: {theme}")
         normal, dark, dark_alt, light, light_alt = utils.get_colorization_colors()
         update_theme(normal, dark, dark_alt, light, light_alt, theme)
-        player.set_stylesheet(theme)
-
+        player.set_stylesheet(theme, normal)
+        
     if platform.system() == "Windows":  # Windows only
         if color == "automatic":  # Use the system's accent color
             normal, dark, dark_alt, light, light_alt = utils.get_colorization_colors()

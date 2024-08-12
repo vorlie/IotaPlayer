@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import ( QMainWindow,
     QVBoxLayout, QWidget, QPushButton, QListWidget, 
     QFileDialog, QLabel, QSlider, QHBoxLayout, QSizePolicy, 
     QSpacerItem, QMessageBox )
+from utils import hex_to_rgba
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, Qt
 from pygame import mixer
@@ -14,7 +15,7 @@ from core.settingManager import SettingsDialog
 from core.logger import setup_logging
 
 class MusicPlayer(QMainWindow):
-    def __init__(self, settings, icon_path, config_path, theme):
+    def __init__(self, settings, icon_path, config_path, theme, normal):
         super().__init__()
         self.icon_path = icon_path
         if os.path.exists(icon_path):
@@ -44,7 +45,7 @@ class MusicPlayer(QMainWindow):
             logging.info(f"Created playlist folder: {playlist_folder}")
             
         self.initUI()
-        self.set_stylesheet(theme)
+        self.set_stylesheet(theme, normal)
         self.listener = keyboard.Listener(on_press=self.on_key_press)
         self.listener_thread = threading.Thread(target=self.listener.start)
         self.listener_thread.start()
@@ -83,18 +84,25 @@ class MusicPlayer(QMainWindow):
         self.has_started = False
         self.is_paused = False
         
-    def set_stylesheet(self, theme):
+    def set_stylesheet(self, theme, normal):
         if theme == 'dark':
-            stylesheet = """
-                QPushButton {
+            stylesheet = f"""
+                QPushButton {{
                     color: #FFFFFF;
-                }
+                }}
+                QListWidget {{
+                    background-color: {hex_to_rgba(normal, 0.1)};
+                }}
             """
         else:  # Light mode
-            stylesheet = """
-                QPushButton {
+            stylesheet = f"""
+                QPushButton {{
                     color: #000000;
-                }
+                }}
+                QListWidget {{
+                    background-color: {hex_to_rgba(normal, 0.1)};
+                }}
+                
             """
         self.setStyleSheet(stylesheet)
         

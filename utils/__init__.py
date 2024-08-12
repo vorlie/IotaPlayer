@@ -8,6 +8,14 @@ from winreg import HKEY_CURRENT_USER, QueryValueEx, OpenKey
 
 advapi32 = ctypes.windll.advapi32
 
+def hex_to_rgba(hex_color, alpha):
+    """Convert a HEX color to RGBA format with the given alpha."""
+    hex_color = hex_color.lstrip('#')
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    return f"rgba({r}, {g}, {b}, {alpha})"
+
 def darken_color(hex_color, factor):
     """Generate a darker variation of the given HEX color."""
     rgb = to_rgb(hex_color)

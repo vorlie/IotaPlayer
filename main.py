@@ -1,5 +1,6 @@
 import qdarktheme as qdt, sys, json, platform, logging
 import utils, darkdetect
+from time import sleep
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
 from core.musicPlayer import MusicPlayer
@@ -41,6 +42,7 @@ class ThemeChangeListener(QThread):
             if new_theme != self.current_theme:
                 self.current_theme = new_theme
                 self.on_theme_change(new_theme)
+            sleep(5)
 
     def on_theme_change(self, theme):
         logging.info(f"Detected theme change: {theme}")

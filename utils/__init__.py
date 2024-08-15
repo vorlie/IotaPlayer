@@ -4,6 +4,7 @@ import numpy as np
 import ctypes
 import ctypes.wintypes
 import darkdetect
+from time import sleep
 from winreg import HKEY_CURRENT_USER, QueryValueEx, OpenKey
 
 advapi32 = ctypes.windll.advapi32
@@ -149,3 +150,4 @@ def listener(callback):
 
             # Call the callback with the system theme and colors
             callback(accent, dark, dark_alt, light, light_alt)
+        sleep(5)

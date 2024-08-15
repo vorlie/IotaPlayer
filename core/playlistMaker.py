@@ -1,5 +1,5 @@
 import re, logging, json, os, random
-from PyQt5.QtWidgets import QDialog, QFileDialog, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QLabel, QTableWidget, QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QDialog, QFileDialog, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QLabel, QTableWidget, QTableWidgetItem, QMessageBox, QListWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
@@ -220,10 +220,8 @@ class PlaylistMaker(QDialog):
                 self.songs.append(song_data)
                 self.add_song_to_table(song_data)
             else:
-                # Optionally log or handle files that don’t match the pattern
                 logging.warning(f"File '{filename}' does not match the expected pattern.")
 
-        # Optionally log the total number of songs processed
         logging.info(f"Processed {len(self.songs)} songs.")
 
     def add_song_to_table(self, song_data):
@@ -234,16 +232,26 @@ class PlaylistMaker(QDialog):
         self.song_table.setItem(row_position, 2, QTableWidgetItem(song_data['youtube_id']))
         self.song_table.setItem(row_position, 3, QTableWidgetItem(song_data['path']))
 
+    def update_song_data(self, item):
+        row = item.row()
+        col = item.column()
+        new_value = item.text()
+
+        if row < len(self.songs):
+            key = ['artist', 'title', 'youtube_id', 'path'][col]
+            self.songs[row][key] = new_value
+
     def add_song(self):
         artist = self.artist_input.text()
         title = self.title_input.text()
         youtube_id = self.youtube_id_input.text()
         path = self.path_input.text()
+
         if artist and title and path:
             song_data = {
                 'artist': artist,
                 'title': title,
-                'youtube_id': youtube_id if youtube_id else '',
+                'youtube_id': youtube_id,
                 'path': path.replace('/', '\\')
             }
             self.songs.append(song_data)
@@ -252,83 +260,94 @@ class PlaylistMaker(QDialog):
             self.title_input.clear()
             self.youtube_id_input.clear()
             self.path_input.clear()
+        else:
+            QMessageBox.warning(self, "Incomplete Data", "Please fill in all fields (Artist, Title, Path) before adding a song.")
 
     def save_playlist(self):
         playlist_name = self.playlist_name_input.text()
-        playlist_image = self.discord_large_image_key_input.text()
-        if playlist_name and self.songs:
-            # Add "playlist" field and "song_count" to each song entry
-            for song in self.songs:
-                song['playlist'] = playlist_name
-            
-            playlist_data = {
-                "playlist_name": playlist_name,
-                "song_count": len(self.songs), 
-                "playlist_large_image_key": playlist_image,
-                "songs": self.songs
-            }
-            playlist_path = os.path.join(self.config.get('root_playlist_folder', "playlists"), f"{playlist_name}.json")
-            with open(playlist_path, 'w') as f:
-                json.dump(playlist_data, f, indent=4)
-            QMessageBox.information(self, "Playlist Saved", f"Playlist '{playlist_name}' saved to {playlist_path}.")
-            logging.info(f"Playlist saved to {playlist_path}")
+        discord_image_key = self.discord_large_image_key_input.text()
 
+        if not playlist_name:
+            QMessageBox.warning(self, "Missing Playlist Name", "Please provide a name for the playlist.")
+            return
+
+        if not self.songs:
+            QMessageBox.warning(self, "Empty Playlist", "Please add some songs to the playlist before saving.")
+            return
+
+        playlist_data = {
+            'playlist_name': playlist_name,
+            "song_count": len(self.songs), 
+            'playlist_large_image_key': discord_image_key,
+            'songs': self.songs
+        }
+
+        playlist_folder = self.config.get('root_playlist_folder', 'playlists')
+        playlist_path = os.path.join(playlist_folder, f"{playlist_name}.json")
+
+        with open(playlist_path, 'w') as playlist_file:
+            json.dump(playlist_data, playlist_file, indent=4)
+
+        QMessageBox.information(self, "Playlist Saved", f"Playlist '{playlist_name}' has been saved successfully.")
+    
     def open_playlist(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.ReadOnly
-        
-        # Define the directory where playlists are stored
-        playlist_directory = self.config.get('root_playlist_folder', "playlists")
+        """Open a playlist from the available list in the playlists folder."""
+        playlists_dir = self.config.get('root_playlist_folder', 'playlists')
 
-        # Open a file dialog to select a playlist
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, 
-            "Open Playlist", 
-            playlist_directory, 
-            "JSON Files (*.json);;All Files (*)", 
-            options=options
-        )
-        
-        # If a file was selected
-        if file_path:
-            try:
-                with open(file_path, 'r') as f:
-                    playlist_data = json.load(f)
-                    self.songs = playlist_data.get("songs", [])
-                    self.update_table()
-                    self.playlist_name_input.setText(playlist_data.get("playlist_name", ""))
-                    self.discord_large_image_key_input.setText(playlist_data.get("playlist_large_image_key", ""))
-                logging.info(f"Playlist loaded from {file_path}")
-            except Exception as e:
-                logging.error(f"Failed to load playlist: {e}")
-                self.playlist_name_input.clear()
+        # Get a list of all available playlists
+        available_playlists = [f for f in os.listdir(playlists_dir) if f.endswith(".json")]
 
-    def update_table(self):
+        if not available_playlists:
+            QMessageBox.information(self, "No Playlists", "No playlists found in the directory.")
+            return
+
+        # Create a dialog to list the available playlists
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Select a Playlist")
+        dialog.setGeometry(300, 300, 400, 300)
+
+        layout = QVBoxLayout(dialog)
+
+        list_widget = QListWidget(dialog)
+        list_widget.addItems([os.path.splitext(p)[0] for p in available_playlists])
+        layout.addWidget(list_widget)
+
+        button_box = QHBoxLayout()
+        layout.addLayout(button_box)
+
+        select_button = QPushButton("Select", dialog)
+        cancel_button = QPushButton("Cancel", dialog)
+        button_box.addWidget(select_button)
+        button_box.addWidget(cancel_button)
+
+        def on_select():
+            selected_playlist = list_widget.currentItem().text()
+            dialog.accept()  # Close the dialog and proceed
+            self.load_playlist(selected_playlist)  # Load the selected playlist
+
+        def on_cancel():
+            dialog.reject()  # Just close the dialog
+
+        select_button.clicked.connect(on_select)
+        cancel_button.clicked.connect(on_cancel)
+
+        dialog.exec_()
+
+    def load_playlist(self, playlist_name):
+        """Load a playlist into the UI."""
+        playlist_manager = PlaylistManager()
+        try:
+            playlist_name, songs, playlist_image = playlist_manager.load_playlist(playlist_name)
+        except (FileNotFoundError, ValueError, IOError) as e:
+            QMessageBox.critical(self, "Error Loading Playlist", str(e))
+            return
+
+        self.playlist_name_input.setText(playlist_name)
+        self.discord_large_image_key_input.setText(playlist_image if playlist_image else "")
+
+        self.songs = songs
         self.song_table.setRowCount(0)
-        for song in self.songs:
+        for song in songs:
             self.add_song_to_table(song)
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Delete:
-            selected_indexes = self.song_table.selectionModel().selectedRows()
-            # Sort in reverse order to avoid issues with shifting rows
-            for index in sorted(selected_indexes, reverse=True):
-                row = index.row()
-                self.song_table.removeRow(row)
-                # Ensure that you delete the item from the self.songs list as well
-                if row < len(self.songs):
-                    del self.songs[row]
-
-    def update_song_data(self, item):
-        row = item.row()
-        column = item.column()
-        value = item.text()
-
-        if column == 0:
-            self.songs[row]['artist'] = value
-        elif column == 1:
-            self.songs[row]['title'] = value
-        elif column == 2:
-            self.songs[row]['youtube_id'] = value
-        elif column == 3:
-            self.songs[row]['path'] = os.path.normpath(value)
+        QMessageBox.information(self, "Playlist Loaded", f"Playlist '{playlist_name}' loaded successfully.")

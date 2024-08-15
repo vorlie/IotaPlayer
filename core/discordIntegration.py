@@ -76,7 +76,7 @@ class DiscordIntegration(QObject):
                     large_text=large_image_text,
                     small_image=small_image_key,
                     small_text=small_image_text,
-                    buttons=buttons if youtube_id else None 
+                    buttons=buttons
                 )
                 discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}")
             else:
@@ -92,7 +92,7 @@ class DiscordIntegration(QObject):
                     small_text=small_image_text,
                     start=start_time,
                     end=end_time,
-                    buttons=buttons if youtube_id else None 
+                    buttons=buttons
                 )
                 discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}; Start time: {start_time}; End time: {end_time}")
         except Exception as e:

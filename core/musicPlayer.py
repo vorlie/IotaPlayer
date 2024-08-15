@@ -207,27 +207,21 @@ class MusicPlayer(QMainWindow):
 
         # Create buttons
         self.prev_button = QPushButton("Previous")
-        self.pause_button = QPushButton("Pause")
-        self.play_button = QPushButton("Play")
-        self.stop_button = QPushButton("Stop")
-        self.resume_button = QPushButton("Resume")
+        self.toggle_pause_button = QPushButton("Pause")  # Toggle Pause/Resume
+        self.toggle_play_button = QPushButton("Play")    # Toggle Play/Stop
         self.next_button = QPushButton("Next")
 
         # Set fixed width for buttons
         button_width = 70
         self.prev_button.setFixedWidth(button_width)
-        self.pause_button.setFixedWidth(button_width)
-        self.play_button.setFixedWidth(button_width)
-        self.stop_button.setFixedWidth(button_width)
-        self.resume_button.setFixedWidth(button_width)
+        self.toggle_pause_button.setFixedWidth(button_width)
+        self.toggle_play_button.setFixedWidth(button_width)
         self.next_button.setFixedWidth(button_width)
 
         # Add buttons to layout
         self.music_control_layout.addWidget(self.prev_button)
-        self.music_control_layout.addWidget(self.pause_button)
-        self.music_control_layout.addWidget(self.play_button)
-        self.music_control_layout.addWidget(self.stop_button)
-        self.music_control_layout.addWidget(self.resume_button)
+        self.music_control_layout.addWidget(self.toggle_pause_button)
+        self.music_control_layout.addWidget(self.toggle_play_button)
         self.music_control_layout.addWidget(self.next_button)
 
         # Add a right spacer
@@ -272,10 +266,8 @@ class MusicPlayer(QMainWindow):
         self.bottom_layout.addWidget(self.discord_status_label)
 
         # Connect buttons
-        self.play_button.clicked.connect(self.play_music)
-        self.pause_button.clicked.connect(self.pause_music)
-        self.resume_button.clicked.connect(self.resume_music)
-        self.stop_button.clicked.connect(self.stop_music)
+        self.toggle_play_button.clicked.connect(self.toggle_play)
+        self.toggle_pause_button.clicked.connect(self.toggle_pause)
         self.next_button.clicked.connect(self.next_song)
         self.prev_button.clicked.connect(self.prev_song)
         self.load_button.clicked.connect(self.load_playlist_dialog)
@@ -488,13 +480,16 @@ class MusicPlayer(QMainWindow):
 
     def send_playpause_key(self):
         logging.info("Sending play/pause key")
+        
         if self.is_paused:
-            self.resume_music()
+            logging.info("Music is paused, attempting to resume...")
+            self.resume_music()  # Should resume music
+        elif mixer.music.get_busy():
+            logging.info("Music is playing, attempting to pause...")
+            self.pause_music()  # Should pause music
         else:
-            if mixer.music.get_busy():
-                self.pause_music()
-            else:
-                self.play_music()
+            logging.info("No music is playing, attempting to start...")
+            self.toggle_play()  # Start playing music
 
     def play_selected_song(self, item):
         """Play the song selected from the song list."""
@@ -523,46 +518,73 @@ class MusicPlayer(QMainWindow):
             self.has_started = True
             self.is_playing = True
             self.is_paused = False
-            self.update_song_info()  # Call update_song_info to handle Discord presence
+            self.update_song_info()  # Handle Discord presence
+
+            # Toggle Play button to Stop
+            self.toggle_play_button.setText("Stop")
+            
             logging.info(f"Music started: {self.current_song['title']}")
         else:
-            logging.warning("No song selected for playback.")
+            #logging.warning("No song selected for playback.")
             pass
-        
-    def pause_music(self):
-        logging.info("Pausing music.")
-        if mixer.music.get_busy() and not self.is_paused:
-            mixer.music.pause()
-            self.is_paused = True
-            self.update_song_info()  # Call update_song_info to handle Discord presence
-            logging.info("Music paused.")
-        else:
-            logging.warning("Music is either not playing or already paused.")
-            pass
-        
-    def resume_music(self):
-        logging.info("Resuming music.")
-        if not mixer.music.get_busy() and self.is_paused:
-            mixer.music.unpause()
-            self.is_paused = False
-            self.update_song_info()  # Call update_song_info to handle Discord presence
-            logging.info(f"Music resumed: {self.current_song['title']}")
-        else:
-            logging.warning("Music is already playing or not paused.")
-            pass
-        
+
     def stop_music(self):
-        #logging.info("Stopping music.")
         if mixer.music.get_busy():
             mixer.music.stop()
             self.is_playing = False
             self.is_paused = False
             self.has_started = False
-            self.update_song_info()  # Call update_song_info to handle Discord presence
+            self.update_song_info()  # Handle Discord presence
+
+            # Toggle Stop button to Play
+            self.toggle_play_button.setText("Play")
+            
             logging.info("Music stopped.")
         else:
             #logging.warning("Music is not currently playing.")
             pass
+
+    def toggle_play(self):
+        if self.is_playing:
+            self.stop_music()
+        else:
+            self.play_music()
+
+    def pause_music(self):
+        logging.info("Pausing music.")
+        if mixer.music.get_busy() and not self.is_paused:
+            mixer.music.pause()
+            self.is_paused = True
+            self.update_song_info()  # Handle Discord presence
+
+            # Toggle Pause button to Resume
+            self.toggle_pause_button.setText("Resume")
+            
+            logging.info("Music paused.")
+        else:
+            #logging.warning("Music is either not playing or already paused.")
+            pass
+
+    def resume_music(self):
+        logging.info("Resuming music.")
+        if self.is_paused:
+            mixer.music.unpause()
+            self.is_paused = False
+            self.update_song_info()  # Handle Discord presence
+
+            # Toggle Resume button to Pause
+            self.toggle_pause_button.setText("Pause")
+            
+            logging.info(f"Music resumed: {self.current_song['title']}")
+        else:
+            #logging.warning("Music is already playing or not paused.")
+            pass
+
+    def toggle_pause(self):
+        if self.is_paused:
+            self.resume_music()
+        else:
+            self.pause_music()
         
     def next_song(self):
         #logging.info("Skipping to next song.")
@@ -618,7 +640,7 @@ class MusicPlayer(QMainWindow):
             self.song_info_var = f"{self.current_song['artist']} - {self.current_song['title']}"
             self.song_info_label.setText(self.song_info_var)
         else:
-            self.song_info_var = "No song playing"
+            self.song_info_var = "Nothing is playing"
             self.song_info_label.setText(self.song_info_var)
         
         # Temporarily disconnect the signal while updating the selection
@@ -631,34 +653,58 @@ class MusicPlayer(QMainWindow):
         self.song_list.currentItemChanged.connect(self.play_selected_song)
         
         self.setWindowTitle(f"Iota Player • {self.current_playlist} • {self.song_info_var}")
-
+        
+        # Determine loop status for Discord presence
+        small_image_key = "play"  # Default to play icon
+        small_image_text = "Playing"  # Default to playing text
+        
+        if self.is_looping == "Song":
+            small_image_key = "repeat-one"  # Small image key for song repeat
+            small_image_text = "Looping Song"  # Text for song repeat
+        elif self.is_looping == "Playlist":
+            small_image_key = "repeat"  # Small image key for playlist repeat
+            small_image_text = "Looping Playlist"  # Text for playlist repeat
+            
         # Update Discord presence
         if self.config['connect_to_discord']:  # Check if Discord connection is enabled
-            image_text = f"{self.current_playlist} • "
+            image_text = f"{self.current_playlist}"
             if self.is_playing:  # Check if something is playing
                 if self.is_paused:  # Check if it is paused
                     self.discord_integration.update_presence(
-                        f"{self.current_song['title']}",
-                        f"{self.current_song['artist']}",
-                        0,
-                        image_text + "Paused",
-                        0,
-                        self.current_playlist_image if self.current_playlist else None
+                        f"{self.current_song['title']}", # Title
+                        f"{self.current_song['artist']}", # Artist
+                        image_text, # Large image text
+                        "pause", # Small image key
+                        "Paused", # Small image text
+                        0, # Youtube ID for button
+                        self.current_playlist_image if self.current_playlist else None, # Playlist image
+                        None, # Duration
                     )
                 else:  # Playing and not paused
                     title = f"{self.current_song['title']}" if self.current_song else "No song playing"
                     artist = f"{self.current_song['artist']}" if self.current_song else "No artist"
                     song_duration = self.get_song_length(self.current_song['path']) if self.current_song else 0
                     self.discord_integration.update_presence(
-                        title,
-                        artist,
-                        song_duration,
-                        image_text + "Playing",
-                        self.current_song.get('youtube_id') if self.current_song else None,
-                        self.current_playlist_image if self.current_playlist else None
+                        title, # Title
+                        artist, # Artist
+                        image_text, # Large image text
+                        small_image_key, # Small image key
+                        small_image_text,  # Small image text
+                        self.current_song.get('youtube_id') if self.current_song else None, # Youtube ID for button
+                        self.current_playlist_image if self.current_playlist else None, # Playlist image
+                        song_duration, # Duration
                     )
             else:  # No song is playing
-                self.discord_integration.update_presence("Stopped", "No song", 0, "No playlist", None, None)
+                self.discord_integration.update_presence(
+                    "Nothing is playing", # Title
+                    "Literally nothing.", # Artist
+                    "No playlist", # Large image text
+                    "stop", # Small image key
+                    "Stopped", # Small image text
+                    None,  # Youtube ID for button
+                    None, # Playlist image
+                    None # Duration
+                )
 
     def update_progress(self):
         if mixer.music.get_busy():

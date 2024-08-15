@@ -39,7 +39,7 @@ class DiscordIntegration(QObject):
     def is_connected(self):
         return self.RPC is not None
 
-    def update_presence(self, song_title, artist_name, song_duration, image_text, youtube_id=None, image_key=None, ):
+    def update_presence(self, song_title, artist_name, large_image_text, small_image_key: str, small_image_text: str, youtube_id=None, image_key=None, song_duration=None):
         if not self.connect_to_discord:
             discord_logger.info("Discord integration is disabled. Skipping presence update.")
             return
@@ -49,9 +49,6 @@ class DiscordIntegration(QObject):
             if not self.is_connected():
                 discord_logger.error("Unable to reconnect to Discord RPC.")
                 return
-
-        start_time = int(time.time())
-        end_time = int(start_time + song_duration)
 
         # Always include this button
         buttons = [{"label": "Source Code", "url": "https://github.com/vorlie/IotaPlayer"}]
@@ -70,17 +67,34 @@ class DiscordIntegration(QObject):
         if youtube_id:
             buttons.append({"label": "Open in YouTube", "url": f"https://www.youtube.com/watch?v={youtube_id}"})
         try:
-            self.RPC.update(
-                activity_type = use_playing_status,
-                state=f"{artist_name}",
-                details=f"{song_title}",
-                large_image=large_image_key,
-                large_text=image_text,
-                start=start_time,
-                end=end_time,
-                buttons=buttons if youtube_id else None 
-            )
-            discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}; Start time: {start_time}; End time: {end_time}")
+            if song_duration is None:
+                self.RPC.update(
+                    activity_type = use_playing_status,
+                    state=f"{artist_name}",
+                    details=f"{song_title}",
+                    large_image=large_image_key,
+                    large_text=large_image_text,
+                    small_image=small_image_key,
+                    small_text=small_image_text,
+                    buttons=buttons if youtube_id else None 
+                )
+                discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}")
+            else:
+                start_time = int(time.time())
+                end_time = int(start_time + song_duration)
+                self.RPC.update(
+                    activity_type = use_playing_status,
+                    state=f"{artist_name}",
+                    details=f"{song_title}",
+                    large_image=large_image_key,
+                    large_text=large_image_text,
+                    small_image=small_image_key,
+                    small_text=small_image_text,
+                    start=start_time,
+                    end=end_time,
+                    buttons=buttons if youtube_id else None 
+                )
+                discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}; Start time: {start_time}; End time: {end_time}")
         except Exception as e:
             if "rate limit" in str(e).lower():
                 discord_logger.warning(f"Rate limit hit: {e}. Waiting before retrying...")

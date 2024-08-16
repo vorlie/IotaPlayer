@@ -195,6 +195,18 @@ class PlaylistMaker(QDialog):
         self.song_table.itemChanged.connect(self.update_song_data)
         self.songs = []
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Delete:
+            selected_indexes = self.song_table.selectionModel().selectedRows()
+            if selected_indexes:  # Ensure there is at least one selected row
+                # Sort in reverse order to avoid issues with shifting rows
+                for index in sorted(selected_indexes, reverse=True):
+                    row = index.row()
+                    self.song_table.removeRow(row)
+                    # Ensure that you delete the item from the self.songs list as well
+                    if row < len(self.songs):
+                        del self.songs[row]
+
     def select_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder")
         if folder:

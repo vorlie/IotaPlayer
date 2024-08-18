@@ -2,7 +2,8 @@ import qdarktheme as qdt, sys, json, platform, logging
 import utils, darkdetect
 from time import sleep
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtNetwork import QLocalServer, QLocalSocket
 from core.musicPlayer import MusicPlayer
 from core.logger import setup_logging
 from config import ICON_PATH, default_settings
@@ -26,8 +27,7 @@ class ColorChangeListener(QThread):
     def on_color_change(self, normal, dark, dark_alt, light, light_alt):
         logging.info(f"Detected color change: {normal}, {dark}, {dark_alt}, {light}, {light_alt}")
         self.color_changed.emit(normal, dark, dark_alt, light, light_alt)
-    
-            
+             
 class ThemeChangeListener(QThread):
     theme_changed = pyqtSignal(str)  # Emit theme only
     
@@ -47,6 +47,55 @@ class ThemeChangeListener(QThread):
     def on_theme_change(self, theme):
         logging.info(f"Detected theme change: {theme}")
         self.theme_changed.emit(theme)
+
+class MyApp(QObject):
+    def __init__(self):
+        super().__init__()
+        self.server = None
+
+    def setup_server(self):
+        self.server = QLocalServer(self)
+        if self.server.listen("IotaPlayerInstance"):
+            logging.info("Server started, listening for incoming connections.")
+        else:
+            logging.error(f"Server failed to start: {self.server.errorString()}")
+        self.server.newConnection.connect(self.handle_new_connection)
+
+    @pyqtSlot()  # Explicitly mark as a slot
+    def handle_new_connection(self):
+        socket = self.server.nextPendingConnection()
+        if socket:
+            socket.waitForReadyRead(1000)
+            message = socket.readAll().data().decode()
+            if message == "focus":
+                self.bring_to_foreground()
+
+    def bring_to_foreground(self):
+        logging.info(f"Attempting to bring window to foreground on {platform.system()}.")
+        if platform.system() == "Windows":
+            import ctypes
+            from ctypes.wintypes import HWND
+            
+            hwnd = int(player.winId())
+            logging.info(f"Windows HWND: {hwnd}")
+            SW_RESTORE = 9
+            ctypes.windll.user32.ShowWindow(HWND(hwnd), SW_RESTORE)
+            ctypes.windll.user32.SetForegroundWindow(HWND(hwnd))
+            ctypes.windll.user32.SetFocus(HWND(hwnd))
+            
+        elif platform.system() == "Darwin":  # macOS
+            try:
+                from AppKit import NSApplication, NSApp
+                NSApp.activateIgnoringOtherApps_(True)
+                player.raise_()
+                player.activateWindow()
+            except ImportError:
+                logging.error("AppKit import failed.")
+                
+        else:  # Linux and other platforms
+            player.show()
+            player.raise_()
+            player.activateWindow()
 
 def load_config():
     try:
@@ -78,10 +127,32 @@ def update_theme(normal, dark, dark_alt, light, light_alt, theme):
                 "border":"#3f4042",
                 "foreground": "#000000"})
 
+def is_instance_running(server_name="IotaPlayerInstance"):
+    socket = QLocalSocket()
+    socket.connectToServer(server_name)
+    is_running = socket.waitForConnected(1000)
+    if is_running:
+        logging.info("Sending focus message to the running instance")
+        socket.write(b"focus")  # Send a message to the running instance
+        socket.flush()
+        socket.waitForBytesWritten(1000)
+        socket.disconnectFromServer()
+    return is_running
+        
 def main():
     qdt.enable_hi_dpi()
     app = QApplication(sys.argv)
+    
+    if is_instance_running():
+        logging.info("Another instance of the application is already running.")
+        sys.exit(0)  # Exit the current instance
+        
+    my_app = MyApp()
+
+    my_app.setup_server()
+
     clr = utils.get_colorization_colors()[0]
+    global player
     player = MusicPlayer(settings=default_settings, icon_path=ICON_PATH, config_path=CONFIG_PATH, theme=darkdetect.theme().lower(), normal=clr)
     player.show()
 

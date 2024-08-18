@@ -13,7 +13,7 @@ A feature-rich music player application with playlist management, playback contr
 
 ## Very Special Thanks!
  - [DarkDetect](https://github.com/albertosottile/darkdetect) for the source code for windows dark mode detection.
-    - Where used? [Here](utils/_detect_windows_theme.py) It was used as a base for getting ColorizationColor from the registry.
+    - Where used? [Here](utils/__init__.py) It was used as a base for getting ColorizationColor from the registry.
 
 ## Features
 

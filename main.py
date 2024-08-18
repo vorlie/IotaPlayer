@@ -48,7 +48,7 @@ class ThemeChangeListener(QThread):
         logging.info(f"Detected theme change: {theme}")
         self.theme_changed.emit(theme)
 
-class MyApp(QObject):
+class Iota(QObject):
     def __init__(self):
         super().__init__()
         self.server = None
@@ -147,9 +147,9 @@ def main():
         logging.info("Another instance of the application is already running.")
         sys.exit(0)  # Exit the current instance
         
-    my_app = MyApp()
+    IotaSrv = Iota()
 
-    my_app.setup_server()
+    IotaSrv.setup_server()
 
     clr = utils.get_colorization_colors()[0]
     global player

@@ -145,7 +145,7 @@ class SettingsDialog(QDialog):
         self.settings["use_playing_status"] = self.use_playing_status_edit.isChecked()
         
         # Save settings to file
-        with open(self.config_path, 'w') as f:
+        with open(self.config_path, 'w', encoding='utf-8') as f:
             json.dump(self.settings, f, indent=4)
         
         reply = QMessageBox.question(

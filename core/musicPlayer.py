@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import ( QMainWindow,
     QFileDialog, QLabel, QSlider, QHBoxLayout, QSizePolicy, 
     QSpacerItem, QMessageBox )
 from utils import hex_to_rgba
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap, QPainter, QPainterPath
 from PyQt5.QtCore import QTimer, Qt
 from pygame import mixer
 from pynput import keyboard
@@ -18,19 +18,21 @@ class MusicPlayer(QMainWindow):
     def __init__(self, settings, icon_path, config_path, theme, normal):
         super().__init__()
         self.icon_path = icon_path
+        self.clr_theme = theme
+        self.clr_nrm = normal
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Iota Player • Music Player")
-        self.setMinimumSize(800, 600)
+        self.setMinimumSize(1000, 600)
     
         try:
-            with open('config.json', 'r') as f:
+            with open('config.json', 'r', encoding='utf-8') as f:
                 self.config = json.load(f)
         except FileNotFoundError:
             self.config = settings
             print(settings)
             try:
-                with open('config.json', 'w') as f:
+                with open('config.json', 'w', encoding='utf-8') as f:
                     json.dump(self.config, f, indent=4)
             except IOError as e:
                 print(f"Error writing to config file: {e}")
@@ -110,10 +112,10 @@ class MusicPlayer(QMainWindow):
         # Main widget and layout
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
-        self.main_layout = QVBoxLayout()  # Changed to vertical layout
+        self.main_layout = QVBoxLayout()
         self.central_widget.setLayout(self.main_layout)
 
-        # Top Layout: Left Frame (Playlist) and Right Frame (Song List)
+        # Top Layout: Left Frame (Playlist), Middle Frame (Song List), and Right Frame (Song Info)
         self.top_layout = QHBoxLayout()
         self.main_layout.addLayout(self.top_layout)
 
@@ -171,26 +173,104 @@ class MusicPlayer(QMainWindow):
         self.two_button_layout.addWidget(self.loop_button)
         self.one_button_layout.addWidget(self.youtube_button)
 
-        # Right Frame Layout (Song List)
-        self.right_frame = QWidget()
-        self.right_frame_layout = QVBoxLayout()
-        self.right_frame_layout.setContentsMargins(0, 0, 0, 0)
-        self.right_frame_layout.setSpacing(10)
-        self.right_frame.setLayout(self.right_frame_layout)
-        self.top_layout.addWidget(self.right_frame)
-        self.right_frame_scnd_layout = QHBoxLayout()
-        self.right_frame_layout.addLayout(self.right_frame_scnd_layout)
+        # left frame sliders
+        self.sliders_layout = QVBoxLayout()
+        self.left_frame_layout.addLayout(self.sliders_layout)
         
+        self.time_label = QLabel("00:00 / 00:00")
+        self.sliders_layout.addWidget(self.time_label)
+
+        self.progress_bar = QSlider(Qt.Horizontal)
+        self.progress_bar.setRange(0, 100)
+        self.sliders_layout.addWidget(self.progress_bar)
+
+        self.volume_label = QLabel("Volume:")
+        self.sliders_layout.addWidget(self.volume_label)
+
+        self.volume_slider = QSlider(Qt.Horizontal)
+        self.volume_slider.setMinimum(0)
+        self.volume_slider.setMaximum(100)
+        self.volume_slider.setValue(100)  # Start with full volume
+        self.volume_slider.setTickPosition(QSlider.TicksBelow)
+        self.volume_slider.setTickInterval(10)
+        self.volume_slider.setSingleStep(1)
+        self.volume_slider.valueChanged.connect(self.adjust_volume)
+        self.sliders_layout.addWidget(self.volume_slider)
+
+        # Middle Frame Layout (Song List)
+        self.middle_frame = QWidget()
+        self.middle_frame_layout = QVBoxLayout()
+        self.middle_frame_layout.setContentsMargins(0, 0, 0, 0)
+        self.middle_frame_layout.setSpacing(10)
+        self.middle_frame.setLayout(self.middle_frame_layout)
+        self.top_layout.addWidget(self.middle_frame)
+
+        self.middle_frame_scnd_layout = QHBoxLayout()
+        self.middle_frame_layout.addLayout(self.middle_frame_scnd_layout)
+
         # Song List, Settings
         self.song_list_label = QLabel("Song List:")
         self.settings_button = QPushButton("Settings")
         self.settings_button.setFixedWidth(70)
-        self.right_frame_scnd_layout.addWidget(self.song_list_label)
-        self.right_frame_scnd_layout.addWidget(self.settings_button)
+        self.middle_frame_scnd_layout.addWidget(self.song_list_label)
+        self.middle_frame_scnd_layout.addWidget(self.settings_button)
         self.song_list = QListWidget()
         self.song_list.currentItemChanged.connect(self.play_selected_song)
-        self.right_frame_layout.addWidget(self.song_list)
-        
+        self.middle_frame_layout.addWidget(self.song_list)
+
+        # Right Frame Layout (Song Info)
+        self.right_frame = QWidget()
+        self.right_frame_layout = QVBoxLayout()
+        self.right_frame_layout.setContentsMargins(0,0,0,0)
+        self.right_frame_layout.setSpacing(10)
+        self.right_frame.setLayout(self.right_frame_layout)
+        self.right_frame.setFixedWidth(270)
+
+        # Apply the background color and border
+        if self.clr_theme == "dark":
+            self.right_frame.setStyleSheet(f"background-color: {hex_to_rgba(self.clr_nrm, 0.1)}; border: 1px solid #3f4042; border-radius: 5px;")
+        else:
+            self.right_frame.setStyleSheet(f"background-color: {hex_to_rgba(self.clr_nrm, 0.1)}; border: 1px solid #dadce0; border-radius: 5px;")
+            
+        self.top_layout.addWidget(self.right_frame, alignment=Qt.AlignTop | Qt.AlignRight)
+
+        # Song Info (Song picture, title, author, etc.)
+        self.song_picture = QLabel()
+        self.song_picture.setContentsMargins(0, 9, 0, 0)
+        self.song_picture.setPixmap(QPixmap("").scaled(250, 250, Qt.KeepAspectRatio))
+        self.song_picture.setStyleSheet("border: none; background-color: none;") 
+
+        self.right_frame_layout.addWidget(self.song_picture, alignment=Qt.AlignCenter)
+
+        # Style labels
+        if self.clr_theme == "dark":
+            label_stylesheet = "border: none; background: none; color: #FFFFFF;"
+        else:
+            label_stylesheet = "border: none; background: none; color: #000000;"
+            
+        self.song_title_label = QLabel("Title:")
+        self.song_title_label.setAlignment(Qt.AlignLeft)
+        self.song_title_label.setContentsMargins(10, 0, 0, 0)
+        self.song_title_label.setStyleSheet(label_stylesheet)
+        self.right_frame_layout.addWidget(self.song_title_label)
+
+        self.song_author_label = QLabel("Author:")
+        self.song_author_label.setAlignment(Qt.AlignLeft)
+        self.song_author_label.setContentsMargins(10, 0, 0, 0)
+        self.song_author_label.setStyleSheet(label_stylesheet)
+        self.right_frame_layout.addWidget(self.song_author_label)
+
+        self.song_album_label = QLabel("Album:")
+        self.song_album_label.setAlignment(Qt.AlignLeft)
+        self.song_album_label.setContentsMargins(10, 0, 0, 0)
+        self.song_album_label.setStyleSheet(label_stylesheet)
+        self.right_frame_layout.addWidget(self.song_album_label)
+
+        self.song_genre_label = QLabel("Genre:")
+        self.song_genre_label.setAlignment(Qt.AlignLeft)
+        self.song_genre_label.setContentsMargins(10, 0, 0, 10)
+        self.song_genre_label.setStyleSheet(label_stylesheet)
+        self.right_frame_layout.addWidget(self.song_genre_label)
 
         # Bottom Layout: Music Control, Progress, Volume
         self.bottom_layout = QVBoxLayout()
@@ -231,37 +311,6 @@ class MusicPlayer(QMainWindow):
         # Add layout to the bottom layout or your main layout
         self.bottom_layout.addLayout(self.music_control_layout)
         
-        # Song Info, Progress and Volume
-        self.info_layout = QHBoxLayout()
-        self.center_sil_layout = QHBoxLayout()
-        
-        # Centered song info label
-        self.bottom_layout.addLayout(self.center_sil_layout)
-        self.song_info_label = QLabel("No song playing")
-        self.song_info_label.setAlignment(Qt.AlignCenter)
-        self.center_sil_layout.addWidget(self.song_info_label)
-        
-        self.bottom_layout.addLayout(self.info_layout)
-        self.time_label = QLabel("00:00 / 00:00")
-        self.info_layout.addWidget(self.time_label)
-
-        self.progress_bar = QSlider(Qt.Horizontal)
-        self.progress_bar.setRange(0, 100)
-        self.info_layout.addWidget(self.progress_bar)
-
-        self.volume_label = QLabel("Volume:")
-        self.info_layout.addWidget(self.volume_label)
-
-        self.volume_slider = QSlider(Qt.Horizontal)
-        self.volume_slider.setMinimum(0)
-        self.volume_slider.setMaximum(100)
-        self.volume_slider.setValue(100)  # Start with full volume
-        self.volume_slider.setTickPosition(QSlider.TicksBelow)
-        self.volume_slider.setTickInterval(10)
-        self.volume_slider.setSingleStep(1)
-        self.volume_slider.valueChanged.connect(self.adjust_volume)
-        self.info_layout.addWidget(self.volume_slider)
-
         self.discord_status_label = QLabel("Discord Status: Disconnected")
         self.bottom_layout.addWidget(self.discord_status_label)
 
@@ -278,6 +327,7 @@ class MusicPlayer(QMainWindow):
         self.delete_button.clicked.connect(self.delete_playlist)
         self.playlist_maker_button.clicked.connect(self.open_playlist_maker)
         self.settings_button.clicked.connect(self.open_settings)
+
 
     def on_start(self):
         time.sleep(0.2)
@@ -304,7 +354,7 @@ class MusicPlayer(QMainWindow):
             if f.endswith('.json'):
                 playlist_path = os.path.join(playlist_folder, f)
                 try:
-                    with open(playlist_path, 'r') as file:
+                    with open(playlist_path, 'r', encoding='utf-8') as file:
                         data = json.load(file)
                         name = data.get("playlist_name", os.path.splitext(f)[0])
                         playlist_image = data.get("playlist_large_image_key", None)
@@ -638,10 +688,10 @@ class MusicPlayer(QMainWindow):
     def update_song_info(self):
         if self.current_song:
             self.song_info_var = f"{self.current_song['artist']} - {self.current_song['title']}"
-            self.song_info_label.setText(self.song_info_var)
+            self.update_right_frame_info()  # Update the right frame with the song info
         else:
             self.song_info_var = "Nothing is playing"
-            self.song_info_label.setText(self.song_info_var)
+            self.clear_right_frame_info()  # Clear the right frame info
         
         # Temporarily disconnect the signal while updating the selection
         self.song_list.currentItemChanged.disconnect(self.play_selected_song)
@@ -705,6 +755,32 @@ class MusicPlayer(QMainWindow):
                     None, # Playlist image
                     None # Duration
                 )
+
+    def update_right_frame_info(self):
+        """Update the right frame with the current song's information."""
+        if self.current_song:
+            # Update the song picture
+            picture_path = self.current_song.get('picture_path', 'default.png')
+            if os.path.exists(picture_path):
+                self.song_picture.setPixmap(QPixmap(picture_path).scaled(250, 250, Qt.KeepAspectRatio))
+            else:
+                self.song_picture.setPixmap(QPixmap("default.png").scaled(250, 250, Qt.KeepAspectRatio))
+            
+            # Update the labels with song information
+            self.song_title_label.setText("Title: " + self.current_song.get('title', 'Unknown Title'))
+            self.song_author_label.setText("Author: " + self.current_song.get('artist', 'Unknown Artist'))
+            self.song_album_label.setText("Album: " + self.current_song.get('album', 'Unknown Album'))
+            self.song_genre_label.setText("Genre: " + self.current_song.get('genre', 'Unknown Genre'))
+        else:
+            self.clear_right_frame_info()
+
+    def clear_right_frame_info(self):
+        """Clear the information displayed in the right frame."""
+        self.song_picture.setPixmap(QPixmap("default.png").scaled(250, 250, Qt.KeepAspectRatio))
+        self.song_title_label.setText("Title:")
+        self.song_author_label.setText("Author:")
+        self.song_album_label.setText("Album:")
+        self.song_genre_label.setText("Genre:")
 
     def update_progress(self):
         if mixer.music.get_busy():

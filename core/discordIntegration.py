@@ -11,7 +11,7 @@ class DiscordIntegration(QObject):
     def __init__(self):
         super().__init__()
         # Load config
-        with open('config.json', 'r') as f:
+        with open('config.json', 'r', encoding='utf-8') as f:
             self.config = json.load(f)
             self.client_id = self.config.get('discord_client_id', '1150680286649143356')
             self.large_image_key = self.config.get('large_image_key', 'default_image')

@@ -8,14 +8,20 @@
             "title": "Title 1",
             "youtube_id": "dQw4w9WgXcQ",
             "path": "C:\\Users\\USER\\Music\\FOLDER\\Artist 1 - Title 1 [dQw4w9WgXcQ].mp3",
-            "playlist": "default"
+            "playlist": "default",
+            "album": "Album 1",
+            "genre": "Genre 2",
+            "picture_path": "C:\\Users\\USER\\Music\\FOLDER\\picture.jpg"
         },
         {
             "artist": "Artist 2",
             "title": "Title 2",
             "youtube_id": "dQw4w9WgXcQ",
             "path": "C:\\Users\\USER\\Music\\FOLDER\\Artist 2 - Title 2 [dQw4w9WgXcQ].mp3",
-            "playlist": "default"
+            "playlist": "default",
+            "album": "Album 2",
+            "genre": "Genre 2",
+            "picture_path": "C:\\Users\\USER\\Music\\FOLDER\\picture.jpg"
         }
     ]
 }

@@ -17,8 +17,7 @@ A feature-rich music player application with playlist management, playback contr
 
 ## Features
 
-### TODO:
-[Moved here](https://github.com/users/vorlie/projects/3/views/1)
+### TODO: [Click here](https://github.com/users/vorlie/projects/3/views/1)
 
 ### Core Features
 
@@ -67,6 +66,7 @@ A feature-rich music player application with playlist management, playback contr
 - **Playlists and Songs Display:**
   - **Playlist List:** Show available playlists and their song counts.
   - **Song List:** Display the list of songs in the currently loaded playlist.
+  - **Song information**: For displaying the currently playing song's artist(s), title, album and genre.
 
 - **Controls and Layouts:**
   - **Control Buttons:** Various buttons for playback control, playlist management, and external actions.
@@ -89,6 +89,89 @@ A feature-rich music player application with playlist management, playback contr
 - **Logging Setup:**
   - **Console Logging:** Output logs to the console.
   - **File Logging:** Save logs to a rotating file for persistent records.
+
+## Playlist Maker
+
+The `PlaylistMaker` class provides a user-friendly interface for creating and managing playlists. It allows users to select folders containing songs, add songs manually, and save playlists in JSON format. 
+
+### Features
+
+- **Select Folder**: Automatically populate the playlist with songs from a selected folder.
+- **Add Songs Manually**: Enter song details manually including artist, title, YouTube ID, and song path.
+- **Save Playlist**: Save the created playlist in JSON format.
+- **Open Existing Playlist**: Load and edit an existing playlist.
+- **Edit Songs**: Double-click on a song entry to edit its details.
+- **Delete Songs**: Select a song and press the Delete key to remove it.
+
+### How to Use
+
+1. **Select Folder**:
+   - Click on the "Select Folder" button to choose a folder containing MP3 files.
+   - The application will automatically process the folder and add all MP3 files matching the naming pattern to the playlist.
+
+2. **Add Songs Manually**:
+   - Fill in the "Artist", "Title", "YouTube ID" (optional), and "Song Path" fields.
+   - Click the "Add Song" button to add the song to the playlist.
+
+3. **Save Playlist**:
+   - Enter a name for the playlist in the "Enter playlist name" field.
+   - Add a playlist image if you want to. It's optional after all.
+   - Click the "Save Playlist" button to save the playlist as a JSON file.
+
+4. **Open Existing Playlist**:
+   - Click the "Open Existing Playlist" button to load a playlist.
+   - Select the JSON file of the playlist you want to open.
+
+5. **Edit and Delete Songs**:
+   - To edit a song, double-click on the corresponding cell in the table.
+   - To delete a song, select the row and press the Delete key.
+
+### Naming Scheme
+
+For automatic recognition, the song files in the selected folder should follow this naming scheme:
+- **Artist**: The name of the artist.
+- **Title**: The title of the song.
+- **YouTube ID**: (Optional) The YouTube ID for the song.
+    ```
+    Artist - Title [YouTube ID].mp3
+    ```
+    **Example(s)**:
+    ```
+        Artist - Title [dQw4w9WgXcQ].mp3
+        Artist (feat. Artist) - Title (Bass Boosted) [dQw4w9WgXcQ].mp3
+    ```
+
+### Example playlist json result
+
+```json
+{
+    "playlist_name": "default",
+    "playlist_large_image_key":"https://i.pinimg.com/236x/42/43/03/424303bef006eb35803ae00505248d7a.jpg",
+    "song_count": 2,
+    "songs": [
+        {
+            "artist": "Artist 1",
+            "title": "Title 1",
+            "youtube_id": "dQw4w9WgXcQ",
+            "path": "C:\\Users\\USER\\Music\\FOLDER\\Artist 1 - Title 1 [dQw4w9WgXcQ].mp3",
+            "playlist": "default",
+            "album": "Album 1",
+            "genre": "Genre 2",
+            "picture_path": "C:\\Users\\USER\\Music\\FOLDER\\picture.jpg"
+        },
+        {
+            "artist": "Artist 2",
+            "title": "Title 2",
+            "youtube_id": "dQw4w9WgXcQ",
+            "path": "C:\\Users\\USER\\Music\\FOLDER\\Artist 2 - Title 2 [dQw4w9WgXcQ].mp3",
+            "playlist": "default",
+            "album": "Album 2",
+            "genre": "Genre 2",
+            "picture_path": "C:\\Users\\USER\\Music\\FOLDER\\picture.jpg"
+        }
+    ]
+}
+```
 
 ## Installation
 
@@ -158,6 +241,7 @@ A feature-rich music player application with playlist management, playback contr
             icon=['icon.ico'],
           )
         ```
+
 ## Usage
 
 1. **Run the application:**
@@ -218,83 +302,6 @@ A feature-rich music player application with playlist management, playback contr
 - **Logging Configuration:**
     - In `musicPlayer.py` there are commented logging configurations. Uncomment them to use them.
         - Logs are written to `combined_app.log` for application and discord logs.
-
-## Playlist Maker
-
-The `PlaylistMaker` class provides a user-friendly interface for creating and managing playlists. It allows users to select folders containing songs, add songs manually, and save playlists in JSON format. 
-
-### Features
-
-- **Select Folder**: Automatically populate the playlist with songs from a selected folder.
-- **Add Songs Manually**: Enter song details manually including artist, title, YouTube ID, and song path.
-- **Save Playlist**: Save the created playlist in JSON format.
-- **Open Existing Playlist**: Load and edit an existing playlist.
-- **Edit Songs**: Double-click on a song entry to edit its details.
-- **Delete Songs**: Select a song and press the Delete key to remove it.
-
-### How to Use
-
-1. **Select Folder**:
-   - Click on the "Select Folder" button to choose a folder containing MP3 files.
-   - The application will automatically process the folder and add all MP3 files matching the naming pattern to the playlist.
-
-2. **Add Songs Manually**:
-   - Fill in the "Artist", "Title", "YouTube ID" (optional), and "Song Path" fields.
-   - Click the "Add Song" button to add the song to the playlist.
-
-3. **Save Playlist**:
-   - Enter a name for the playlist in the "Enter playlist name" field.
-   - Add a playlist image if you want to. It's optional after all.
-   - Click the "Save Playlist" button to save the playlist as a JSON file.
-
-4. **Open Existing Playlist**:
-   - Click the "Open Existing Playlist" button to load a playlist.
-   - Select the JSON file of the playlist you want to open.
-
-5. **Edit and Delete Songs**:
-   - To edit a song, double-click on the corresponding cell in the table.
-   - To delete a song, select the row and press the Delete key.
-
-### Naming Scheme
-
-For automatic recognition, the song files in the selected folder should follow this naming scheme:
-- **Artist**: The name of the artist.
-- **Title**: The title of the song.
-- **YouTube ID**: (Optional) The YouTube ID for the song.
-    ```
-    Artist - Title [YouTube ID].mp3
-    ```
-    **Example(s)**:
-    ```
-        Artist - Title [dQw4w9WgXcQ].mp3
-        Artist (feat. Artist) - Title (Bass Boosted) [dQw4w9WgXcQ].mp3
-    ```
-
-### Example playlist json result
-
-```json
-{
-    "playlist_name": "name_test",
-    "playlist_large_image_key":"https://i.pinimg.com/236x/42/43/03/424303bef006eb35803ae00505248d7a.jpg",
-    "song_count": 2,
-    "songs": [
-        {
-            "artist": "Artist 1",
-            "title": "Title 1",
-            "youtube_id": "dQw4w9WgXcQ",
-            "path": "C:\\Users\\USER\\Music\\FOLDER\\Artist 1 - Title 1 [dQw4w9WgXcQ].mp3",
-            "playlist": "name_test"
-        },
-        {
-            "artist": "Artist 2",
-            "title": "Title 2",
-            "youtube_id": "dQw4w9WgXcQ",
-            "path": "C:\\Users\\USER\\Music\\FOLDER\\Artist 2 - Title 2 [dQw4w9WgXcQ].mp3",
-            "playlist": "name_test"
-        }
-    ]
-}
-```
 
 ## Troubleshooting
 

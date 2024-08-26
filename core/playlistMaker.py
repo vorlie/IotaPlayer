@@ -65,7 +65,7 @@ class PlaylistMaker(QDialog):
         self.setWindowTitle("Iota Player • Playlist Maker")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
-        self.setGeometry(100, 100, 1700, 800)
+        self.setGeometry(100, 100, 1700, 900)
         
         with open('config.json', 'r') as f:
             self.config = json.load(f)
@@ -185,8 +185,8 @@ class PlaylistMaker(QDialog):
 
         # Table view for song list
         self.song_table = QTableWidget()
-        self.song_table.setColumnCount(7)
-        self.song_table.setHorizontalHeaderLabels(["Artist", "Title", "Album", "Genre", "Picture Path", "YouTube ID", "Song Path"])
+        self.song_table.setColumnCount(8)
+        self.song_table.setHorizontalHeaderLabels(["Artist", "Title", "Album", "Genre", "Picture Path", "Picture Link", "YouTube ID", "Song Path"])
         self.right_layout.addWidget(self.song_table)
         self.song_table.setColumnWidth(0, 150)
         self.song_table.setColumnWidth(1, 150)
@@ -194,7 +194,8 @@ class PlaylistMaker(QDialog):
         self.song_table.setColumnWidth(3, 150)
         self.song_table.setColumnWidth(4, 150)
         self.song_table.setColumnWidth(5, 150)
-        self.song_table.setColumnWidth(6, 450)
+        self.song_table.setColumnWidth(6, 150)
+        self.song_table.setColumnWidth(7, 450)
         self.song_table.itemChanged.connect(self.update_song_data)
         self.songs = []
 
@@ -230,6 +231,7 @@ class PlaylistMaker(QDialog):
                     "genre": "",  # Default empty genre
                     "album": "",  # Default empty album
                     "picture_path": "",  # Default empty picture path
+                    "picture_link": "",  # Default empty picture link
                     "youtube_id": youtube_id,
                     "path": song_path.replace("\\", "/")
                 })
@@ -244,6 +246,7 @@ class PlaylistMaker(QDialog):
             album = song.get('album', 'Unknown Album')
             genre = song.get('genre', 'Unknown Genre')
             picture_path = song.get('picture_path', '')
+            picture_link = song.get('picture_link', '')
             youtube_id = song.get('youtube_id', '')
             path = song.get('path', '')
 
@@ -252,8 +255,9 @@ class PlaylistMaker(QDialog):
             self.song_table.setItem(row, 2, QTableWidgetItem(album))
             self.song_table.setItem(row, 3, QTableWidgetItem(genre))
             self.song_table.setItem(row, 4, QTableWidgetItem(picture_path))
-            self.song_table.setItem(row, 5, QTableWidgetItem(youtube_id))
-            self.song_table.setItem(row, 6, QTableWidgetItem(path))
+            self.song_table.setItem(row, 5, QTableWidgetItem(picture_link))
+            self.song_table.setItem(row, 6, QTableWidgetItem(youtube_id))
+            self.song_table.setItem(row, 7, QTableWidgetItem(path))
 
     def update_song_data(self, item):
         row = item.row()
@@ -272,8 +276,10 @@ class PlaylistMaker(QDialog):
             elif column == 4:
                 self.songs[row]['picture_path'] = value
             elif column == 5:
-                self.songs[row]['youtube_id'] = value
+                self.songs[row]['picture_link'] = value
             elif column == 6:
+                self.songs[row]['youtube_id'] = value
+            elif column == 7:
                 self.songs[row]['path'] = value
 
     def add_song(self):
@@ -282,6 +288,7 @@ class PlaylistMaker(QDialog):
         album = self.album_input.text().strip()
         genre = self.genre_input.text().strip()  # Get genre input
         picture_path = self.picture_path_input.text().strip()  # Get picture path input
+        picture_link = self.picture_link_input.text().strip()
         youtube_id = self.youtube_id_input.text().strip()
         path = self.path_input.text().strip()
 
@@ -292,6 +299,7 @@ class PlaylistMaker(QDialog):
                 "album": album,
                 "genre": genre,
                 "picture_path": picture_path, 
+                "picture_link": picture_link,
                 "youtube_id": youtube_id,
                 "path": path.replace("\\", "/")
             }

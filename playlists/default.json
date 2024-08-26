@@ -11,7 +11,8 @@
             "playlist": "default",
             "album": "Album 1",
             "genre": "Genre 2",
-            "picture_path": "C:\\Users\\USER\\Music\\FOLDER\\picture.jpg"
+            "picture_path": "C:\\Users\\USER\\Music\\FOLDER\\picture.jpg",
+            "picture_link":""
         },
         {
             "artist": "Artist 2",
@@ -21,7 +22,8 @@
             "playlist": "default",
             "album": "Album 2",
             "genre": "Genre 2",
-            "picture_path": "C:\\Users\\USER\\Music\\FOLDER\\picture.jpg"
+            "picture_path": "C:\\Users\\USER\\Music\\FOLDER\\picture.jpg",
+            "picture_link":""
         }
     ]
 }

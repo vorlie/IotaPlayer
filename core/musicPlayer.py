@@ -717,7 +717,17 @@ class MusicPlayer(QMainWindow):
             
         # Update Discord presence
         if self.config['connect_to_discord']:  # Check if Discord connection is enabled
-            image_text = f"{self.current_playlist}"
+            if self.current_song["picture_link"]:  # Check if there is a picture link
+                big_image = self.current_song["picture_link"]
+            else:
+                big_image = self.current_playlist_image if self.current_playlist else None
+                
+            if self.current_song["album"]:  # Check if there is an album
+                image_text = f"Album: {self.current_song['album']}"
+            else:
+                image_text = f"Playlist: {self.current_playlist}"
+                
+           
             if self.is_playing:  # Check if something is playing
                 if self.is_paused:  # Check if it is paused
                     self.discord_integration.update_presence(
@@ -727,7 +737,7 @@ class MusicPlayer(QMainWindow):
                         "pause", # Small image key
                         "Paused", # Small image text
                         0, # Youtube ID for button
-                        self.current_playlist_image if self.current_playlist else None, # Playlist image
+                        big_image, # Playlist image
                         None, # Duration
                     )
                 else:  # Playing and not paused
@@ -741,7 +751,7 @@ class MusicPlayer(QMainWindow):
                         small_image_key, # Small image key
                         small_image_text,  # Small image text
                         self.current_song.get('youtube_id') if self.current_song else None, # Youtube ID for button
-                        self.current_playlist_image if self.current_playlist else None, # Playlist image
+                        big_image, # Playlist image
                         song_duration, # Duration
                     )
             else:  # No song is playing

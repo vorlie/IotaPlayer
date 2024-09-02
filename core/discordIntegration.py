@@ -38,8 +38,8 @@ class DiscordIntegration(QObject):
 
     def is_connected(self):
         return self.RPC is not None
-
-    def update_presence(self, song_title, artist_name, large_image_text, small_image_key: str, small_image_text: str, youtube_id=None, image_key=None, song_duration=None):
+    
+    def update_presence(self, song_title, artist_name, large_image_text, small_image_key: str, small_image_text: str, youtube_id=None, image_key=None): # , song_duration=None - not used right now
         if not self.connect_to_discord:
             discord_logger.info("Discord integration is disabled. Skipping presence update.")
             return
@@ -67,6 +67,19 @@ class DiscordIntegration(QObject):
         if youtube_id:
             buttons.append({"label": "Open in YouTube", "url": f"https://www.youtube.com/watch?v={youtube_id}"})
         try:
+            self.RPC.update(
+                activity_type = use_playing_status,
+                state=f"{artist_name}",
+                details=f"{song_title}",
+                large_image=large_image_key,
+                large_text=large_image_text,
+                small_image=small_image_key,
+                small_text=small_image_text,
+                buttons=buttons
+            )
+            discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}; Start time: 0; End time: 0")
+            # Commented because duration when pausing/resuming is being resetted to the song initial duration, rather than continuing from the paused moment
+            """
             if song_duration is None:
                 self.RPC.update(
                     activity_type = use_playing_status,
@@ -95,11 +108,13 @@ class DiscordIntegration(QObject):
                     buttons=buttons
                 )
                 discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}; Start time: {start_time}; End time: {end_time}")
+            """
         except Exception as e:
             if "rate limit" in str(e).lower():
                 discord_logger.warning(f"Rate limit hit: {e}. Waiting before retrying...")
                 time.sleep(15)
-                self.update_presence(song_title, artist_name, song_duration, youtube_id)  # Retry after waiting
+                #self.update_presence(song_title, artist_name, song_duration, youtube_id)  # Retry after waiting
+                self.update_presence(song_title, artist_name, large_image_text, small_image_key, small_image_text, youtube_id)
             else:
                 discord_logger.error(f"Failed to update Discord presence: {e}")
                 self.connect()

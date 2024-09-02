@@ -738,12 +738,12 @@ class MusicPlayer(QMainWindow):
                         "Paused", # Small image text
                         0, # Youtube ID for button
                         big_image, # Playlist image
-                        None, # Duration
+                        #None, # Duration, commented because it doesn't work as expected
                     )
                 else:  # Playing and not paused
                     title = f"{self.current_song['title']}" if self.current_song else "No song playing"
                     artist = f"{self.current_song['artist']}" if self.current_song else "No artist"
-                    song_duration = self.get_song_length(self.current_song['path']) if self.current_song else 0
+                    #song_duration = self.get_song_length(self.current_song['path']) if self.current_song else 0
                     self.discord_integration.update_presence(
                         title, # Title
                         artist, # Artist
@@ -752,7 +752,7 @@ class MusicPlayer(QMainWindow):
                         small_image_text,  # Small image text
                         self.current_song.get('youtube_id') if self.current_song else None, # Youtube ID for button
                         big_image, # Playlist image
-                        song_duration, # Duration
+                        #song_duration, # Duration, commented because it doesn't work as expected
                     )
             else:  # No song is playing
                 self.discord_integration.update_presence(
@@ -763,7 +763,7 @@ class MusicPlayer(QMainWindow):
                     "Stopped", # Small image text
                     None,  # Youtube ID for button
                     None, # Playlist image
-                    None # Duration
+                    #None, # Duration, commented because it doesn't work as expected
                 )
 
     def update_right_frame_info(self):

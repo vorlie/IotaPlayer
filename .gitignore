@@ -7,3 +7,6 @@ __pycache__/
 *.log
 test.py
 venv/
+
+# Ignore this folder because it doesn't even work, contains cpp version of filerenamer.py
+FileRenamer/ 

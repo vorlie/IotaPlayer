@@ -190,7 +190,7 @@ For automatic recognition, the song files in the selected folder should follow t
 
     ```bash
     python -m venv venv
-    ./venv/bin/activate
+    ./venv/Scripts/activate
     ```
 
 3. **Install the required dependencies:**

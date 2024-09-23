@@ -72,30 +72,16 @@ class Iota(QObject):
 
     def bring_to_foreground(self):
         logging.info(f"Attempting to bring window to foreground on {platform.system()}.")
-        if platform.system() == "Windows":
-            import ctypes
-            from ctypes.wintypes import HWND
+        import ctypes
+        from ctypes.wintypes import HWND
             
-            hwnd = int(player.winId())
-            logging.info(f"Windows HWND: {hwnd}")
-            SW_RESTORE = 9
-            ctypes.windll.user32.ShowWindow(HWND(hwnd), SW_RESTORE)
-            ctypes.windll.user32.SetForegroundWindow(HWND(hwnd))
-            ctypes.windll.user32.SetFocus(HWND(hwnd))
-            
-        elif platform.system() == "Darwin":  # macOS
-            try:
-                from AppKit import NSApplication, NSApp
-                NSApp.activateIgnoringOtherApps_(True)
-                player.raise_()
-                player.activateWindow()
-            except ImportError:
-                logging.error("AppKit import failed.")
-                
-        else:  # Linux and other platforms
-            player.show()
-            player.raise_()
-            player.activateWindow()
+        hwnd = int(player.winId())
+        logging.info(f"Windows HWND: {hwnd}")
+        SW_RESTORE = 9
+        ctypes.windll.user32.ShowWindow(HWND(hwnd), SW_RESTORE)
+        ctypes.windll.user32.SetForegroundWindow(HWND(hwnd))
+        ctypes.windll.user32.SetFocus(HWND(hwnd))
+
 
 def load_config():
     try:
@@ -172,30 +158,19 @@ def main():
         update_theme(normal, dark, dark_alt, light, light_alt, theme)
         player.set_stylesheet(theme, normal)
         
-    if platform.system() == "Windows":  # Windows only
-        if color == "automatic":  # Use the system's accent color
-            normal, dark, dark_alt, light, light_alt = utils.get_colorization_colors()
-            handle_color_change(normal, dark, dark_alt, light, light_alt)  # Initialize with the correct theme
+    if color == "automatic":  # Use the system's accent color
+        normal, dark, dark_alt, light, light_alt = utils.get_colorization_colors()
+        handle_color_change(normal, dark, dark_alt, light, light_alt)  # Initialize with the correct theme
 
-            color_change_listener = ColorChangeListener()
-            color_change_listener.color_changed.connect(handle_color_change)
-            color_change_listener.start()
+        color_change_listener = ColorChangeListener()
+        color_change_listener.color_changed.connect(handle_color_change)
+        color_change_listener.start()
 
-            theme_change_listener = ThemeChangeListener()
-            theme_change_listener.theme_changed.connect(handle_theme_change)
-            theme_change_listener.start()
-        else:
-            qdt.setup_theme('auto', custom_colors={"primary": color})
-    elif platform.system() == "Darwin":  # macOS only
-        if color == "automatic":  # Use the system's accent color
-            qdt.setup_theme("auto")
-        else:
-            qdt.setup_theme(custom_colors={"primary": color})
-    else:  # Other platforms
-        if color == "automatic":  # Use the default accent color
-            qdt.setup_theme("auto", custom_colors={"primary": DEFAULT_ACCENT_COLOR})
-        else:
-            qdt.setup_theme(custom_colors={"primary": color})
+        theme_change_listener = ThemeChangeListener()
+        theme_change_listener.theme_changed.connect(handle_theme_change)
+        theme_change_listener.start()
+    else:
+        qdt.setup_theme('auto', custom_colors={"primary": color})
     
     sys.exit(app.exec_())
 

@@ -215,7 +215,7 @@ For automatic recognition, the song files in the selected folder should follow t
     - If planning to build from source.
 
       ```bash
-      pip install pyinstaller==6.6.0
+      pip -m install pyinstaller==6.6.0
       ```
       ```bash
       pyinstaller IotaPlayerWIN.spec

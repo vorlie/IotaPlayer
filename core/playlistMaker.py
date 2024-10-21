@@ -133,6 +133,10 @@ class PlaylistMaker(QDialog):
         self.picture_path_input.setPlaceholderText("Picture Path")
         self.left_layout.addWidget(self.picture_path_input)
 
+        self.picture_link_input = QLineEdit()
+        self.picture_link_input.setPlaceholderText("Picture Link")
+        self.left_layout.addWidget(self.picture_link_input)
+
         self.youtube_id_input = QLineEdit()
         self.youtube_id_input.setPlaceholderText("YouTube ID")
         self.left_layout.addWidget(self.youtube_id_input)

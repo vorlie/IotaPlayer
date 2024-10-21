@@ -29,18 +29,19 @@ class MusicPlayer(QMainWindow):
             with open('config.json', 'r', encoding='utf-8') as f:
                 self.config = json.load(f)
         except FileNotFoundError:
+            logging.info("Config file not found or invalid. Creating a new one with default settings.")
             self.config = settings
-            print(settings)
             try:
                 with open('config.json', 'w', encoding='utf-8') as f:
                     json.dump(self.config, f, indent=4)
             except IOError as e:
-                print(f"Error writing to config file: {e}")
+                logging.error(f"Error writing to config file: {e}")
             try:
                 with open('config.json', 'r') as f:
                     self.config = json.load(f)
             except IOError as e:
-                print(f"Error reading from config file: {e}")
+                logging.error(f"Error reading from config file: {e}")
+                
         playlist_folder = self.config.get('root_playlist_folder', "playlists")
         if not os.path.exists(playlist_folder):
             os.makedirs(playlist_folder)
@@ -195,7 +196,8 @@ class MusicPlayer(QMainWindow):
         self.volume_slider = QSlider(Qt.Horizontal)
         self.volume_slider.setMinimum(0)
         self.volume_slider.setMaximum(100)
-        self.volume_slider.setValue(100)  # Start with full volume
+        self.get_volume = self.config.get("volume_percantage", 100)
+        self.volume_slider.setValue(self.get_volume)
         self.volume_slider.setTickPosition(QSlider.TicksBelow)
         self.volume_slider.setTickInterval(10)
         self.volume_slider.setSingleStep(1)

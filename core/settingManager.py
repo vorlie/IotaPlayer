@@ -2,7 +2,8 @@ import os, json, subprocess, sys
 from PyQt5.QtWidgets import (
     QDialog, QLabel, QLineEdit, 
     QPushButton, QVBoxLayout, QHBoxLayout, 
-    QWidget, QTabWidget, QFormLayout, QCheckBox, QMessageBox, QApplication, QColorDialog )
+    QWidget, QTabWidget, QFormLayout, QCheckBox, 
+    QMessageBox, QApplication, QColorDialog, QSpinBox )
 from PyQt5.QtGui import QIcon
 
 
@@ -50,6 +51,11 @@ class SettingsDialog(QDialog):
         self.discord_tab.setLayout(self.discord_layout)
 
         # General settings
+        self.volume_percantage_edit = QSpinBox()
+        self.volume_percantage_edit.setRange(0, 100)  # Set min/max range for the volume
+        self.volume_percantage_edit.setValue(self.settings.get("volume_percantage", 100))
+        
+        
         self.root_playlist_folder_edit = QLineEdit()
         self.root_playlist_folder_edit.setPlaceholderText("playlists")
         self.root_playlist_folder_edit.setText(self.settings.get("root_playlist_folder", "playlists"))
@@ -73,6 +79,7 @@ class SettingsDialog(QDialog):
         self.use_system_accent_checkbox.setChecked(color == "automatic")
         self.use_system_accent_checkbox.stateChanged.connect(self.toggle_colorization_color)
         
+        self.general_layout.addRow(QLabel("Volume Percentage:"), self.volume_percantage_edit)
         self.general_layout.addRow(QLabel("Root Playlist Folder:"), self.root_playlist_folder_edit)
         self.general_layout.addRow(QLabel("Default Playlist:"), self.default_playlist_edit)
         self.general_layout.addRow(self.use_system_accent_checkbox)
@@ -144,6 +151,18 @@ class SettingsDialog(QDialog):
         self.settings["large_image_key"] = self.large_image_key_edit.text()
         self.settings["use_playing_status"] = self.use_playing_status_edit.isChecked()
         
+        # Validate volume input
+        volume_input = self.volume_percantage_edit.text()
+        try:
+            volume = int(volume_input)
+            if 0 <= volume <= 100:
+                self.settings["volume_percantage"] = volume
+            else:
+                QMessageBox.warning(self, "Invalid Volume", "Please enter a volume between 0 and 100.")
+                return
+        except ValueError:
+            QMessageBox.warning(self, "Invalid Input", "Please enter only numbers for the volume.")
+            return
         # Save settings to file
         with open(self.config_path, 'w', encoding='utf-8') as f:
             json.dump(self.settings, f, indent=4)

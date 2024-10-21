@@ -141,7 +141,7 @@ def main():
     global player
     player = MusicPlayer(settings=default_settings, icon_path=ICON_PATH, config_path=CONFIG_PATH, theme=darkdetect.theme().lower(), normal=clr)
     player.show()
-
+    player.adjust_volume(player.get_volume)
     config = load_config()
     color = config.get("colorization_color", "automatic")
     

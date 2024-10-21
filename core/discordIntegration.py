@@ -39,7 +39,18 @@ class DiscordIntegration(QObject):
     def is_connected(self):
         return self.RPC is not None
     
-    def update_presence(self, song_title, artist_name, large_image_text, small_image_key: str, small_image_text: str, youtube_id=None, image_key=None): # , song_duration=None - not used right now
+    def update_presence(
+        self, 
+        song_title, 
+        artist_name, 
+        large_image_text, 
+        small_image_key: str, 
+        small_image_text: str, 
+        youtube_id=None, 
+        image_key=None, 
+        song_duration=None,
+        time_played=None):
+        
         if not self.connect_to_discord:
             discord_logger.info("Discord integration is disabled. Skipping presence update.")
             return
@@ -67,22 +78,9 @@ class DiscordIntegration(QObject):
         if youtube_id:
             buttons.append({"label": "Open in YouTube", "url": f"https://www.youtube.com/watch?v={youtube_id}"})
         try:
-            self.RPC.update(
-                activity_type = use_playing_status,
-                state=f"{artist_name}",
-                details=f"{song_title}",
-                large_image=large_image_key,
-                large_text=large_image_text,
-                small_image=small_image_key,
-                small_text=small_image_text,
-                buttons=buttons
-            )
-            discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}; Start time: 0; End time: 0")
-            # Commented because duration when pausing/resuming is being resetted to the song initial duration, rather than continuing from the paused moment
-            """
-            if song_duration is None:
+            if time_played is None:  # No time played, standard update
                 self.RPC.update(
-                    activity_type = use_playing_status,
+                    activity_type=use_playing_status,
                     state=f"{artist_name}",
                     details=f"{song_title}",
                     large_image=large_image_key,
@@ -93,22 +91,23 @@ class DiscordIntegration(QObject):
                 )
                 discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}")
             else:
-                start_time = int(time.time())
-                end_time = int(start_time + song_duration)
+                # Resuming from where it was paused
+                start_time = int(time.time()) - int(time_played)  # Adjust start time based on played time
+                end_time = start_time + song_duration  # Adjust end time
+                discord_logger.info(f"DEBUG: Updating presence: song_duration={song_duration}, time_played={time_played}, start_time={start_time}, end_time={end_time}")
                 self.RPC.update(
-                    activity_type = use_playing_status,
+                    activity_type=use_playing_status,
                     state=f"{artist_name}",
                     details=f"{song_title}",
                     large_image=large_image_key,
                     large_text=large_image_text,
                     small_image=small_image_key,
-                    small_text=small_image_text,
+                    small_text="Playing",
                     start=start_time,
                     end=end_time,
                     buttons=buttons
                 )
                 discord_logger.info(f"Presence updated: {song_title} by {artist_name}; Buttons: {buttons}; Start time: {start_time}; End time: {end_time}")
-            """
         except Exception as e:
             if "rate limit" in str(e).lower():
                 discord_logger.warning(f"Rate limit hit: {e}. Waiting before retrying...")

@@ -57,6 +57,11 @@ class MusicPlayer(QMainWindow):
         self.discord_integration.connection_status_changed.connect(self.update_discord_status)
         self.current_playlist_image = None
         self.current_song = None
+        self.time_played = 0
+        self.start_time = 0
+        self.pause_start_time = 0
+        self.total_paused_time = 0
+        self.song_duration = 0
         self.songs = []
         self.song_index = 0
         self.is_looping = "Off"
@@ -565,9 +570,15 @@ class MusicPlayer(QMainWindow):
         if self.current_song:
             mixer.music.load(self.current_song['path'])
             mixer.music.play()
+            
+            # Track the start time and reset time played
+            self.start_time = time.time()  # Set the current time as the start time
+            self.time_played = 0  # Reset time played when starting a new song
+            self.song_duration = self.get_song_length(self.current_song['path'])
             self.has_started = True
             self.is_playing = True
             self.is_paused = False
+            self.total_paused_time = 0
             self.update_song_info()  # Handle Discord presence
 
             # Toggle Play button to Stop
@@ -605,6 +616,9 @@ class MusicPlayer(QMainWindow):
         if mixer.music.get_busy() and not self.is_paused:
             mixer.music.pause()
             self.is_paused = True
+
+            self.time_played += time.time() - self.start_time
+
             self.update_song_info()  # Handle Discord presence
 
             # Toggle Pause button to Resume
@@ -620,6 +634,10 @@ class MusicPlayer(QMainWindow):
         if self.is_paused:
             mixer.music.unpause()
             self.is_paused = False
+
+            # Add the paused duration to total_paused_time
+            self.start_time = time.time()  # Restart the timer
+
             self.update_song_info()  # Handle Discord presence
 
             # Toggle Resume button to Pause
@@ -715,6 +733,8 @@ class MusicPlayer(QMainWindow):
             small_image_key = "repeat"  # Small image key for playlist repeat
             small_image_text = "Looping Playlist"  # Text for playlist repeat
             
+
+        
         # Update Discord presence
         if self.config['connect_to_discord']:  # Check if Discord connection is enabled
             if self.current_song["picture_link"]:  # Check if there is a picture link
@@ -727,32 +747,30 @@ class MusicPlayer(QMainWindow):
             else:
                 image_text = f"Playlist: {self.current_playlist}"
                 
-           
             if self.is_playing:  # Check if something is playing
-                if self.is_paused:  # Check if it is paused
+                if self.is_paused:
                     self.discord_integration.update_presence(
-                        f"{self.current_song['title']}", # Title
-                        f"{self.current_song['artist']}", # Artist
-                        image_text, # Large image text
-                        "pause", # Small image key
-                        "Paused", # Small image text
-                        0, # Youtube ID for button
-                        big_image, # Playlist image
-                        #None, # Duration, commented because it doesn't work as expected
+                        f"{self.current_song['title']}",
+                        f"{self.current_song['artist']}",
+                        image_text,
+                        "pause",
+                        "Paused",
+                        0,
+                        big_image,
+                        song_duration=self.song_duration,
+                        time_played=self.time_played  # Pass time_played
                     )
-                else:  # Playing and not paused
-                    title = f"{self.current_song['title']}" if self.current_song else "No song playing"
-                    artist = f"{self.current_song['artist']}" if self.current_song else "No artist"
-                    #song_duration = self.get_song_length(self.current_song['path']) if self.current_song else 0
+                else:
                     self.discord_integration.update_presence(
-                        title, # Title
-                        artist, # Artist
-                        image_text, # Large image text
-                        small_image_key, # Small image key
-                        small_image_text,  # Small image text
-                        self.current_song.get('youtube_id') if self.current_song else None, # Youtube ID for button
-                        big_image, # Playlist image
-                        #song_duration, # Duration, commented because it doesn't work as expected
+                        f"{self.current_song['title']}",
+                        f"{self.current_song['artist']}",
+                        image_text,
+                        small_image_key,
+                        small_image_text,
+                        self.current_song.get('youtube_id'),
+                        big_image,
+                        song_duration=self.song_duration,
+                        time_played=self.time_played  # Pass time_played
                     )
             else:  # No song is playing
                 self.discord_integration.update_presence(

@@ -12,7 +12,7 @@
     },
     "connect_to_discord": true,
     "discord_client_id": "1150680286649143356",
-    "use_playing_status": true,
+    "use_playing_status": false,
     "large_image_key": "default_image",
     "root_playlist_folder_comment": {
         "1": "Specify the directory where your playlists are saved. You can change this path if needed.",

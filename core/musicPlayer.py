@@ -190,13 +190,14 @@ class MusicPlayer(QMainWindow):
         self.progress_bar.setRange(0, 100)
         self.sliders_layout.addWidget(self.progress_bar)
 
-        self.volume_label = QLabel("Volume:")
+        self.get_volume = self.config.get("volume_percantage", 100)
+        self.volume_label = QLabel(f"Volume: {self.get_volume}%")
         self.sliders_layout.addWidget(self.volume_label)
 
         self.volume_slider = QSlider(Qt.Horizontal)
         self.volume_slider.setMinimum(0)
         self.volume_slider.setMaximum(100)
-        self.get_volume = self.config.get("volume_percantage", 100)
+        
         self.volume_slider.setValue(self.get_volume)
         self.volume_slider.setTickPosition(QSlider.TicksBelow)
         self.volume_slider.setTickInterval(10)
@@ -508,6 +509,7 @@ class MusicPlayer(QMainWindow):
         """Adjusts the volume of the music player."""
         volume = value / 100.0
         mixer.music.set_volume(volume)
+        self.volume_label.setText(f"Volume: {value}%")
         #logging.info(f"Volume set to: {volume}")        
 
     def keyPressEvent(self, event):

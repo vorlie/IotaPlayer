@@ -102,7 +102,7 @@ class DiscordIntegration(QObject):
                     large_image=large_image_key,
                     large_text=large_image_text,
                     small_image=small_image_key,
-                    small_text="Playing",
+                    small_text=small_image_text,
                     start=start_time,
                     end=end_time,
                     buttons=buttons

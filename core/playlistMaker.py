@@ -57,6 +57,73 @@ class PlaylistManager:
             self.shuffled_songs[playlist_name] = songs
             self.shuffle_states[playlist_name] = True
 
+    def combine_playlists(self, combined_playlist_name="Combined Playlist"):
+        """Combine all songs from playlist files, update the existing combined playlist if needed, and shuffle."""
+        combined_songs = []
+        unique_song_paths = set()
+
+        combined_playlist_path = os.path.join(self.playlists_dir, f"{combined_playlist_name}.json")
+
+        # Check if combined playlist exists and load its contents
+        if os.path.exists(combined_playlist_path):
+            logging.info(f"Combined playlist '{combined_playlist_name}' exists. Loading existing songs...")
+            try:
+                with open(combined_playlist_path, 'r', encoding='utf-8') as f:
+                    combined_playlist_data = json.load(f)
+                combined_songs = combined_playlist_data.get("songs", [])
+                unique_song_paths = {song.get("path", "") for song in combined_songs}
+                logging.info(f"Loaded {len(combined_songs)} songs from existing combined playlist.")
+            except Exception as e:
+                logging.info(f"Error loading combined playlist: {e}")
+
+        # Iterate over all files in the playlists directory
+        for filename in os.listdir(self.playlists_dir):
+            if filename.endswith(".json") and filename != f"{combined_playlist_name}.json":
+                playlist_path = os.path.join(self.playlists_dir, filename)
+                logging.info(f"Processing file: {filename}")
+
+                # Load the playlist file
+                try:
+                    with open(playlist_path, 'r', encoding='utf-8') as f:
+                        playlist_data = json.load(f)
+
+                    songs = playlist_data.get("songs", [])
+                    logging.info(f"Found {len(songs)} songs in {filename}")
+
+                    # Add songs to the combined playlist, avoiding duplicates
+                    for song in songs:
+                        song_path = song.get("path", "").strip()
+                        if song_path and song_path not in unique_song_paths:
+                            combined_songs.append(song)
+                            unique_song_paths.add(song_path)
+                        else:
+                            logging.info(f"Duplicate or invalid song skipped: {song_path}")
+
+                except Exception as e:
+                    logging.info(f"Error reading file {filename}: {e}")
+
+        # Shuffle the combined songs
+        random.shuffle(combined_songs)
+        logging.info(f"Playlist shuffled with {len(combined_songs)} songs.")
+
+        # Save the updated combined playlist with shuffled songs
+        combined_playlist_data = {
+            "playlist_name": combined_playlist_name,
+            "song_count": len(combined_songs),
+            "songs": combined_songs
+        }
+
+        with open(combined_playlist_path, 'w', encoding='utf-8') as f:
+            json.dump(combined_playlist_data, f, indent=4, ensure_ascii=False)
+
+        logging.info(f"Updated combined playlist saved at: {combined_playlist_path}, Total songs: {len(combined_songs)}")
+
+        # Optionally, update the manager's memory
+        self.playlists[combined_playlist_name] = combined_songs
+        self.shuffle_states[combined_playlist_name] = True
+        self.shuffled_songs[combined_playlist_name] = combined_songs.copy()
+
+        return combined_playlist_name, combined_songs
 
 class PlaylistMaker(QDialog):
     def __init__(self, icon_path):

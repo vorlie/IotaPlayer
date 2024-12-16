@@ -139,9 +139,11 @@ class MusicPlayer(QMainWindow):
         # Playlist List and Controls Layout
         self.playlist_list_layout = QVBoxLayout()
         self.playlist_list_label = QLabel("Playlists:")
+        self.playlist_combine_button = QPushButton("Combine Playlists")
         self.playlist_maker_button = QPushButton("Manage")
         self.playlist_maker_button.setFixedWidth(70)
         self.left_frame_scnd_layout.addWidget(self.playlist_list_label)
+        self.left_frame_scnd_layout.addWidget(self.playlist_combine_button)
         self.left_frame_scnd_layout.addWidget(self.playlist_maker_button)
         self.left_frame_layout.addLayout(self.playlist_list_layout)
 
@@ -333,9 +335,14 @@ class MusicPlayer(QMainWindow):
         self.youtube_button.clicked.connect(self.open_youtube)
         self.reload_button.clicked.connect(self.reload_playlists)
         self.delete_button.clicked.connect(self.delete_playlist)
+        self.playlist_combine_button.clicked.connect(self.combine_playlists_mp)
         self.playlist_maker_button.clicked.connect(self.open_playlist_maker)
         self.settings_button.clicked.connect(self.open_settings)
 
+    def combine_playlists_mp(self):
+        self.playlist_manager.combine_playlists()
+        time.sleep(1)
+        self.reload_playlists()
 
     def on_start(self):
         time.sleep(0.2)

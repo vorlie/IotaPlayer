@@ -26,6 +26,7 @@ A feature-rich music player application with playlist management, playback contr
   - **Reload Playlists:** Refresh the list of available playlists.
   - **Delete Playlist:** Remove a selected playlist.
   - **Create/Edit Playlist:** Use the [Playlist Maker](#playlist-maker) to create or edit playlists.
+  - **Combine All Playlists:** Combine all songs from multiple playlists into a single playlist.
 
 - **Music Playback Controls:**
   - **Play/Pause/Resume/Stop:** Start, pause, resume, or stop the currently playing song.

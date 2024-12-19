@@ -7,12 +7,15 @@ from utils import hex_to_rgba
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QPainterPath
 from PyQt5.QtCore import QTimer, Qt
 from pygame import mixer
+from PyQt5.QtMultimedia import QMediaPlayer
 from pynput import keyboard
 from mutagen.mp3 import MP3
 from core.discordIntegration import DiscordIntegration
 from core.playlistMaker import PlaylistMaker, PlaylistManager
 from core.settingManager import SettingsDialog
 from core.logger import setup_logging
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+from comtypes import CLSCTX_ALL
 
 class MusicPlayer(QMainWindow):
     def __init__(self, settings, icon_path, config_path, theme, normal):
@@ -86,11 +89,30 @@ class MusicPlayer(QMainWindow):
         self.connection_check_timer.timeout.connect(self.check_discord_connection)
         self.connection_check_timer.start(10000)  # Check every 10 seconds
 
+        devices = AudioUtilities.GetSpeakers()
+        interface = devices.Activate(
+            IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        self.volume_interface = interface.QueryInterface(IAudioEndpointVolume)
+        logging.info(f"Initialized IAudioEndpointVolume interface: {self.volume_interface}")
+
         mixer.init()
         mixer.music.set_endevent(1)
         self.on_start()
         self.has_started = False
         self.is_paused = False
+        
+        self.audio_session = self.get_audio_session()
+        
+        self.volume_update_timer = QTimer()
+        self.volume_update_timer.timeout.connect(self.update_volume_slider)
+        self.volume_update_timer.start(100)
+
+    def get_audio_session(self):
+        sessions = AudioUtilities.GetAllSessions()
+        for session in sessions:
+            if session.Process and session.Process.name() == "IotaPlayer.exe":
+                return session.SimpleAudioVolume
+        return None
         
     def set_stylesheet(self, theme, normal):
         if theme == 'dark':
@@ -515,9 +537,23 @@ class MusicPlayer(QMainWindow):
     def adjust_volume(self, value):
         """Adjusts the volume of the music player."""
         volume = value / 100.0
-        mixer.music.set_volume(volume)
+        if self.audio_session:
+            self.audio_session.SetMasterVolume(volume, None)
+        else:
+            mixer.music.set_volume(volume)
         self.volume_label.setText(f"Volume: {value}%")
-        #logging.info(f"Volume set to: {volume}")        
+        #logging.info(f"Volume set to: {value}%")
+
+    def update_volume_slider(self):
+        """Updates the volume slider based on the current system volume."""
+        if self.audio_session:
+            current_volume = self.audio_session.GetMasterVolume() * 100
+        else:
+            current_volume = mixer.music.get_volume() * 100
+        self.volume_slider.blockSignals(True)
+        self.volume_slider.setValue(int(current_volume))
+        self.volume_slider.blockSignals(False)
+        self.volume_label.setText(f"Volume: {int(current_volume)}%")
 
     def keyPressEvent(self, event):
         """Handle key press events within the PyQt5 application."""

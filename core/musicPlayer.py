@@ -105,7 +105,7 @@ class MusicPlayer(QMainWindow):
         
         self.volume_update_timer = QTimer()
         self.volume_update_timer.timeout.connect(self.update_volume_slider)
-        self.volume_update_timer.start(100)
+        self.volume_update_timer.start(1000)
 
     def get_audio_session(self):
         sessions = AudioUtilities.GetAllSessions()

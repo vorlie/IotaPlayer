@@ -2,6 +2,7 @@ from pypresence import Presence, ActivityType
 import time, logging, json
 from PyQt5.QtCore import QObject, pyqtSignal
 from core.logger import setup_logging
+from config import discord_cdn_images
 
 discord_logger = logging.getLogger('discord')
 
@@ -14,7 +15,8 @@ class DiscordIntegration(QObject):
         with open('config.json', 'r', encoding='utf-8') as f:
             self.config = json.load(f)
             self.client_id = self.config.get('discord_client_id', '1150680286649143356')
-            self.large_image_key = self.config.get('large_image_key', 'default_image')
+            #self.large_image_key = self.config.get('large_image_key', 'default_image')
+            self.large_image_key = discord_cdn_images.get('default_image', 'https://cdn.discordapp.com/app-assets/1150680286649143356/1270124442433097780.png')
             self.connect_to_discord = self.config.get('connect_to_discord', True)
             self.use_playing_status = self.config.get('use_playing_status', False)
         

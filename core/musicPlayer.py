@@ -16,6 +16,7 @@ from core.settingManager import SettingsDialog
 from core.logger import setup_logging
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 from comtypes import CLSCTX_ALL
+from config import discord_cdn_images
 
 class MusicPlayer(QMainWindow):
     def __init__(self, settings, icon_path, config_path, theme, normal):
@@ -770,18 +771,16 @@ class MusicPlayer(QMainWindow):
         self.setWindowTitle(f"Iota Player • {self.current_playlist} • {self.song_info_var}")
         
         # Determine loop status for Discord presence
-        small_image_key = "play"  # Default to play icon
+        small_image_key = discord_cdn_images["play"]  # Default to play icon
         small_image_text = "Playing"  # Default to playing text
         
         if self.is_looping == "Song":
-            small_image_key = "repeat-one"  # Small image key for song repeat
+            small_image_key = discord_cdn_images["repeat-one"]  # Small image key for song repeat
             small_image_text = "Looping Song"  # Text for song repeat
         elif self.is_looping == "Playlist":
-            small_image_key = "repeat"  # Small image key for playlist repeat
+            small_image_key = discord_cdn_images["repeat"]  # Small image key for playlist repeat
             small_image_text = "Looping Playlist"  # Text for playlist repeat
             
-
-        
         # Update Discord presence
         if self.config['connect_to_discord']:  # Check if Discord connection is enabled
             if self.current_song["picture_link"]:  # Check if there is a picture link
@@ -800,7 +799,7 @@ class MusicPlayer(QMainWindow):
                         f"{self.current_song['title']}",
                         f"{self.current_song['artist']}",
                         image_text,
-                        "pause",
+                        discord_cdn_images["pause"],
                         "Paused",
                         0,
                         big_image,
@@ -824,7 +823,7 @@ class MusicPlayer(QMainWindow):
                     "Nothing is playing", # Title
                     "Literally nothing.", # Artist
                     "No playlist", # Large image text
-                    "stop", # Small image key
+                    discord_cdn_images["stop"], # Small image key
                     "Stopped", # Small image text
                     None,  # Youtube ID for button
                     None, # Playlist image

@@ -8,3 +8,4 @@ venv/
 # Ignore List for Files
 *.log
 test.py
+dummy.py

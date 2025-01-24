@@ -6,5 +6,6 @@
     "root_playlist_folder": "playlists",
     "default_playlist": "default",
     "colorization_color": "automatic",
-    "volume_percantage": 15
+    "volume_percantage": 15,
+    "minimize_to_tray": false
 }

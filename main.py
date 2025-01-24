@@ -1,9 +1,10 @@
 import qdarktheme as qdt, sys, json, platform, logging
 import utils, darkdetect
 from time import sleep
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QAction
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtNetwork import QLocalServer, QLocalSocket
+from PyQt5.QtGui import QIcon
 from core.musicPlayer import MusicPlayer
 from core.logger import setup_logging
 from config import ICON_PATH, default_settings
@@ -144,6 +145,29 @@ def main():
     player.adjust_volume(player.get_volume)
     config = load_config()
     color = config.get("colorization_color", "automatic")
+    tray_icon = QSystemTrayIcon(QIcon(ICON_PATH), app)
+    tray_icon.show()
+    tray_menu = QMenu()
+    
+    open_action = QAction("Open", tray_menu)
+    open_action.triggered.connect(player.show)
+    tray_menu.addAction(open_action)
+    
+    minimize_action = QAction("Minimize", tray_menu)
+    minimize_action.triggered.connect(player.hide)
+    tray_menu.addAction(minimize_action)
+    
+    quit_action = QAction("Quit", tray_menu)
+    quit_action.triggered.connect(app.quit)
+    tray_menu.addAction(quit_action)
+    
+    tray_icon.setContextMenu(tray_menu)
+    minimize_to_tray = config.get("minimize_to_tray", False)
+
+    if minimize_to_tray:
+        minimize_action.triggered.connect(player.hide)
+    else:
+        minimize_action.triggered.connect(player.setVisible)
     
     def handle_color_change(normal, dark, dark_alt, light, light_alt):
         current_theme = darkdetect.theme().lower()

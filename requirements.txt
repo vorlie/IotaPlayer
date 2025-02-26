@@ -27,3 +27,4 @@ python-dateutil==2.9.0.post0
 pywin32-ctypes==0.2.2
 setuptools==72.1.0
 six==1.16.0
+fuzzywuzzy==0.18.0

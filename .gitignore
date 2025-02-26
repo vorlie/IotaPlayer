@@ -4,6 +4,7 @@ dist/
 __pycache__/
 ignore/
 venv/
+.venv/
 
 # Ignore List for Files
 *.log

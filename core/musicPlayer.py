@@ -2,7 +2,7 @@ import os, webbrowser, threading, logging, json, re, time, darkdetect
 from PyQt5.QtWidgets import ( QMainWindow, 
     QVBoxLayout, QWidget, QPushButton, QListWidget, 
     QFileDialog, QLabel, QSlider, QHBoxLayout, QSizePolicy, 
-    QSpacerItem, QMessageBox )
+    QSpacerItem, QMessageBox, QLineEdit, QComboBox )
 from utils import hex_to_rgba
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QPainterPath
 from PyQt5.QtCore import QTimer, Qt
@@ -17,6 +17,7 @@ from core.logger import setup_logging
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 from comtypes import CLSCTX_ALL
 from config import discord_cdn_images
+from fuzzywuzzy import process
 
 class MusicPlayer(QMainWindow):
     def __init__(self, settings, icon_path, config_path, theme, normal):
@@ -239,9 +240,21 @@ class MusicPlayer(QMainWindow):
         self.top_layout.addWidget(self.middle_frame)
 
         self.middle_frame_scnd_layout = QHBoxLayout()
+        self.search_layout = QHBoxLayout()
         self.middle_frame_layout.addLayout(self.middle_frame_scnd_layout)
+        self.middle_frame_layout.addLayout(self.search_layout)
 
-        # Song List, Settings
+        # Song List, Settings, and Search Layout
+        self.search_bar = QLineEdit()
+        self.search_bar.setPlaceholderText("Search...")
+        self.search_bar.textChanged.connect(self.search_songs)
+
+        self.search_type_dropdown = QComboBox()
+        self.search_type_dropdown.addItems(["Artist & Title", "Genre", "Album"])
+
+        self.search_layout.addWidget(self.search_bar)
+        self.search_layout.addWidget(self.search_type_dropdown)
+
         self.song_list_label = QLabel("Song List:")
         self.settings_button = QPushButton("Settings")
         self.settings_button.setFixedWidth(70)
@@ -250,6 +263,7 @@ class MusicPlayer(QMainWindow):
         self.song_list = QListWidget()
         self.song_list.currentItemChanged.connect(self.play_selected_song)
         self.middle_frame_layout.addWidget(self.song_list)
+        
 
         # Right Frame Layout (Song Info)
         self.right_frame = QWidget()
@@ -361,6 +375,33 @@ class MusicPlayer(QMainWindow):
         self.playlist_combine_button.clicked.connect(self.combine_playlists_mp)
         self.playlist_maker_button.clicked.connect(self.open_playlist_maker)
         self.settings_button.clicked.connect(self.open_settings)
+
+    def search_songs(self, query):
+        search_type = self.search_type_dropdown.currentText()
+        if not query:
+            self.song_list.clear()
+            for song in self.songs:
+                self.song_list.addItem(f"{song['artist']} - {song['title']}")
+            return
+
+        results = []
+        for song in self.songs:
+            if search_type == "Artist & Title":
+                song_info = f"{song['artist']} - {song['title']}"
+            elif search_type == "Genre":
+                song_info = song['genre']
+            elif search_type == "Album":
+                song_info = song['album']
+            else:
+                song_info = f"{song['artist']} - {song['title']} - {song['album']} - {song['genre']}"
+
+            match = process.extractOne(query, [song_info])
+            if match and match[1] > 70:
+                results.append(song)
+
+        self.song_list.clear()
+        for song in results:
+            self.song_list.addItem(f"{song['artist']} - {song['title']}")
 
     def combine_playlists_mp(self):
         self.playlist_manager.combine_playlists()

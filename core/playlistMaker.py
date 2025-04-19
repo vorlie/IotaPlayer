@@ -1,4 +1,8 @@
-import re, logging, json, os, random
+import re
+import logging
+import json
+import os
+import random
 from PyQt5.QtWidgets import QDialog, QFileDialog, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QLabel, QTableWidget, QTableWidgetItem, QMessageBox, QListWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt

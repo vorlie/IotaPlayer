@@ -1,4 +1,7 @@
-import os, json, subprocess, sys
+import os
+import json
+import subprocess
+import sys
 from PyQt5.QtWidgets import (
     QDialog, QLabel, QLineEdit, 
     QPushButton, QVBoxLayout, QHBoxLayout, 

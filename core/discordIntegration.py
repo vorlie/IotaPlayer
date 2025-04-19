@@ -1,7 +1,8 @@
 from pypresence import Presence, ActivityType
-import time, logging, json
+import time
+import logging
+import json
 from PyQt5.QtCore import QObject, pyqtSignal
-from core.logger import setup_logging
 from config import discord_cdn_images
 
 discord_logger = logging.getLogger('discord')

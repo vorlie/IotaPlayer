@@ -1,5 +1,10 @@
-import qdarktheme as qdt, sys, json, platform, logging
-import utils, darkdetect
+import qdarktheme as qdt
+import sys
+import json
+import platform
+import logging
+import utils
+import darkdetect
 from time import sleep
 from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QAction
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
@@ -28,7 +33,7 @@ class ColorChangeListener(QThread):
     def on_color_change(self, normal, dark, dark_alt, light, light_alt):
         logging.info(f"Detected color change: {normal}, {dark}, {dark_alt}, {light}, {light_alt}")
         self.color_changed.emit(normal, dark, dark_alt, light, light_alt)
-             
+
 class ThemeChangeListener(QThread):
     theme_changed = pyqtSignal(str)  # Emit theme only
     

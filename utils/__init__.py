@@ -60,7 +60,7 @@ def get_colorization_colors():
         light_alt = lighten_color(accent, colorValues['light_alt'])
         
         return accent, dark, dark_alt, light, light_alt
-    except Exception as e:
+    except Exception:
         accent = "#ff50aa"
         dark = darken_color(accent, colorValues['dark'])
         dark_alt = darken_color(accent, colorValues['dark_alt'])

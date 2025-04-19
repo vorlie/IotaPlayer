@@ -1,6 +1,5 @@
 import os
 import json
-import mutagen
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 from tkinter import Tk, filedialog

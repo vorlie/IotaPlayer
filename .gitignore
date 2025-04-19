@@ -5,8 +5,10 @@ __pycache__/
 ignore/
 venv/
 .venv/
+creds/
 
 # Ignore List for Files
 *.log
 test.py
 dummy.py
+*.pickle

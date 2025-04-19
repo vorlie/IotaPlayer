@@ -9,7 +9,7 @@ import pickle
 # This script handles the YouTube Data API authentication and playlist management.
 # It uses OAuth 2.0 for authentication and requires a client secrets file.
 # The script creates a YouTube playlist and adds videos to it.
-# You must have an client secret from the Google Cloud Console.
+# You must have a client secret from the Google Cloud Console.
 # https://console.cloud.google.com
 # Make sure to enable the YouTube Data API v3 for your project.
 

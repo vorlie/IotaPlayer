@@ -58,13 +58,9 @@ def get_authenticated_service():
         if not creds:
             try:
                 flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-                # Note: You might need to customize the redirect_uri for PyQt5
-                # potentially using a local server if 'urn:ietf:wg:oauth:2.0:oob' doesn't work well
                 creds = flow.run_local_server(port=0) # Opens browser, user auths, returns creds
             except FileNotFoundError:
                 print(f"ERROR: Client secrets file not found at {CLIENT_SECRETS_FILE}")
-                # Handle this critical error (e.g., raise exception, return None)
-                # Your PyQt app needs to inform the user.
                 return None
             except Exception as e:
                 print(f"Error during authentication flow: {e}")
@@ -106,7 +102,6 @@ def create_youtube_playlist(service, title, description="Created using IotaPlaye
       return response['id']
     except Exception as e:
         print(f"Error creating playlist '{title}': {e}")
-        # You might want to re-raise the exception or return None
         raise e # Let the caller handle it
 
 def add_videos_to_youtube_playlist(service, playlist_id, video_ids):
@@ -135,9 +130,6 @@ def add_videos_to_youtube_playlist(service, playlist_id, video_ids):
             request.execute()
             added_count += 1
             print(f"Added video {video_id} to playlist {playlist_id}")
-            # Consider adding a small delay here if you hit quota limits quickly
-            # import time
-            # time.sleep(0.5)
         except Exception as e:
             print(f"Error adding video {video_id} to playlist {playlist_id}: {e}")
             errors.append(f"{video_id}: {e}")

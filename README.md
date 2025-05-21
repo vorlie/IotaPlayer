@@ -206,15 +206,9 @@ For automatic recognition, the song files in the selected folder should follow t
 
 3. **Install the required dependencies: [requirements.txt](https://github.com/vorlie/IotaPlayer/blob/main/requirements.txt)**
   (To install using git, you must install [Git](https://git-scm.com/downloads).)
+
     ```bash
-    py -m pip install PyQt5==5.15.10
-    py -m pip install pygame==2.6.0
-    py -m pip install git+https://github.com/qwertyquerty/pypresence.git@master
-    py -m pip install mutagen==1.47.0
-    py -m pip install pynput==1.7.7
-    py -m pip install matplotlib
-    py -m pip install git+https://github.com/vorlie/PyQtDarkTheme.git@main --ignore-requires-python
-    ...
+    pip install -r requirements.txt --ignore-requires-python
     ```
 
 4. **Ensure you have the necessary environment variables and configuration files:**

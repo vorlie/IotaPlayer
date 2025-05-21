@@ -32,9 +32,11 @@ A feature-rich music player application with playlist management, playback contr
   - **Play/Pause/Resume/Stop:** Start, pause, resume, or stop the currently playing song.
   - **Previous/Next:** Skip to the previous or next song in the playlist.
   - **Loop/Shuffle:** Toggle loop and shuffle modes.
+  - **Seek Bar:** Drag the progress bar to seek to any position in the song. Playback and Discord Rich Presence update instantly.
+  - **Native PyQt5 Media Player:** Uses QMediaPlayer for improved playback reliability and UI integration.
 
 - **Song Information:**
-  - **Display Song Info:** Show details of the currently playing song (artist and title).
+  - **Display Song Info:** Show details of the currently playing song (artist, title, album, genre).
   - **Update Window Title:** Reflect the current song info and playlist in the window title.
 
 - **Volume Control:**
@@ -44,10 +46,16 @@ A feature-rich music player application with playlist management, playback contr
   - **Track Progress:** Display and update the progress of the currently playing song.
   - **Format Time:** Convert elapsed time and total duration into a readable format.
 
+- **YouTube Integration:**
+  - **Upload Playlist to YouTube:** Upload local playlists to your YouTube account (requires Google API setup).
+  - **Google Client Secret Path in Settings:** Set the path to your Google API client secret file directly from the app's settings.
+  - **Upload Button State:** The YouTube upload button is enabled only when a valid client secret file is set.
+
 - **Discord Integration:**
   - **Update Discord Status:** Display the current song info in Discord status.
   - **Custom Presence Images:** Display custom playlist images in Discord status.
   - **Check Discord Connection:** Monitor and display connection status to Discord.
+  - **Rich Presence Sync:** Discord Rich Presence updates instantly when seeking or changing songs.
 
 - **Key Bindings:**
   - **Media Keys:** Handle media keys for play/pause, next, and previous track.
@@ -279,9 +287,13 @@ For automatic recognition, the song files in the selected folder should follow t
           "root_playlist_folder": "playlists", # path to the folder
           "default_playlist": "default", # name of the default playlist
           "colorization_color": "automatic", # hex color or leave it as it is, it will use system accent color
-          "volume_percantage": 100 # integer value for volume percentage (0-100)
+          "volume_percantage": 100, # integer value for volume percentage (0-100)
+          "google_client_secret_file": "path/to/client_secret.json" # path to your Google API client secret file
       }
     ```
+
+- **Google API Setup:**
+    - See [GOOGLE.md](GOOGLE.md) for full instructions on setting up YouTube Data API integration, including how to obtain and configure your client secret file.
 
 - **Logging Configuration:**
     - In `musicPlayer.py` there are commented logging configurations. Uncomment them to use them.

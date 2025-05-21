@@ -1,29 +1,4 @@
 # core/google.py
-"""
-YouTube Data API authentication and playlist management for IotaPlayer.
-
-Features:
-- Authenticates with YouTube Data API v3 using OAuth 2.0.
-- Creates YouTube playlists and adds videos to them.
-- Saves OAuth tokens to 'token.pickle' for reuse (avoids repeated logins).
-
-Requirements:
-- You must have a client secrets file (usually named 'client_secret.json') downloaded from the Google Cloud Console:
-  https://console.cloud.google.com
-- Enable the YouTube Data API v3 for your project in the Google Cloud Console.
-- Place your client secrets file in the same directory as this script, or provide its absolute path in CLIENT_SECRETS_FILE.
-
-Usage Example:
-    Set CLIENT_SECRETS_FILE = 'client_secret.json' (or your file path).
-    service = get_authenticated_service()
-    playlist_id = create_youtube_playlist(service, 'My Playlist')
-    add_videos_to_youtube_playlist(service, playlist_id, ['dQw4w9WgXcQ'])
-
-Functions:
-- get_authenticated_service(): Handles OAuth and returns an authenticated YouTube API service object.
-- create_youtube_playlist(service, title, ...): Creates a new playlist.
-- add_videos_to_youtube_playlist(service, playlist_id, video_ids): Adds videos to a playlist.
-"""
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -33,7 +8,7 @@ import json
 
 # Define the scopes required for playlist management
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
-CLIENT_SECRETS_FILE = "" # Path to your client secrets file (JSON)
+CLIENT_SECRETS_FILE = "" # This will be set later, do not set manually
 # This file should be created in the same directory as this script or provide an absolute path
 TOKEN_PICKLE_FILE = "token.pickle"
 

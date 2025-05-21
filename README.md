@@ -305,7 +305,6 @@ For automatic recognition, the song files in the selected folder should follow t
   Verify the installation of all required packages.
     ```
     PyQt5==5.15.10
-    pygame==2.6.0
     git+https://github.com/qwertyquerty/pypresence.git@master
     mutagen==1.47.0
     pynput==1.7.7

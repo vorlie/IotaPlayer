@@ -29,6 +29,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import os
 import pickle
+import json
 
 # Define the scopes required for playlist management
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
@@ -36,10 +37,23 @@ CLIENT_SECRETS_FILE = "" # Path to your client secrets file (JSON)
 # This file should be created in the same directory as this script or provide an absolute path
 TOKEN_PICKLE_FILE = "token.pickle"
 
-
+def load_client_secrets_path():
+    """Load the client secret file path from config.json."""
+    config_path = "config.json"
+    if os.path.exists(config_path):
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+            return config.get("google_client_secret_file", "")
+    return ""
 
 def get_authenticated_service():
     """Gets an authenticated YouTube Data API service object. Handles OAuth flow."""
+    global CLIENT_SECRETS_FILE
+    CLIENT_SECRETS_FILE = load_client_secrets_path()
+    if not CLIENT_SECRETS_FILE or not os.path.exists(CLIENT_SECRETS_FILE):
+        print(f"ERROR: Client secrets file not found at {CLIENT_SECRETS_FILE}")
+        return None
+
     creds = None
     # Load saved credentials if they exist
     if os.path.exists(TOKEN_PICKLE_FILE):

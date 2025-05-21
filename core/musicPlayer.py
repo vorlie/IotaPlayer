@@ -25,8 +25,8 @@ from PyQt5.QtWidgets import (
 )
 from utils import hex_to_rgba
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal
-from pygame import mixer
+from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from pynput import keyboard
 from mutagen.mp3 import MP3
 from core.discordIntegration import DiscordIntegration
@@ -179,14 +179,17 @@ class MusicPlayer(QMainWindow):
             f"Initialized IAudioEndpointVolume interface: {self.volume_interface}"
         )
 
-        mixer.init()
-        mixer.music.set_endevent(1)
+        self.media_player = QMediaPlayer()
         self.on_start()
         self.has_started = False
         self.is_paused = False
 
         self.audio_session = self.get_audio_session()
-
+        
+        self.media_player.positionChanged.connect(self.update_progress)
+        #self.media_player.durationChanged.connect(self.update_duration)
+        #self.media_player.stateChanged.connect(self.handle_state_change)
+        
         self.volume_update_timer = QTimer()
         self.volume_update_timer.timeout.connect(self.update_volume_slider)
         self.volume_update_timer.start(1000)
@@ -288,6 +291,14 @@ class MusicPlayer(QMainWindow):
         self.two_button_layout.addWidget(self.loop_button)
         self.one_button_layout.addWidget(self.youtube_button)
         self.one_button_layout.addWidget(self.upload_youtube_button)
+
+        client_secret_path = self.config.get("google_client_secret_file", "")
+        if not client_secret_path or not os.path.exists(client_secret_path):
+            self.upload_youtube_button.setEnabled(False)
+            self.upload_youtube_button.setToolTip("Set a valid Google client secret file in Settings to enable YouTube upload.")
+        else:
+            self.upload_youtube_button.setEnabled(True)
+            self.upload_youtube_button.setToolTip("")
 
         # left frame sliders
         self.sliders_layout = QVBoxLayout()
@@ -469,8 +480,37 @@ class MusicPlayer(QMainWindow):
         self.playlist_maker_button.clicked.connect(self.open_playlist_maker)
         self.settings_button.clicked.connect(self.open_settings)
         self.upload_youtube_button.clicked.connect(self.initiate_youtube_upload_dialog)
+        self.progress_bar.sliderReleased.connect(self.seek_in_song)
+
+    def seek_in_song(self):
+        """Seek to the position in the song based on the slider value."""
+        if self.media_player.duration() > 0:
+            # Get the slider value (0-100)
+            slider_value = self.progress_bar.value()
+            # Calculate the position in milliseconds
+            new_position = int((slider_value / 100) * self.media_player.duration())
+            self.media_player.setPosition(new_position)
+            self.update_song_info()
+
+    def update_youtube_button_state(self):
+        client_secret_path = self.config.get("google_client_secret_file", "")
+        if not client_secret_path or not os.path.exists(client_secret_path):
+            self.upload_youtube_button.setEnabled(False)
+            self.upload_youtube_button.setToolTip("Set a valid Google client secret file in Settings to enable YouTube upload.")
+        else:
+            self.upload_youtube_button.setEnabled(True)
+            self.upload_youtube_button.setToolTip("")
 
     def initiate_youtube_upload_dialog(self):
+        client_secret_path = self.config.get("google_client_secret_file", "")
+        if not client_secret_path or not os.path.exists(client_secret_path):
+            QMessageBox.warning(
+                self,
+                "Missing Google Client Secret",
+                "Google client secret file is missing or invalid. Please set it in Settings before uploading to YouTube."
+            )
+            return
+
         playlists_dir = self.config.get("root_playlist_folder", "playlists")
         if not os.path.exists(playlists_dir):
             QMessageBox.warning(
@@ -616,7 +656,7 @@ class MusicPlayer(QMainWindow):
     def update_youtube_progress(self, message):
         logging.info(f"YouTube Upload Progress: {message}")
         # Update a status label or progress bar
-        # self.statusBar().showMessage(message)
+        #self.statusBar().showMessage(message)
 
     def on_youtube_upload_finished(self, result_message):
         logging.info(f"YouTube Upload Finished: {result_message}")
@@ -632,7 +672,7 @@ class MusicPlayer(QMainWindow):
             f"An error occurred during the YouTube upload:\n{error_message}",
         )
         self.upload_youtube_button.setEnabled(True)  # Re-enable button
-        # self.statusBar().showMessage("Upload failed.")
+        #self.statusBar().showMessage("Upload failed.")
 
     def search_songs(self, query):
         search_type = self.search_type_dropdown.currentText()
@@ -757,7 +797,7 @@ class MusicPlayer(QMainWindow):
         if self.songs:
             for song in self.songs:
                 self.song_list.addItem(f"{song['artist']} - {song['title']}")
-            if mixer.music.get_busy():
+            if self.media_player.state() == QMediaPlayer.PlayingState:
                 logging.info(
                     "Current song is playing, not updating title and song info."
                 )
@@ -776,9 +816,6 @@ class MusicPlayer(QMainWindow):
         self.shuffled_songs = []
         self.shuffled_index = 0
         self.toggle_shuffle()  # If shuffle was enabled, reapply shuffle
-
-        if not mixer.music.get_busy():
-            self.toggle_shuffle()
 
     def load_playlist_dialog(self):
         playlist_path, _ = QFileDialog.getOpenFileName(
@@ -861,7 +898,7 @@ class MusicPlayer(QMainWindow):
         if self.audio_session:
             self.audio_session.SetMasterVolume(volume, None)
         else:
-            mixer.music.set_volume(volume)
+            self.media_player.setVolume(int(volume * 100))  # QMediaPlayer expects 0-100
         self.volume_label.setText(f"Volume: {value}%")
         # logging.info(f"Volume set to: {value}%")
 
@@ -870,7 +907,7 @@ class MusicPlayer(QMainWindow):
         if self.audio_session:
             current_volume = self.audio_session.GetMasterVolume() * 100
         else:
-            current_volume = mixer.music.get_volume() * 100
+            current_volume = self.media_player.volume()
         self.volume_slider.blockSignals(True)
         self.volume_slider.setValue(int(current_volume))
         self.volume_slider.blockSignals(False)
@@ -907,12 +944,12 @@ class MusicPlayer(QMainWindow):
         if self.is_paused:
             logging.info("Music is paused, attempting to resume...")
             self.resume_music()  # Should resume music
-        elif mixer.music.get_busy():
+        elif self.media_player.state() == QMediaPlayer.PlayingState:
             logging.info("Music is playing, attempting to pause...")
-            self.pause_music()  # Should pause music
+            self.pause_music()
         else:
             logging.info("No music is playing, attempting to start...")
-            self.toggle_play()  # Start playing music
+            self.toggle_play()
 
     def play_selected_song(self, item):
         """Play the song selected from the song list."""
@@ -938,8 +975,9 @@ class MusicPlayer(QMainWindow):
     def play_music(self):
         logging.info(f"Playing music: {self.current_song}")
         if self.current_song:
-            mixer.music.load(self.current_song["path"])
-            mixer.music.play()
+            url = QUrl.fromLocalFile(self.current_song["path"])
+            self.media_player.setMedia(QMediaContent(url))
+            self.media_player.play()
 
             # Track the start time and reset time played
             self.start_time = time.time()  # Set the current time as the start time
@@ -960,20 +998,16 @@ class MusicPlayer(QMainWindow):
             pass
 
     def stop_music(self):
-        if mixer.music.get_busy():
-            mixer.music.stop()
-            self.is_playing = False
-            self.is_paused = False
-            self.has_started = False
-            self.update_song_info()  # Handle Discord presence
+        self.media_player.stop()
+        self.is_playing = False
+        self.is_paused = False
+        self.has_started = False
+        self.update_song_info()  # Handle Discord presence
 
-            # Toggle Stop button to Play
-            self.toggle_play_button.setText("Play")
+        # Toggle Stop button to Play
+        self.toggle_play_button.setText("Play")
 
-            logging.info("Music stopped.")
-        else:
-            # logging.warning("Music is not currently playing.")
-            pass
+        logging.info("Music stopped.")
 
     def toggle_play(self):
         if self.is_playing:
@@ -983,8 +1017,8 @@ class MusicPlayer(QMainWindow):
 
     def pause_music(self):
         logging.info("Pausing music.")
-        if mixer.music.get_busy() and not self.is_paused:
-            mixer.music.pause()
+        if not self.is_paused:
+            self.media_player.pause()
             self.is_paused = True
 
             self.time_played += time.time() - self.start_time
@@ -1002,7 +1036,7 @@ class MusicPlayer(QMainWindow):
     def resume_music(self):
         logging.info("Resuming music.")
         if self.is_paused:
-            mixer.music.unpause()
+            self.media_player.play()
             self.is_paused = False
 
             # Add the paused duration to total_paused_time
@@ -1132,6 +1166,7 @@ class MusicPlayer(QMainWindow):
                 image_text = f"Playlist: {self.current_playlist}"
 
             if self.is_playing:  # Check if something is playing
+                current_position = self.media_player.position() // 1000
                 if self.is_paused:
                     self.discord_integration.update_presence(
                         f"{self.current_song['title']}",
@@ -1142,7 +1177,7 @@ class MusicPlayer(QMainWindow):
                         0,
                         big_image,
                         song_duration=self.song_duration,
-                        time_played=self.time_played,  # Pass time_played
+                        time_played=current_position,  # Pass time_played
                     )
                 else:
                     self.discord_integration.update_presence(
@@ -1154,7 +1189,7 @@ class MusicPlayer(QMainWindow):
                         self.current_song.get("youtube_id"),
                         big_image,
                         song_duration=self.song_duration,
-                        time_played=self.time_played,  # Pass time_played
+                        time_played=current_position,  # Pass time_played
                     )
             else:  # No song is playing
                 self.discord_integration.update_presence(
@@ -1209,24 +1244,23 @@ class MusicPlayer(QMainWindow):
         self.song_genre_label.setText("Genre:")
 
     def update_progress(self):
-        if mixer.music.get_busy():
-            elapsed_time = mixer.music.get_pos() // 1000
-            total_time = self.get_song_length(self.current_song["path"])
+        if self.media_player.state() == QMediaPlayer.PlayingState:
+            elapsed_time = self.media_player.position() // 1000  # milliseconds to seconds
+            total_time = self.media_player.duration() // 1000
             elapsed_str = self.format_time(elapsed_time)
             total_str = self.format_time(total_time)
             self.time_label.setText(f"{elapsed_str} / {total_str}")
-            self.progress_bar.setValue(int((elapsed_time / total_time) * 100))
+            if total_time > 0:
+                self.progress_bar.setValue(int((elapsed_time / total_time) * 100))
             self.setWindowTitle(
                 f"Iota Player • {self.current_playlist} ({len(self.songs)} songs) • {self.song_info_var} • {elapsed_str} / {total_str}"
             )
 
     def check_song_end(self):
-        if self.has_started and not mixer.music.get_busy() and self.current_song:
+        if self.has_started and self.media_player.state() != QMediaPlayer.PlayingState and self.current_song:
             if not self.is_paused:
-                # logging.info("Song ended.")
                 self.handle_song_end()
             else:
-                # logging.info("Song ended but is paused.")
                 pass
 
     def toggle_loop(self):

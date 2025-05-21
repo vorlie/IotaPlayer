@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import (
     QMessageBox, QApplication, QColorDialog, QSpinBox )
 from PyQt5.QtGui import QIcon
 
-
 class SettingsDialog(QDialog):
     def __init__(self, settings, icon_path, config_path):
         super().__init__()
@@ -45,13 +44,16 @@ class SettingsDialog(QDialog):
         
         self.tabs.addTab(self.general_tab, "General")
         self.tabs.addTab(self.discord_tab, "Discord")
+        self.google_tab = QWidget()
 
         # Layouts for each tab
         self.general_layout = QFormLayout()
         self.discord_layout = QFormLayout()
+        self.google_layout = QFormLayout()
 
         self.general_tab.setLayout(self.general_layout)
         self.discord_tab.setLayout(self.discord_layout)
+        self.google_tab.setLayout(self.google_layout)
 
         # General settings
         self.volume_percantage_edit = QSpinBox()
@@ -110,6 +112,12 @@ class SettingsDialog(QDialog):
         self.discord_layout.addRow(QLabel("Discord Client ID:"), self.discord_client_id_edit)
         self.discord_layout.addRow(QLabel("Large Image Key:"), self.large_image_key_edit)
         
+        self.google_client_secret_edit = QLineEdit()
+        self.google_client_secret_edit.setPlaceholderText("Path to client_secret.json")
+        self.google_client_secret_edit.setText(self.settings.get("google_client_secret_file", ""))
+
+        self.google_layout.addRow(QLabel("Client Secret File:"), self.google_client_secret_edit)
+        
         # Buttons
         button_layout = QHBoxLayout()
         layout.addLayout(button_layout)
@@ -157,6 +165,7 @@ class SettingsDialog(QDialog):
         self.settings["large_image_key"] = self.large_image_key_edit.text()
         self.settings["use_playing_status"] = self.use_playing_status_edit.isChecked()
         self.settings["minimize_to_tray"] = self.tray_checkbox.isChecked()
+        self.settings["google_client_secret_file"] = self.google_client_secret_edit.text()
         
         # Validate volume input
         volume_input = self.volume_percantage_edit.text()

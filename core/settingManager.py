@@ -41,10 +41,11 @@ class SettingsDialog(QDialog):
         # Create tabs
         self.general_tab = QWidget()
         self.discord_tab = QWidget()
+        self.google_tab = QWidget()
         
         self.tabs.addTab(self.general_tab, "General")
         self.tabs.addTab(self.discord_tab, "Discord")
-        self.google_tab = QWidget()
+        self.tabs.addTab(self.google_tab, "Google")
 
         # Layouts for each tab
         self.general_layout = QFormLayout()

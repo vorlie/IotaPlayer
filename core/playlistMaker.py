@@ -8,7 +8,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
 from mutagen.mp3 import MP3
-from mutagen.id3 import ID3,  APIC
+from mutagen.id3 import ID3
 
 class PlaylistManager:
     def __init__(self):
@@ -311,9 +311,6 @@ class PlaylistMaker(QDialog):
                     title = tags.get('TIT2', [None])[0] if tags.get('TIT2') else ""
                     album = tags.get('TALB', [None])[0] if tags.get('TALB') else ""
                     genre = tags.get('TCON', [None])[0] if tags.get('TCON') else ""
-                    # Embedded cover art
-                    if any(isinstance(tag, APIC) for tag in tags.values()):
-                        picture_path = song_path  # Mark that cover is embedded
                 artist = str(artist) if artist else ""
                 title = str(title) if title else ""
                 album = str(album) if album else ""

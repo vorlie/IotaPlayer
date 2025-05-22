@@ -1,7 +1,11 @@
 import os
+import platform
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ICON_PATH = os.path.join(BASE_DIR, 'icon.ico')
+if platform.system() == "Windows":
+    ICON_PATH = os.path.join(BASE_DIR, 'icon.ico')
+else:
+    ICON_PATH = os.path.join(BASE_DIR, 'icon.png')
 
 default_settings = {
     "connect_to_discord": True,
@@ -12,7 +16,6 @@ default_settings = {
     "default_playlist": "default",
     "colorization_color": "automatic",
     "volume_percantage": 100,
-    "minimize_to_tray": False,
 }
 
 discord_cdn_images = {

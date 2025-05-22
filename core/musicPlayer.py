@@ -25,10 +25,11 @@ from PyQt5.QtWidgets import (
 )
 from utils import hex_to_rgba
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl
+from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl, QByteArray
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from pynput import keyboard
 from mutagen.mp3 import MP3
+from mutagen.id3 import ID3, APIC
 from core.discordIntegration import DiscordIntegration
 from core.playlistMaker import PlaylistMaker, PlaylistManager
 from core.settingManager import SettingsDialog
@@ -37,8 +38,6 @@ from core.google import (
     create_youtube_playlist,
     add_videos_to_youtube_playlist,
 )
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-from comtypes import CLSCTX_ALL
 from config import discord_cdn_images
 from fuzzywuzzy import process
 
@@ -172,19 +171,10 @@ class MusicPlayer(QMainWindow):
         self.connection_check_timer.timeout.connect(self.check_discord_connection)
         self.connection_check_timer.start(10000)  # Check every 10 seconds
 
-        devices = AudioUtilities.GetSpeakers()
-        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-        self.volume_interface = interface.QueryInterface(IAudioEndpointVolume)
-        logging.info(
-            f"Initialized IAudioEndpointVolume interface: {self.volume_interface}"
-        )
-
         self.media_player = QMediaPlayer()
         self.on_start()
         self.has_started = False
         self.is_paused = False
-
-        self.audio_session = self.get_audio_session()
         
         self.media_player.positionChanged.connect(self.update_progress)
         #self.media_player.durationChanged.connect(self.update_duration)
@@ -193,13 +183,6 @@ class MusicPlayer(QMainWindow):
         self.volume_update_timer = QTimer()
         self.volume_update_timer.timeout.connect(self.update_volume_slider)
         self.volume_update_timer.start(1000)
-
-    def get_audio_session(self):
-        sessions = AudioUtilities.GetAllSessions()
-        for session in sessions:
-            if session.Process and session.Process.name() == "IotaPlayer.exe":
-                return session.SimpleAudioVolume
-        return None
 
     def set_stylesheet(self, theme, normal):
         if theme == "dark":
@@ -532,7 +515,7 @@ class MusicPlayer(QMainWindow):
         dialog = QDialog(self)
         dialog.setWindowTitle("Select a Playlist")
         dialog.setGeometry(300, 300, 400, 300)
-        # ... (setup dialog layout, list_widget, buttons as in PlaylistMaker.open_playlist) ...
+
         layout = QVBoxLayout(dialog)
         list_widget = QListWidget(dialog)
         list_widget.addItems([os.path.splitext(p)[0] for p in available_playlists])
@@ -643,7 +626,7 @@ class MusicPlayer(QMainWindow):
         # Disable the upload button to prevent multiple clicks
         self.upload_youtube_button.setEnabled(False)
         # Update status bar or label
-        # self.statusBar().showMessage("Starting YouTube upload...") # If you have a status bar
+        # self.statusBar().showMessage("Starting YouTube upload...")
 
         self.youtube_thread = YouTubeUploadThread(youtube_playlist_title, video_ids)
         # Connect signals from the thread to slots in MusicPlayer for feedback
@@ -894,20 +877,14 @@ class MusicPlayer(QMainWindow):
 
     def adjust_volume(self, value):
         """Adjusts the volume of the music player."""
-        volume = value / 100.0
-        if self.audio_session:
-            self.audio_session.SetMasterVolume(volume, None)
-        else:
-            self.media_player.setVolume(int(volume * 100))  # QMediaPlayer expects 0-100
+        volume = value / 100.
+        self.media_player.setVolume(int(volume * 100))  # QMediaPlayer expects 0-100
         self.volume_label.setText(f"Volume: {value}%")
         # logging.info(f"Volume set to: {value}%")
 
     def update_volume_slider(self):
         """Updates the volume slider based on the current system volume."""
-        if self.audio_session:
-            current_volume = self.audio_session.GetMasterVolume() * 100
-        else:
-            current_volume = self.media_player.volume()
+        current_volume = self.media_player.volume()
         self.volume_slider.blockSignals(True)
         self.volume_slider.setValue(int(current_volume))
         self.volume_slider.blockSignals(False)
@@ -1203,19 +1180,38 @@ class MusicPlayer(QMainWindow):
                     # None, # Duration, commented because it doesn't work as expected
                 )
 
+    def get_embedded_cover(self, song_path):
+        """Return QPixmap of embedded cover art if present, else None."""
+        try:
+            audio = MP3(song_path, ID3=ID3)
+            for tag in audio.tags.values():
+                if isinstance(tag, APIC):
+                    cover_data = tag.data
+                    pixmap = QPixmap()
+                    pixmap.loadFromData(QByteArray(cover_data))
+                    return pixmap
+        except Exception as e:
+            logging.warning(f"No embedded cover found or error reading cover: {e}")
+        return None
+
     def update_right_frame_info(self):
         """Update the right frame with the current song's information."""
         if self.current_song:
-            # Update the song picture
-            picture_path = self.current_song.get("picture_path", "default.png")
-            if os.path.exists(picture_path):
-                self.song_picture.setPixmap(
-                    QPixmap(picture_path).scaled(250, 250, Qt.KeepAspectRatio)
-                )
+            # Try embedded cover first
+            cover_pixmap = self.get_embedded_cover(self.current_song["path"])
+            if cover_pixmap:
+                self.song_picture.setPixmap(cover_pixmap.scaled(250, 250, Qt.KeepAspectRatio))
             else:
-                self.song_picture.setPixmap(
-                    QPixmap("default.png").scaled(250, 250, Qt.KeepAspectRatio)
-                )
+                # Fallback to picture_path
+                picture_path = self.current_song.get("picture_path", "default.png")
+                if os.path.exists(picture_path):
+                    self.song_picture.setPixmap(
+                        QPixmap(picture_path).scaled(250, 250, Qt.KeepAspectRatio)
+                    )
+                else:
+                    self.song_picture.setPixmap(
+                        QPixmap("default.png").scaled(250, 250, Qt.KeepAspectRatio)
+                    )
 
             # Update the labels with song information
             self.song_title_label.setText(

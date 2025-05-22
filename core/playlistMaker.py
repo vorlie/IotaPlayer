@@ -7,6 +7,9 @@ from PyQt5.QtWidgets import QDialog, QFileDialog, QPushButton, QVBoxLayout, QHBo
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3,  APIC
+
 class PlaylistManager:
     def __init__(self):
         self.playlists = {}
@@ -296,20 +299,51 @@ class PlaylistMaker(QDialog):
         song_files = [f for f in os.listdir(folder) if f.endswith(".mp3")]
 
         for filename in song_files:
-            match = re.match(r'(.+) - (.+) \[([^\]]*)\]\.mp3$', filename)
-            if match:
-                artist, title, youtube_id = match.groups()
-                song_path = os.path.join(folder, filename)
-                self.songs.append({
-                    "artist": artist,
-                    "title": title,
-                    "genre": "",  # Default empty genre
-                    "album": "",  # Default empty album
-                    "picture_path": "",  # Default empty picture path
-                    "picture_link": "",  # Default empty picture link
-                    "youtube_id": youtube_id,
-                    "path": song_path.replace("\\", "/")
-                })
+            song_path = os.path.join(folder, filename)
+            artist = title = album = genre = picture_path = picture_link = youtube_id = ""
+
+            # Try to extract metadata first
+            try:
+                audio = MP3(song_path, ID3=ID3)
+                tags = audio.tags
+                if tags:
+                    artist = tags.get('TPE1', [None])[0] if tags.get('TPE1') else ""
+                    title = tags.get('TIT2', [None])[0] if tags.get('TIT2') else ""
+                    album = tags.get('TALB', [None])[0] if tags.get('TALB') else ""
+                    genre = tags.get('TCON', [None])[0] if tags.get('TCON') else ""
+                    # Embedded cover art
+                    if any(isinstance(tag, APIC) for tag in tags.values()):
+                        picture_path = song_path  # Mark that cover is embedded
+                artist = str(artist) if artist else ""
+                title = str(title) if title else ""
+                album = str(album) if album else ""
+                genre = str(genre) if genre else ""
+            except Exception as e:
+                logging.error(f"Error reading metadata for {filename}: {e}")
+                # If metadata extraction fails, fallback to regex
+                artist = title = album = genre = ""
+                picture_path = ""
+            
+            # If metadata is missing, fallback to filename regex
+            if not artist or not title:
+                match = re.match(r'(.+) - (.+) \[([^\]]*)\]\.mp3$', filename)
+                if match:
+                    artist, title, youtube_id = match.groups()
+                else:
+                    artist = "Unknown Artist"
+                    title = os.path.splitext(filename)[0]
+                    youtube_id = ""
+
+            self.songs.append({
+                "artist": artist,
+                "title": title,
+                "album": album,
+                "genre": genre,
+                "picture_path": picture_path,  # "" if no embedded cover
+                "picture_link": picture_link,
+                "youtube_id": youtube_id,
+                "path": song_path.replace("\\", "/")
+            })
 
         self.add_song_to_table()
 

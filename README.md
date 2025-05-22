@@ -11,6 +11,57 @@
 
 A feature-rich music player application with playlist management, playback controls, song information display, volume and progress tracking, Discord integration, and more.
 
+## Installation
+
+### Windows
+- **Recommended:** Download the latest compiled `.exe` or `.zip` from the [Releases](https://github.com/vorlie/IotaPlayer/releases) page and run/extract it.
+- **From source:** Follow the Linux instructions below using Python 3.12+ and all dependencies.
+
+### Linux (and other platforms)
+- **No prebuilt binaries provided.** You must install from source due to distro differences.
+- **Requires Python 3.12 or newer.**
+- **Install dependencies:**
+  - Python 3.12 or newer
+  - [PyQt5](https://pypi.org/project/PyQt5/), [matplotlib](https://pypi.org/project/matplotlib/), [numpy](https://pypi.org/project/numpy/), [mutagen](https://pypi.org/project/mutagen/), [fuzzywuzzy](https://pypi.org/project/fuzzywuzzy/), [pynput](https://pypi.org/project/pynput/)
+  - For audio playback: GStreamer and plugins (see below)
+- **Example (Ubuntu/Debian):**
+  ```sh
+  sudo apt update
+  sudo apt install python3 python3-pip python3-venv python3-pyqt5 python3-pyqt5.qtmultimedia \
+    gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav \
+    libxcb-xinerama0
+  # Optional: for best performance
+  sudo apt install python3-numpy python3-matplotlib
+  ```
+- **Clone the repository or extract the .zip file:**
+  ```sh
+  # If using git:
+  git clone https://github.com/vorlie/IotaPlayer.git
+  cd IotaPlayer
+  # If using the .zip, extract and cd into the folder
+  ```
+- **Create and activate a virtual environment (recommended):**
+  ```sh
+  python3 -m venv venv
+  source venv/bin/activate
+  ```
+- **Install Python dependencies:**
+  ```sh
+  pip install -r requirements.txt --ignore-requires-python
+  ```
+  - If you encounter issues, see the [Troubleshooting](#troubleshooting) section for tips and alternative install commands.
+- **Run the application:**
+  ```sh
+  python main.py
+  ```
+
+- **Note:**
+  - You may need to install additional system packages depending on your distro (see Troubleshooting).
+  - If you encounter Qt or GStreamer errors, see the Troubleshooting section below.
+
+---
+
 ## Very Special Thanks!
  - [DarkDetect](https://github.com/albertosottile/darkdetect) for the source code for windows dark mode detection.
     - Where used? [Here](utils/__init__.py) It was used as a base for getting ColorizationColor from the registry.
@@ -184,71 +235,6 @@ For automatic recognition, the song files in the selected folder should follow t
 }
 ```
 
-## Installation
-
-1. **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/vorlie/IotaPlayer.git
-    ```
-
-2. **Navigate to the project directory:**
-
-    ```bash
-    cd IotaPlayer
-    ```
-3. **Make virtual environment:**
-
-    ```bash
-    python -m venv venv
-    ./venv/Scripts/activate
-    ```
-
-3. **Install the required dependencies: [requirements.txt](https://github.com/vorlie/IotaPlayer/blob/main/requirements.txt)**
-  (To install using git, you must install [Git](https://git-scm.com/downloads).)
-
-    ```bash
-    pip install -r requirements.txt --ignore-requires-python
-    ```
-
-4. **Ensure you have the necessary environment variables and configuration files:**
-    - Create a `config.json` file with necessary configuration details.
-        - Otherwise the application will generate a default configuration.
-    - Add your Discord client ID in the appropriate place if needed.
-        - The default value is `1150680286649143356`.
-
-5. **Building from source using pyinstaller:**
-    - If planning to build from source.
-
-      ```bash
-      pip -m install pyinstaller==6.6.0
-      ```
-      ```bash
-      pyinstaller IotaPlayerWIN.spec
-      ```
-    - If you want console output:
-      - Change the `console` value to `True` in the `IotaPlayerWIN.spec` file. If you decide to leave it as `False`, then be aware of how PyInstaller works, it can trigger your anti virus.
-        ```spec
-          exe = EXE(
-            pyz,
-            a.scripts,
-            [],
-            exclude_binaries=True,
-            name='IotaPlayer',
-            debug=False,
-            bootloader_ignore_signals=False,
-            strip=False,
-            upx=True,
-            console=False,
-            disable_windowed_traceback=False,
-            argv_emulation=False,
-            target_arch=None,
-            codesign_identity=None,
-            entitlements_file=None,
-            icon=['icon.ico'],
-          )
-        ```
-
 ## Usage
 
 1. **Run the application:**
@@ -295,21 +281,49 @@ For automatic recognition, the song files in the selected folder should follow t
 
 ## Troubleshooting
 
-- **Ensure all dependencies are installed:**
-  Verify the installation of all required packages.
+- **Python version:**
+  - This app requires **Python 3.12 or newer**. Check your version with:
+    ```sh
+    python --version
+    # or
+    python3 --version
     ```
-    PyQt5==5.15.10
-    git+https://github.com/qwertyquerty/pypresence.git@master
-    mutagen==1.47.0
-    pynput==1.7.7
-    git+https://github.com/vorlie/PyQtDarkTheme.git@main 
+  - If your version is too old, install Python 3.12+ from your package manager or [python.org](https://www.python.org/downloads/).
+
+- **Ensure all dependencies are installed:**
+  - Always refer to `requirements.txt` for the most up-to-date list of dependencies. You can install them with:
+    ```sh
+    pip install -r requirements.txt --ignore-requires-python
+    ```
+  - On Linux, also ensure GStreamer and Qt platform plugins are installed (see Installation section above).
+
+- **Qt platform plugin errors (Linux):**
+  - If you see errors about `xcb` or Qt platform plugins, install:
+    ```sh
+    sudo apt install libxcb-xinerama0 libxcb1 libx11-xcb1
+    sudo apt install libgl1-mesa-glx
+    ```
+  - If running under Wayland, try:
+    ```sh
+    export QT_QPA_PLATFORM=xcb
+    python main.py
     ```
 
 - **Check Discord connection:**
-  Ensure your Discord client ID is correct and that you are connected to Discord.
+  - Ensure your Discord client ID is correct and that you are connected to Discord.
 
 - **Review logs:**
-  Check `combined_app.log` for detailed logging information if issues arise.
+  - Check `combined_app.log` for detailed logging information if issues arise.
+
+- **Other issues:**
+  - If you see permission errors with the virtual environment, ensure you own the files and have execute permissions:
+    ```sh
+    chmod +x venv/bin/activate
+    sudo chown -R $USER:$USER venv
+    ```
+  - For missing system dependencies, refer to your distro’s documentation or the Installation section above.
+
+---
 
 ## Gallery
 
@@ -343,3 +357,16 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **[mutagen](https://mutagen.readthedocs.io/en/latest/)**: A Python module used for handling audio metadata, enabling the application to read and write metadata in audio files.
 - **[pynput](https://pynput.readthedocs.io/en/latest/)**: A library for controlling and monitoring input devices, such as keyboards and mice.
 - **[pyinstaller](https://www.pyinstaller.org/)**: A tool for converting Python applications into stand-alone executables, allowing for easier distribution and deployment.
+
+## Building from source (advanced/optional)
+If you want to build a standalone executable (Windows only):
+
+- Install [PyInstaller](https://www.pyinstaller.org/):
+  ```sh
+  pip install pyinstaller==6.6.0
+  ```
+- Build:
+  ```sh
+  pyinstaller IotaPlayerWIN.spec
+  ```
+- For console output, set `console=True` in the `.spec` file.

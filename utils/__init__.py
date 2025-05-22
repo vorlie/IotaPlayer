@@ -1,13 +1,11 @@
-# utils/__init__.py
 from matplotlib.colors import to_rgb, to_hex
 import numpy as np
-import ctypes
-import ctypes.wintypes
-import darkdetect
-from time import sleep
-from winreg import HKEY_CURRENT_USER, QueryValueEx, OpenKey
+import platform
 
-advapi32 = ctypes.windll.advapi32
+try:
+    import darkdetect
+except ImportError:
+    darkdetect = None
 
 colorValues = {
     "dark": 0.9,
@@ -42,47 +40,53 @@ def lighten_color(hex_color, factor):
     return lightened_hex
 
 def get_colorization_colors():
-    """Fetch the ColorizationColor from the Windows registry and return both normal and darker colors."""
-    try:
-        key = OpenKey(HKEY_CURRENT_USER, r"Software\Microsoft\Windows\DWM")
-        colorization_color = QueryValueEx(key, "ColorizationColor")[0]
-        key.Close()
-        
-        red = (colorization_color >> 16) & 0xFF
-        green = (colorization_color >> 8) & 0xFF
-        blue = colorization_color & 0xFF
-
-        accent = '#{:02X}{:02X}{:02X}'.format(red, green, blue)
-        
-        dark = darken_color(accent, colorValues['dark'])
-        dark_alt = darken_color(accent, colorValues['dark_alt'])
-        light = lighten_color(accent, colorValues['light'])
-        light_alt = lighten_color(accent, colorValues['light_alt'])
-        
-        return accent, dark, dark_alt, light, light_alt
-    except Exception:
+    """Fetch the accent color and variations. Uses Windows registry if available, else defaults."""
+    if platform.system() == "Windows":
+        try:
+            import ctypes
+            from winreg import HKEY_CURRENT_USER, QueryValueEx, OpenKey
+            key = OpenKey(HKEY_CURRENT_USER, r"Software\Microsoft\Windows\DWM")
+            colorization_color = QueryValueEx(key, "ColorizationColor")[0]
+            key.Close()
+            red = (colorization_color >> 16) & 0xFF
+            green = (colorization_color >> 8) & 0xFF
+            blue = colorization_color & 0xFF
+            accent = '#{:02X}{:02X}{:02X}'.format(red, green, blue)
+        except Exception:
+            accent = "#ff50aa"
+    else:
         accent = "#ff50aa"
-        dark = darken_color(accent, colorValues['dark'])
-        dark_alt = darken_color(accent, colorValues['dark_alt'])
-        light = lighten_color(accent, colorValues['light'])
-        light_alt = lighten_color(accent, colorValues['light_alt'])
-
-        return accent, dark, dark_alt, light, light_alt
+    dark = darken_color(accent, colorValues['dark'])
+    dark_alt = darken_color(accent, colorValues['dark_alt'])
+    light = lighten_color(accent, colorValues['light'])
+    light_alt = lighten_color(accent, colorValues['light_alt'])
+    return accent, dark, dark_alt, light, light_alt
 
 def get_system_theme():
     """Detect current system theme (light or dark)."""
     try:
-        theme = darkdetect.theme().lower()
-        if theme not in ['light', 'dark']:
-            # Handle unexpected values
-            theme = 'dark' if ctypes.windll.dwmapi.DwmGetWindowAttribute(0, 9) else 'light'
-        return theme
-    except Exception as e:
-        print(e)
-        return 'dark'
+        if darkdetect:
+            theme = darkdetect.theme().lower()
+            if theme in ['light', 'dark']:
+                return theme
+        # Fallback: try to detect on Windows
+        if platform.system() == "Windows":
+            import ctypes
+            return 'dark' if ctypes.windll.dwmapi.DwmGetWindowAttribute(0, 9) else 'light'
+    except Exception:
+        pass
+    return 'dark'
 
 def listener(callback):
-    """Listen for changes to the ColorizationColor registry key and trigger the callback."""
+    """Listen for Windows accent color changes and theme changes. No-op on non-Windows."""
+    if platform.system() != "Windows":
+        # No-op for Linux/macOS
+        return
+    import ctypes
+    import ctypes.wintypes
+    from winreg import HKEY_CURRENT_USER
+    advapi32 = ctypes.windll.advapi32
+
     hKey = ctypes.wintypes.HKEY()
     advapi32.RegOpenKeyExA(
         ctypes.wintypes.HKEY(0x80000001),  # HKEY_CURRENT_USER
@@ -106,6 +110,7 @@ def listener(callback):
 
     current_theme = get_system_theme()
 
+    from time import sleep
     while True:
         # Always check for theme updates
         new_theme = get_system_theme()
@@ -122,7 +127,7 @@ def listener(callback):
             ctypes.wintypes.HANDLE(None),
             ctypes.wintypes.BOOL(False),
         )
-        
+
         advapi32.RegQueryValueExA(
             hKey,
             ctypes.wintypes.LPCSTR(b'ColorizationColor'),
@@ -134,20 +139,13 @@ def listener(callback):
 
         if queryValueLast.value != queryValue.value:
             queryValueLast.value = queryValue.value
-
-            # Convert the color from ABGR to RGB
             red = (queryValue.value >> 16) & 0xFF
             green = (queryValue.value >> 8) & 0xFF
             blue = queryValue.value & 0xFF
-
             accent = '#{:02X}{:02X}{:02X}'.format(red, green, blue)
-            
-            # Apply darken and lighten functions with appropriate factors
             dark = darken_color(accent, colorValues['dark'])
             dark_alt = darken_color(accent, colorValues['dark_alt'])
             light = lighten_color(accent, colorValues['light'])
             light_alt = lighten_color(accent, colorValues['light_alt'])
-
-            # Call the callback with the system theme and colors
             callback(accent, dark, dark_alt, light, light_alt)
         sleep(5)

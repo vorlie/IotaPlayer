@@ -48,7 +48,7 @@ A feature-rich music player application with playlist management, playback contr
   ```
 - **Install Python dependencies:**
   ```sh
-  pip install -r requirements.txt --ignore-requires-python
+  pip3 install -r requirements.txt --ignore-requires-python
   ```
   - If you encounter issues, see the [Troubleshooting](#troubleshooting) section for tips and alternative install commands.
 - **Run the application:**

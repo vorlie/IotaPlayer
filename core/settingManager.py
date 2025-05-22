@@ -87,7 +87,6 @@ class SettingsDialog(QDialog):
         self.use_system_accent_checkbox.setChecked(color == "automatic")
         self.use_system_accent_checkbox.stateChanged.connect(self.toggle_colorization_color)
         
-        self.general_layout.addRow(QLabel("Minimize to Tray:"), self.tray_checkbox)
         self.general_layout.addRow(QLabel("Volume Percentage:"), self.volume_percantage_edit)
         self.general_layout.addRow(QLabel("Root Playlist Folder:"), self.root_playlist_folder_edit)
         self.general_layout.addRow(QLabel("Default Playlist:"), self.default_playlist_edit)
@@ -165,7 +164,6 @@ class SettingsDialog(QDialog):
         self.settings["discord_client_id"] = self.discord_client_id_edit.text()
         self.settings["large_image_key"] = self.large_image_key_edit.text()
         self.settings["use_playing_status"] = self.use_playing_status_edit.isChecked()
-        self.settings["minimize_to_tray"] = self.tray_checkbox.isChecked()
         self.settings["google_client_secret_file"] = self.google_client_secret_edit.text()
         
         # Validate volume input

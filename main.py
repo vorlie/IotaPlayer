@@ -3,13 +3,12 @@ import sys
 import json
 import platform
 import logging
-import utils
 import darkdetect
 from time import sleep
-from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QAction
+import utils
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtNetwork import QLocalServer, QLocalSocket
-from PyQt5.QtGui import QIcon
 from core.musicPlayer import MusicPlayer
 from core.logger import setup_logging
 from config import ICON_PATH, default_settings
@@ -78,15 +77,18 @@ class Iota(QObject):
 
     def bring_to_foreground(self):
         logging.info(f"Attempting to bring window to foreground on {platform.system()}.")
-        import ctypes
-        from ctypes.wintypes import HWND
-            
-        hwnd = int(player.winId())
-        logging.info(f"Windows HWND: {hwnd}")
-        SW_RESTORE = 9
-        ctypes.windll.user32.ShowWindow(HWND(hwnd), SW_RESTORE)
-        ctypes.windll.user32.SetForegroundWindow(HWND(hwnd))
-        ctypes.windll.user32.SetFocus(HWND(hwnd))
+        if platform.system() == "Windows":
+            import ctypes
+            from ctypes.wintypes import HWND
+            hwnd = int(player.winId())
+            logging.info(f"Windows HWND: {hwnd}")
+            SW_RESTORE = 9
+            ctypes.windll.user32.ShowWindow(HWND(hwnd), SW_RESTORE)
+            ctypes.windll.user32.SetForegroundWindow(HWND(hwnd))
+            ctypes.windll.user32.SetFocus(HWND(hwnd))
+        else:
+            player.raise_()
+            player.activateWindow()
 
 
 def load_config():
@@ -142,38 +144,27 @@ def main():
     IotaSrv = Iota()
 
     IotaSrv.setup_server()
+    config = load_config()
+    color = config.get("colorization_color", "automatic")  
 
-    clr = utils.get_colorization_colors()[0]
+    if color == "automatic":
+        if platform.system() == "Windows":
+            clr = utils.get_colorization_colors()[0]
+        else:
+            clr = "#ff50aa"  # Or any default/accent color for Linux
+    else:
+        clr = color
     global player
-    player = MusicPlayer(settings=default_settings, icon_path=ICON_PATH, config_path=CONFIG_PATH, theme=darkdetect.theme().lower(), normal=clr)
+    player = MusicPlayer(
+        settings=default_settings, 
+        icon_path=ICON_PATH, 
+        config_path=CONFIG_PATH, 
+        theme=darkdetect.theme().lower(), 
+        normal=clr
+    )
     player.show()
     player.adjust_volume(player.get_volume)
-    config = load_config()
-    color = config.get("colorization_color", "automatic")
-    tray_icon = QSystemTrayIcon(QIcon(ICON_PATH), app)
-    tray_icon.show()
-    tray_menu = QMenu()
-    
-    open_action = QAction("Open", tray_menu)
-    open_action.triggered.connect(player.show)
-    tray_menu.addAction(open_action)
-    
-    minimize_action = QAction("Minimize", tray_menu)
-    minimize_action.triggered.connect(player.hide)
-    tray_menu.addAction(minimize_action)
-    
-    quit_action = QAction("Quit", tray_menu)
-    quit_action.triggered.connect(app.quit)
-    tray_menu.addAction(quit_action)
-    
-    tray_icon.setContextMenu(tray_menu)
-    minimize_to_tray = config.get("minimize_to_tray", False)
 
-    if minimize_to_tray:
-        minimize_action.triggered.connect(player.hide)
-    else:
-        minimize_action.triggered.connect(player.setVisible)
-    
     def handle_color_change(normal, dark, dark_alt, light, light_alt):
         current_theme = darkdetect.theme().lower()
         logging.info(f"Handling color change: {normal}, {dark}, {dark_alt}, {light}, {light_alt} for theme: {current_theme}")
@@ -187,9 +178,9 @@ def main():
         update_theme(normal, dark, dark_alt, light, light_alt, theme)
         player.set_stylesheet(theme, normal)
         
-    if color == "automatic":  # Use the system's accent color
+    if color == "automatic" and platform.system() == "Windows":
         normal, dark, dark_alt, light, light_alt = utils.get_colorization_colors()
-        handle_color_change(normal, dark, dark_alt, light, light_alt)  # Initialize with the correct theme
+        handle_color_change(normal, dark, dark_alt, light, light_alt)
 
         color_change_listener = ColorChangeListener()
         color_change_listener.color_changed.connect(handle_color_change)
@@ -199,7 +190,7 @@ def main():
         theme_change_listener.theme_changed.connect(handle_theme_change)
         theme_change_listener.start()
     else:
-        qdt.setup_theme('auto', custom_colors={"primary": color})
+        qdt.setup_theme('auto', custom_colors={"primary": clr})
     
     sys.exit(app.exec_())
 

@@ -25,11 +25,10 @@ from PyQt5.QtWidgets import (
 )
 from utils import hex_to_rgba
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl, QByteArray
+from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from pynput import keyboard
 from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC
 from core.discordIntegration import DiscordIntegration
 from core.playlistMaker import PlaylistMaker, PlaylistManager
 from core.settingManager import SettingsDialog

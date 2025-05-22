@@ -59,6 +59,8 @@ A feature-rich music player application with playlist management, playback contr
 - **Note:**
   - You may need to install additional system packages depending on your distro (see Troubleshooting).
   - If you encounter Qt or GStreamer errors, see the Troubleshooting section below.
+  - **Some MP3 files may not play if you do not have the required codecs installed.** On Windows, you may need to install a codec pack such as [K-Lite Codec Pack](https://codecguide.com/download_kl.htm) to enable playback of certain files (especially those with ID3 tags or special encodings). On Linux, ensure you have the full set of GStreamer plugins installed as shown above.
+  - If you see errors like `DirectShowPlayerService::doRender: Unresolved error code 80040266`, it usually means a required codec is missing. This error (0x80040266, VFW_E_NO_TRANSPORT) often occurs when the MP3 file contains an overly long ID3 tag section, which the stock decoder cannot skip to reach the audio data. Installing a richer codec pack resolves this issue.
 
 ---
 

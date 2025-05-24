@@ -1,12 +1,12 @@
 # Iota Player
 
+[![ko-fi](https://img.shields.io/badge/kofi-vorlie-%23F16061.svg?style=for-the-badge&logo=ko-fi)](https://ko-fi.com/vorlie)
 [![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=for-the-badge&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 ![GitHub top language](https://img.shields.io/github/languages/top/vorlie/IotaPlayer.svg?style=for-the-badge)
 [![license](https://img.shields.io/github/license/vorlie/IotaPlayer.svg?style=for-the-badge)](https://github.com/vorlie/IotaPlayer/blob/master/LICENSE) 
 ![GitHub last commit](https://img.shields.io/github/last-commit/vorlie/IotaPlayer.svg?style=for-the-badge)
 
-[License](LICENSE) • [Contributing](CONTRIBUTING.md) • [Gallery](#gallery) •  [Installation](#installation) • [Troubleshooting](#troubleshooting) • [Configuration](#configuration) •
-[Core Features](#core-features) • [User Interface](#user-interface) • [Shortcuts](#shortcuts) • [Logging](#logging) • [Playlist Maker](#playlist-maker) •
+[Core Features](#core-features) • [Installation](#installation) • [Configuration](#configuration) • [License](LICENSE) • [Contributing](CONTRIBUTING.md) • [Gallery](#gallery) • [Troubleshooting](#troubleshooting) • [User Interface](#user-interface) • [Shortcuts](#shortcuts) • [Logging](#logging) • [Playlist Maker](#playlist-maker) •
 [Usage](#usage)
 
 A feature-rich music player application with playlist management, playback controls, song information display, volume and progress tracking, Discord integration, and more.

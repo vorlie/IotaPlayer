@@ -25,10 +25,11 @@ from PyQt5.QtWidgets import (
 )
 from utils import hex_to_rgba
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl
+from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl, QByteArray
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from pynput import keyboard
 from mutagen.mp3 import MP3
+from mutagen.id3 import ID3, APIC
 from core.discordIntegration import DiscordIntegration
 from core.playlistMaker import PlaylistMaker, PlaylistManager
 from core.settingManager import SettingsDialog
@@ -1179,19 +1180,38 @@ class MusicPlayer(QMainWindow):
                     # None, # Duration, commented because it doesn't work as expected
                 )
 
+    def get_embedded_cover(self, song_path):
+        """Return QPixmap of embedded cover art if present, else None."""
+        try:
+            audio = MP3(song_path, ID3=ID3)
+            for tag in audio.tags.values():
+                if isinstance(tag, APIC):
+                    cover_data = tag.data
+                    pixmap = QPixmap()
+                    pixmap.loadFromData(QByteArray(cover_data))
+                    return pixmap
+        except Exception as e:
+            logging.warning(f"No embedded cover found or error reading cover: {e}")
+        return None
+
     def update_right_frame_info(self):
         """Update the right frame with the current song's information."""
         if self.current_song:
-            # Update the song picture
-            picture_path = self.current_song.get("picture_path", "default.png")
-            if os.path.exists(picture_path):
-                self.song_picture.setPixmap(
-                    QPixmap(picture_path).scaled(250, 250, Qt.KeepAspectRatio)
-                )
+            # Try embedded cover first
+            cover_pixmap = self.get_embedded_cover(self.current_song["path"])
+            if cover_pixmap:
+                self.song_picture.setPixmap(cover_pixmap.scaled(250, 250, Qt.KeepAspectRatio))
             else:
-                self.song_picture.setPixmap(
-                    QPixmap("default.png").scaled(250, 250, Qt.KeepAspectRatio)
-                )
+                # Fallback to picture_path
+                picture_path = self.current_song.get("picture_path", "default.png")
+                if os.path.exists(picture_path):
+                    self.song_picture.setPixmap(
+                        QPixmap(picture_path).scaled(250, 250, Qt.KeepAspectRatio)
+                    )
+                else:
+                    self.song_picture.setPixmap(
+                        QPixmap("default.png").scaled(250, 250, Qt.KeepAspectRatio)
+                    )
 
             # Update the labels with song information
             self.song_title_label.setText(

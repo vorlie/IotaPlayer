@@ -32,6 +32,8 @@ Iota Player now includes automatic extraction and caching of embedded cover art 
 
 This feature is cross-platform and works on Windows, Linux, and macOS.
 
+> You might need to restart Iota Player if it doesn't use the cached covers instantly.
+
 ## Installation
 
 ### Windows

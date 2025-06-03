@@ -33,6 +33,7 @@ from mutagen.id3 import ID3, APIC
 from core.discordIntegration import DiscordIntegration
 from core.playlistMaker import PlaylistMaker, PlaylistManager
 from core.settingManager import SettingsDialog
+from core.imageCache import CoverArtCache
 from core.google import (
     get_authenticated_service,
     create_youtube_playlist,
@@ -130,6 +131,7 @@ class MusicPlayer(QMainWindow):
 
         self.initUI()
         self.set_stylesheet(theme, normal)
+        self.cover_cache = CoverArtCache()
         self.listener = keyboard.Listener(on_press=self.on_key_press)
         self.listener_thread = threading.Thread(target=self.listener.start)
         self.listener_thread.start()
@@ -1198,9 +1200,9 @@ class MusicPlayer(QMainWindow):
         """Update the right frame with the current song's information."""
         if self.current_song:
             # Try embedded cover first
-            cover_pixmap = self.get_embedded_cover(self.current_song["path"])
+            cover_pixmap = self.cover_cache.get_cover(self.current_song["path"], size=250)
             if cover_pixmap:
-                self.song_picture.setPixmap(cover_pixmap.scaled(250, 250, Qt.KeepAspectRatio))
+                self.song_picture.setPixmap(cover_pixmap)
             else:
                 # Fallback to picture_path
                 picture_path = self.current_song.get("picture_path", "default.png")

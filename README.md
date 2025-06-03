@@ -11,6 +11,27 @@
 
 A feature-rich music player application with playlist management, playback controls, song information display, volume and progress tracking, Discord integration, and more.
 
+## Cover Art Extraction, Caching, and 1:1 Cropping
+
+Iota Player now includes automatic extraction and caching of embedded cover art from your music files. All cover images are processed to a 1:1 (square) aspect ratio by cropping the center, ensuring a consistent and visually appealing display in the player UI.
+
+### How it works
+- **Extraction:** Scans your music folders for audio files (MP3, FLAC, OGG, M4A) and extracts embedded cover art.
+- **Caching:** Saves processed covers to a local cache for fast access and reduced disk reads.
+- **1:1 Cropping:** Crops covers to a perfect square, centered, so all album art displays uniformly without side bars or padding.
+- **Threaded:** The extraction and caching process runs in a background thread, so your UI remains responsive.
+
+### How to use
+1. **Open Settings:** Go to the Settings dialog in Iota Player.
+2. **Navigate to the "Cover Art" Tab:**
+   - Click the "Extract & Cache Covers" button to start the process.
+   - Progress is shown in a progress bar.
+3. **Automatic Usage:**
+   - Once covers are cached, the player will automatically use the cached, cropped cover art in the right info frame when displaying song details.
+   - If no embedded cover is found, a default image is used.
+
+This feature is cross-platform and works on Windows, Linux, and macOS.
+
 ## Installation
 
 ### Windows

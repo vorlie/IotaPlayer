@@ -6,8 +6,11 @@ from PyQt5.QtWidgets import (
     QDialog, QLabel, QLineEdit, 
     QPushButton, QVBoxLayout, QHBoxLayout, 
     QWidget, QTabWidget, QFormLayout, QCheckBox, 
-    QMessageBox, QApplication, QColorDialog, QSpinBox )
+    QMessageBox, QApplication, QColorDialog, QSpinBox, QProgressBar 
+)
 from PyQt5.QtGui import QIcon
+from core.coverArtExtractor import CoverArtExtractor
+from core.imageCache import CoverArtCache
 
 class SettingsDialog(QDialog):
     def __init__(self, settings, icon_path, config_path):
@@ -42,19 +45,23 @@ class SettingsDialog(QDialog):
         self.general_tab = QWidget()
         self.discord_tab = QWidget()
         self.google_tab = QWidget()
+        self.cover_tab = QWidget()
         
         self.tabs.addTab(self.general_tab, "General")
         self.tabs.addTab(self.discord_tab, "Discord")
         self.tabs.addTab(self.google_tab, "Google")
+        self.tabs.addTab(self.cover_tab, "Cover Art")
 
         # Layouts for each tab
         self.general_layout = QFormLayout()
         self.discord_layout = QFormLayout()
         self.google_layout = QFormLayout()
+        self.cover_layout = QVBoxLayout()
 
         self.general_tab.setLayout(self.general_layout)
         self.discord_tab.setLayout(self.discord_layout)
         self.google_tab.setLayout(self.google_layout)
+        self.cover_tab.setLayout(self.cover_layout)
 
         # General settings
         self.volume_percantage_edit = QSpinBox()
@@ -117,6 +124,16 @@ class SettingsDialog(QDialog):
         self.google_client_secret_edit.setText(self.settings.get("google_client_secret_file", ""))
 
         self.google_layout.addRow(QLabel("Client Secret File:"), self.google_client_secret_edit)
+
+        # Cover Art settings
+        self.extract_button = QPushButton("Extract & Cache Covers")
+        self.cover_layout.addWidget(self.extract_button)
+
+        self.cover_progress = QProgressBar()
+        self.cover_progress.setValue(0)
+        self.cover_layout.addWidget(self.cover_progress)
+
+        self.extract_button.clicked.connect(self.start_cover_extraction)
         
         # Buttons
         button_layout = QHBoxLayout()
@@ -133,6 +150,23 @@ class SettingsDialog(QDialog):
 
         # Initialize UI state
         self.toggle_colorization_color()
+
+    def start_cover_extraction(self):
+        music_dirs = [self.root_playlist_folder_edit.text()]
+        self.cover_cache = CoverArtCache()  # You may want to pass a custom cache dir
+        self.cover_thread = CoverArtExtractor(music_dirs, self.cover_cache)
+        self.cover_thread.progress.connect(self.update_cover_progress)
+        self.cover_thread.finished.connect(self.cover_extraction_finished)
+        self.cover_thread.start()
+        self.extract_button.setEnabled(False)
+
+    def update_cover_progress(self, current, total):
+        self.cover_progress.setMaximum(total)
+        self.cover_progress.setValue(current)
+
+    def cover_extraction_finished(self):
+        self.extract_button.setEnabled(True)
+        QMessageBox.information(self, "Done", "Cover extraction and caching finished.")
 
     def toggle_colorization_color(self):
         is_checked = self.use_system_accent_checkbox.isChecked()

@@ -1199,9 +1199,9 @@ class MusicPlayer(QMainWindow):
     def update_right_frame_info(self):
         """Update the right frame with the current song's information."""
         if self.current_song:
-            # Try embedded cover first
+            # Try cached/processed cover first
             cover_pixmap = self.cover_cache.get_cover(self.current_song["path"], size=250)
-            if cover_pixmap:
+            if cover_pixmap and not cover_pixmap.isNull():
                 self.song_picture.setPixmap(cover_pixmap)
             else:
                 # Fallback to picture_path

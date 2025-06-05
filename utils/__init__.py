@@ -43,7 +43,6 @@ def get_colorization_colors():
     """Fetch the accent color and variations. Uses Windows registry if available, else defaults."""
     if platform.system() == "Windows":
         try:
-            import ctypes
             from winreg import HKEY_CURRENT_USER, QueryValueEx, OpenKey
             key = OpenKey(HKEY_CURRENT_USER, r"Software\Microsoft\Windows\DWM")
             colorization_color = QueryValueEx(key, "ColorizationColor")[0]
@@ -84,7 +83,6 @@ def listener(callback):
         return
     import ctypes
     import ctypes.wintypes
-    from winreg import HKEY_CURRENT_USER
     advapi32 = ctypes.windll.advapi32
 
     hKey = ctypes.wintypes.HKEY()

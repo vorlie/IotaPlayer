@@ -1196,6 +1196,9 @@ class MusicPlayer(QMainWindow):
             logging.warning(f"No embedded cover found or error reading cover: {e}")
         return None
 
+    def truncate_text(self, text, max_length=42):
+        return text if len(text) <= max_length else text[:max_length - 3] + "..."
+
     def update_right_frame_info(self):
         """Update the right frame with the current song's information."""
         if self.current_song:
@@ -1217,16 +1220,16 @@ class MusicPlayer(QMainWindow):
 
             # Update the labels with song information
             self.song_title_label.setText(
-                "Title: " + self.current_song.get("title", "Unknown Title")
+                "Title: " + self.truncate_text(self.current_song.get("title", "Unknown Title"))
             )
             self.song_author_label.setText(
-                "Author: " + self.current_song.get("artist", "Unknown Artist")
+                "Author: " + self.truncate_text(self.current_song.get("artist", "Unknown Artist"))
             )
             self.song_album_label.setText(
-                "Album: " + self.current_song.get("album", "Unknown Album")
+                "Album: " + self.truncate_text(self.current_song.get("album", "Unknown Album"))
             )
             self.song_genre_label.setText(
-                "Genre: " + self.current_song.get("genre", "Unknown Genre")
+                "Genre: " + self.truncate_text(self.current_song.get("genre", "Unknown Genre"))
             )
         else:
             self.clear_right_frame_info()

@@ -30,7 +30,7 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from pynput import keyboard
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
-from core.discordIntegration import DiscordIntegration
+from core.discordIntegration import DiscordIntegration, PresenceUpdateData
 from core.playlistMaker import PlaylistMaker, PlaylistManager
 from core.settingManager import SettingsDialog
 from core.imageCache import CoverArtCache
@@ -1144,43 +1144,42 @@ class MusicPlayer(QMainWindow):
             else:
                 image_text = f"Playlist: {self.current_playlist}"
 
-            if self.is_playing:  # Check if something is playing
-                current_position = self.media_player.position() // 1000
-                if self.is_paused:
-                    self.discord_integration.update_presence(
-                        f"{self.current_song['title']}",
-                        f"{self.current_song['artist']}",
-                        image_text,
-                        discord_cdn_images["pause"],
-                        "Paused",
-                        0,
-                        big_image,
-                        song_duration=self.song_duration,
-                        time_played=current_position,  # Pass time_played
-                    )
-                else:
-                    self.discord_integration.update_presence(
-                        f"{self.current_song['title']}",
-                        f"{self.current_song['artist']}",
-                        image_text,
-                        small_image_key,
-                        small_image_text,
-                        self.current_song.get("youtube_id"),
-                        big_image,
-                        song_duration=self.song_duration,
-                        time_played=current_position,  # Pass time_played
-                    )
-            else:  # No song is playing
-                self.discord_integration.update_presence(
-                    "Nothing is playing",  # Title
-                    "Literally nothing.",  # Artist
-                    "No playlist",  # Large image text
-                    discord_cdn_images["stop"],  # Small image key
-                    "Stopped",  # Small image text
-                    None,  # Youtube ID for button
-                    None,  # Playlist image
-                    # None, # Duration, commented because it doesn't work as expected
+        if self.is_playing:
+            current_position = self.media_player.position() // 1000
+            if self.is_paused:
+                update_data = PresenceUpdateData(
+                    song_title=self.current_song['title'],
+                    artist_name=self.current_song['artist'],
+                    large_image_text=image_text,
+                    small_image_key=discord_cdn_images["pause"],
+                    small_image_text="Paused",
+                    image_key=big_image,
+                    song_duration=self.song_duration,
+                    time_played=current_position
                 )
+            else:
+                update_data = PresenceUpdateData(
+                    song_title=self.current_song['title'],
+                    artist_name=self.current_song['artist'],
+                    large_image_text=image_text,
+                    small_image_key=small_image_key,
+                    small_image_text=small_image_text,
+                    youtube_id=self.current_song.get("youtube_id"),
+                    image_key=big_image,
+                    song_duration=self.song_duration,
+                    time_played=current_position
+                )
+            self.discord_integration.update_presence(update_data)
+        else:
+            update_data = PresenceUpdateData(
+                song_title="Nothing is playing",
+                artist_name="Literally nothing.",
+                large_image_text="No playlist",
+                small_image_key=discord_cdn_images["stop"],
+                small_image_text="Stopped",
+                image_key=None
+            )
+            self.discord_integration.update_presence(update_data)
 
     def get_embedded_cover(self, song_path):
         """Return QPixmap of embedded cover art if present, else None."""

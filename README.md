@@ -259,7 +259,7 @@ If you wish to build a standalone `.exe` file on Windows:
 
 ### Dependencies
 
-This project is built with the help of these amazing open-source libraries:
+This project is built with the help of these libraries:
 
   - **[PyQt5](https://www.riverbankcomputing.com/software/pyqt/intro)**: For the graphical user interface.
   - **[qdarktheme](https://github.com/vorlie/PyQtDarkTheme)**: For easy dark/light theme integration.

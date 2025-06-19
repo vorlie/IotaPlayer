@@ -54,4 +54,4 @@ tenacity==9.1.2
 typing-extensions==4.14.0
 typing-inspection==0.4.1
 uritemplate==4.1.1
-urllib3==2.3.0
+urllib3==2.5.0

@@ -15,7 +15,7 @@ default_settings = {
     "root_playlist_folder": "playlists",
     "default_playlist": "default",
     "colorization_color": "automatic",
-    "volume_percantage": 100,
+    "volume_percentage": 100,
 }
 
 discord_cdn_images = {

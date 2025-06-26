@@ -64,9 +64,9 @@ class SettingsDialog(QDialog):
         self.cover_tab.setLayout(self.cover_layout)
 
         # General settings
-        self.volume_percantage_edit = QSpinBox()
-        self.volume_percantage_edit.setRange(0, 100)  # Set min/max range for the volume
-        self.volume_percantage_edit.setValue(self.settings.get("volume_percantage", 100))
+        self.volume_percentage_edit = QSpinBox()
+        self.volume_percentage_edit.setRange(0, 100)  # Set min/max range for the volume
+        self.volume_percentage_edit.setValue(self.settings.get("volume_percentage", 100))
         
         self.tray_checkbox = QCheckBox("Minimize to Tray")
         self.tray_checkbox.setChecked(self.settings.get("minimize_to_tray", False))
@@ -94,7 +94,7 @@ class SettingsDialog(QDialog):
         self.use_system_accent_checkbox.setChecked(color == "automatic")
         self.use_system_accent_checkbox.stateChanged.connect(self.toggle_colorization_color)
         
-        self.general_layout.addRow(QLabel("Volume Percentage:"), self.volume_percantage_edit)
+        self.general_layout.addRow(QLabel("Volume Percentage:"), self.volume_percentage_edit)
         self.general_layout.addRow(QLabel("Root Playlist Folder:"), self.root_playlist_folder_edit)
         self.general_layout.addRow(QLabel("Default Playlist:"), self.default_playlist_edit)
         self.general_layout.addRow(self.use_system_accent_checkbox)
@@ -201,11 +201,11 @@ class SettingsDialog(QDialog):
         self.settings["google_client_secret_file"] = self.google_client_secret_edit.text()
         
         # Validate volume input
-        volume_input = self.volume_percantage_edit.text()
+        volume_input = self.volume_percentage_edit.text()
         try:
             volume = int(volume_input)
             if 0 <= volume <= 100:
-                self.settings["volume_percantage"] = volume
+                self.settings["volume_percentage"] = volume
             else:
                 QMessageBox.warning(self, "Invalid Volume", "Please enter a volume between 0 and 100.")
                 return

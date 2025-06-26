@@ -12,3 +12,5 @@ creds/
 test.py
 dummy.py
 *.pickle
+cover_cache/
+config.json

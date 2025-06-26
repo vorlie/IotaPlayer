@@ -296,7 +296,7 @@ class MusicPlayer(QMainWindow):
         self.progress_bar.setRange(0, 100)
         self.sliders_layout.addWidget(self.progress_bar)
 
-        self.get_volume = self.config.get("volume_percantage", 100)
+        self.get_volume = self.config.get("volume_percentage", 100)
         self.volume_label = QLabel(f"Volume: {self.get_volume}%")
         self.sliders_layout.addWidget(self.volume_label)
 

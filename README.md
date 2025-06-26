@@ -184,7 +184,7 @@ You can configure Iota Player via the in-app **Settings** menu. These settings a
     "root_playlist_folder": "playlists",
     "default_playlist": "default",
     "colorization_color": "automatic",
-    "volume_percantage": 100,
+    "volume_percentage": 100,
     "google_client_secret_file": "path/to/client_secret.json"
 }
 ```

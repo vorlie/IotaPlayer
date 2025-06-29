@@ -24,8 +24,7 @@ if [ -f /etc/arch-release ]; then
 elif [ -f /etc/debian_version ]; then
     echo "Detected Debian/Ubuntu."
     sudo apt update
-    sudo apt install -y python3 python3-pip python3-venv python3-pyqt5 python3-pyqt5.qtmultimedia \
-        gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+    sudo apt install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
         gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav \
         libxcb-xinerama0
 else

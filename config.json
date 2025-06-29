@@ -3,9 +3,9 @@
     "discord_client_id": "1150680286649143356",
     "use_playing_status": false,
     "large_image_key": "default_image",
-    "root_playlist_folder": "/home/vorlie/Apps/IotaPlayerData/",
-    "default_playlist": "Redeem me bro",
-    "colorization_color": "#aa00ff",
+    "root_playlist_folder": "/home/username/Music/",
+    "default_playlist": "example_playlist",
+    "colorization_color": "automatic",
     "volume_percentage": 15,
     "google_client_secret_file": "",
     "dark_mode": true

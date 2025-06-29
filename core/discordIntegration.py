@@ -1,3 +1,5 @@
+import os
+import platform
 from pypresence import Presence, ActivityType
 import time
 import logging
@@ -22,9 +24,17 @@ class PresenceUpdateData(BaseModel):
     song_duration: Optional[int] = None
     time_played: Optional[int] = None
 
+def get_config_dir():
+    if platform.system() == "Windows":
+        base = os.environ.get("APPDATA", os.path.expanduser("~"))
+        return os.path.join(base, "IotaPlayer")
+    else:
+        return os.path.join(os.path.expanduser("~"), ".config", "IotaPlayer")
+
 class DiscordConfig:
     def __init__(self):
-        with open('config.json', 'r', encoding='utf-8') as f:
+        config_dir = get_config_dir()
+        with open(os.path.join(config_dir, 'config.json'), 'r', encoding='utf-8') as f:
             config = json.load(f)
         
         self.client_id = config.get('discord_client_id', '1150680286649143356')

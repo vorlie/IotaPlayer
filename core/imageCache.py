@@ -1,13 +1,23 @@
 import os
+import platform
 from PIL import Image, ImageQt
 from PyQt5.QtGui import QPixmap
 import io
 
+def get_config_dir():
+    if platform.system() == "Windows":
+        base = os.environ.get("APPDATA", os.path.expanduser("~"))
+        return os.path.join(base, "IotaPlayer")
+    else:
+        return os.path.join(os.path.expanduser("~"), ".config", "IotaPlayer")
+
 class CoverArtCache:
-    def __init__(self, cache_dir="cover_cache"):
+    def __init__(self, cache_dir=None):
+        if cache_dir is None:
+            cache_dir = os.path.join(get_config_dir(), "cover_cache")
         self.cache_dir = cache_dir
         if not os.path.exists(self.cache_dir):
-            os.makedirs(self.cache_dir)
+            os.makedirs(self.cache_dir, exist_ok=True)
         self.cache = {}
 
     def get_cover(self, image_path, size=250):

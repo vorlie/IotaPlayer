@@ -96,7 +96,9 @@ No pre-built binaries are provided for Linux due to the variety of distributions
   - **GStreamer:** Required for audio playback.
   - **PyQt5:** For the user interface.
 
-**2. Install System Dependencies (Example for Ubuntu/Debian):**
+**2. Install System Dependencies**
+
+#### Ubuntu/Debian:
 
 ```sh
 sudo apt update
@@ -106,7 +108,25 @@ sudo apt install python3 python3-pip python3-venv python3-pyqt5 python3-pyqt5.qt
   libxcb-xinerama0
 ```
 
-> **Note:** You may need to install other packages depending on your distribution. Refer to the [Troubleshooting](https://www.google.com/search?q=%23troubleshooting) section for help with potential Qt errors.
+#### Arch Linux:
+
+```sh
+sudo pacman -Syu python python-pip python-virtualenv python-pyqt5 \
+  gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
+  qt5-multimedia
+```
+
+> **Note for Arch/Manjaro:**
+> If you use a PyInstaller or AppImage build, you may need to set these environment variables before launching the app to ensure GStreamer plugins are found:
+> ```sh
+> export GST_PLUGIN_SCANNER=/usr/lib/gstreamer-1.0/gst-plugin-scanner
+> export GST_PLUGIN_PATH=/usr/lib/gstreamer-1.0
+> export GST_PLUGIN_SYSTEM_PATH=/usr/lib/gstreamer-1.0
+> ./IotaPlayer
+> ```
+> If launching from a desktop shortcut, use a wrapper script that sets these variables.
+
+> **Note:** You may need to install other packages depending on your distribution. Refer to the [Troubleshooting](#troubleshooting) section for help with potential Qt errors.
 
 **3. Clone the Repository:**
 
@@ -171,7 +191,12 @@ For the "Select Folder" feature to work best, your files should be named like th
 
 ## Configuration
 
-You can configure Iota Player via the in-app **Settings** menu. These settings are stored in `config.json`. The file is created automatically with default values if it doesn't exist.
+You can configure Iota Player via the in-app **Settings** menu. These settings are stored in a config file in your user configuration directory:
+
+- **Linux/macOS:** `~/.config/IotaPlayer/config.json`
+- **Windows:** `%APPDATA%\IotaPlayer\config.json`
+
+The file is created automatically with default values if it doesn't exist.
 
 ### `config.json` Example
 

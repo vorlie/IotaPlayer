@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=IotaPlayer
+Exec=/path/to/IotaPlayer/run_iotaplayer.sh
+Icon=/path/to/IotaPlayer/icon.png
+Comment=Music player
+Categories=AudioVideo;Player;
+Terminal=false

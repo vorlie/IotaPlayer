@@ -1,3 +1,4 @@
+import platform
 import re
 import logging
 import json
@@ -10,14 +11,22 @@ from PyQt5.QtCore import Qt
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
 
+def get_config_path():
+    if platform.system() == "Windows":
+        base = os.environ.get("APPDATA", os.path.expanduser("~"))
+        return os.path.join(base, "IotaPlayer", "config.json")
+    else:
+        return os.path.join(os.path.expanduser("~"), ".config", "IotaPlayer", "config.json")
+
 class PlaylistManager:
     def __init__(self):
         self.playlists = {}
         self.shuffle_states = {}
         self.shuffled_songs = {}
 
+        config_path = get_config_path()
         try:
-            with open('./config.json', 'r', encoding='utf-8') as f:
+            with open(config_path, 'r', encoding='utf-8') as f:
                 config = json.load(f)
         except FileNotFoundError:
             print("Configuration file not found. Using default settings.")
@@ -141,8 +150,12 @@ class PlaylistMaker(QDialog):
             self.setWindowIcon(QIcon(icon_path))
         self.setGeometry(100, 100, 1700, 900)
         
-        with open('config.json', 'r') as f:
-            self.config = json.load(f)
+        config_path = get_config_path()
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                self.config = json.load(f)
+        except Exception:
+            self.config = {"root_playlist_folder": "playlists"}
         
         self.initUI()
     

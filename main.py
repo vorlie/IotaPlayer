@@ -4,6 +4,7 @@ import json
 import platform
 import logging
 import darkdetect
+import os
 from time import sleep
 import utils
 from PyQt5.QtWidgets import QApplication
@@ -15,7 +16,14 @@ from config import ICON_PATH, default_settings
 
 setup_logging()
 
-CONFIG_PATH = "config.json"
+def get_config_path():
+    if platform.system() == "Windows":
+        base = os.environ.get("APPDATA", os.path.expanduser("~"))
+        return os.path.join(base, "IotaPlayer", "config.json")
+    else:
+        return os.path.join(os.path.expanduser("~"), ".config", "IotaPlayer", "config.json")
+
+CONFIG_PATH = get_config_path()
 DEFAULT_ACCENT_COLOR = "#ff50aa"
 DEFAULT_BACKGROUND_COLOR = "#4d1833"
 

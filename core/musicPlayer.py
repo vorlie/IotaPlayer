@@ -101,13 +101,14 @@ class MusicPlayer(QMainWindow):
         self.icon_path = icon_path
         self.clr_theme = theme
         self.clr_nrm = normal
+        self.config_path = config_path
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
         self.setWindowTitle("Iota Player • Music Player")
         self.setMinimumSize(1000, 600)
 
         try:
-            with open("config.json", "r", encoding="utf-8") as f:
+            with open(self.config_path, "r", encoding="utf-8") as f:
                 self.config = json.load(f)
         except FileNotFoundError:
             logging.info(
@@ -115,12 +116,13 @@ class MusicPlayer(QMainWindow):
             )
             self.config = settings
             try:
-                with open("config.json", "w", encoding="utf-8") as f:
+                os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
+                with open(self.config_path, "w", encoding="utf-8") as f:
                     json.dump(self.config, f, indent=4)
             except IOError as e:
                 logging.error(f"Error writing to config file: {e}")
             try:
-                with open("config.json", "r") as f:
+                with open(self.config_path, "r") as f:
                     self.config = json.load(f)
             except IOError as e:
                 logging.error(f"Error reading from config file: {e}")

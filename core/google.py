@@ -5,12 +5,21 @@ from google.auth.transport.requests import Request
 import os
 import pickle
 import json
+import platform
 
 # Define the scopes required for playlist management
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 CLIENT_SECRETS_FILE = "" # This will be set later, do not set manually
-# This file should be created in the same directory as this script or provide an absolute path
-TOKEN_PICKLE_FILE = "token.pickle"
+
+def get_config_dir():
+    if platform.system() == "Windows":
+        base = os.environ.get("APPDATA", os.path.expanduser("~"))
+        return os.path.join(base, "IotaPlayer")
+    else:
+        return os.path.join(os.path.expanduser("~"), ".config", "IotaPlayer")
+
+def get_token_pickle_file():
+    return os.path.join(get_config_dir(), "token.pickle")
 
 def load_client_secrets_path():
     """Load the client secret file path from config.json."""
@@ -30,6 +39,7 @@ def get_authenticated_service():
         return None
 
     creds = None
+    TOKEN_PICKLE_FILE = get_token_pickle_file()
     # Load saved credentials if they exist
     if os.path.exists(TOKEN_PICKLE_FILE):
         with open(TOKEN_PICKLE_FILE, 'rb') as token:
@@ -56,6 +66,7 @@ def get_authenticated_service():
                 return None
 
         # Save the credentials for the next run
+        os.makedirs(os.path.dirname(TOKEN_PICKLE_FILE), exist_ok=True)
         with open(TOKEN_PICKLE_FILE, 'wb') as token:
             pickle.dump(creds, token) # Save pickled credentials
 

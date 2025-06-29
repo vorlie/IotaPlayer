@@ -88,7 +88,26 @@ Iota Player comes packed with features to enhance your music listening experienc
 
 ### Linux (and other platforms)
 
-No pre-built binaries are provided for Linux due to the variety of distributions. You must install from source.
+#### Option 1: One-Command Installer (Recommended)
+
+Download and run the installer script:
+
+```sh
+curl -O https://raw.githubusercontent.com/vorlie/IotaPlayer/master/linux_installer.sh
+bash linux_installer.sh
+```
+
+This script will:
+- Install all required system dependencies (Arch or Debian/Ubuntu)
+- Set up a Python virtual environment and install Python dependencies
+- Build the app with PyInstaller
+- Prompt you for an installation directory
+- Copy all necessary files and generate a launcher script
+- Optionally create a desktop shortcut
+
+#### Option 2: Manual Installation
+
+No pre-built binaries are provided for Linux due to the variety of distributions. You can also install from source manually by following these steps:
 
 **1. System Requirements:**
 

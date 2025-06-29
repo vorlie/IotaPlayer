@@ -19,8 +19,7 @@ fi
 # 1. Detect distro and install system dependencies
 if [ -f /etc/arch-release ]; then
     echo "Detected Arch Linux."
-    sudo pacman -Syu --needed python python-pip python-virtualenv python-pyqt5 \
-        gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
+    sudo pacman -Syu --needed gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
         qt5-multimedia
 elif [ -f /etc/debian_version ]; then
     echo "Detected Debian/Ubuntu."
@@ -40,8 +39,8 @@ pip install --upgrade pip
 pip install -r requirements.txt --ignore-requires-python
 
 # 3. Build the executable
-if [ -f IotaPlayer_Linux.spec ]; then
-    pyinstaller IotaPlayer_Linux.spec
+if [ -f IotaPlayerLinux.spec ]; then
+    pyinstaller IotaPlayerLinux.spec
 else
     echo "PyInstaller spec file not found!"
     exit 1

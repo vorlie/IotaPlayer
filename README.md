@@ -84,7 +84,7 @@ Iota Player comes packed with features to enhance your music listening experienc
 ### Windows
 
   - **Recommended:** Download the latest `.exe` or `.zip` file from the [**Releases Page**](https://github.com/vorlie/IotaPlayer/releases). Simply run the installer or extract the zip file to get started.
-  - **From Source:** You can also run it from the source code by following the Linux instructions below, ensuring you have Python 3.12+ and all required dependencies.
+  - **From Source:** You can also run it from the source code by following the Linux instructions below, ensuring you have Python 3.13+ and all required dependencies.
 
 ### Linux (and other platforms)
 
@@ -92,7 +92,7 @@ No pre-built binaries are provided for Linux due to the variety of distributions
 
 **1. System Requirements:**
 
-  - **Python 3.12 or newer.**
+  - **Python 3.13 or newer.**
   - **GStreamer:** Required for audio playback.
   - **PyQt5:** For the user interface.
 
@@ -224,7 +224,7 @@ To use the YouTube playlist upload feature, you need to set up Google API creden
 
   - **Codec Errors:** On Windows, some `.mp3` files may fail to play if they have long ID3 tags. This can cause errors like `DirectShowPlayerService::doRender: Unresolved error code 80040266`. Installing a codec pack like [K-Lite](https://codecguide.com/download_kl.htm) usually resolves this. On Linux, ensure you have installed all the `gstreamer1.0-plugins-*` packages listed in the installation section.
 
-  - **Python Version:** This app requires **Python 3.12 or newer**. Verify your version with `python3 --version`.
+  - **Python Version:** This app requires **Python 3.13 or newer**. Verify your version with `python3 --version`.
 
   - **Qt Platform Errors (Linux):** If you see `xcb` or other platform plugin errors, you may need to install additional libraries:
 

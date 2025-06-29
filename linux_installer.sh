@@ -39,7 +39,7 @@ pip install -r requirements.txt --ignore-requires-python
 
 # 3. Build the executable
 if [ -f IotaPlayerLinux.spec ]; then
-    pyinstaller IotaPlayerLinux.spec
+    pyinstaller IotaPlayerLinux.spec --noconfirm
 else
     echo "PyInstaller spec file not found!"
     exit 1

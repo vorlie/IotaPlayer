@@ -51,7 +51,7 @@ install_path=${install_path:-$HOME/Apps/IotaPlayer}
 mkdir -p "$install_path"
 
 # 5. Copy built files
-cp -r dist/IotaPlayer "$install_path/IotaPlayer"
+cp -r dist/IotaPlayer/* "$install_path/"
 if [ -f icon.png ]; then
     cp icon.png "$install_path/icon.png"
 fi

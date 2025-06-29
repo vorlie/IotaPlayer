@@ -147,6 +147,12 @@ def main():
     config = load_config()
     color = config.get("colorization_color", "automatic")  
 
+    dark_mode = config.get("dark_mode", False)
+    if platform.system() == "Linux":
+        theme = "dark" if dark_mode else "light"
+    else:
+        theme = darkdetect.theme().lower()
+
     if color == "automatic":
         if platform.system() == "Windows":
             clr = utils.get_colorization_colors()[0]
@@ -159,7 +165,7 @@ def main():
         settings=default_settings, 
         icon_path=ICON_PATH, 
         config_path=CONFIG_PATH, 
-        theme=darkdetect.theme().lower(), 
+        theme=theme,
         normal=clr
     )
     player.show()
@@ -190,7 +196,7 @@ def main():
         theme_change_listener.theme_changed.connect(handle_theme_change)
         theme_change_listener.start()
     else:
-        qdt.setup_theme('auto', custom_colors={"primary": clr})
+        qdt.setup_theme(theme, custom_colors={"primary": clr})
     
     sys.exit(app.exec_())
 

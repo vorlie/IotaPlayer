@@ -94,6 +94,9 @@ class SettingsDialog(QDialog):
         self.use_system_accent_checkbox.setChecked(color == "automatic")
         self.use_system_accent_checkbox.stateChanged.connect(self.toggle_colorization_color)
         
+        self.dark_mode_checkbox = QCheckBox("Enable Dark Mode")
+        self.dark_mode_checkbox.setChecked(self.settings.get("dark_mode", False))
+        
         self.general_layout.addRow(QLabel("Volume Percentage:"), self.volume_percentage_edit)
         self.general_layout.addRow(QLabel("Root Playlist Folder:"), self.root_playlist_folder_edit)
         self.general_layout.addRow(QLabel("Default Playlist:"), self.default_playlist_edit)
@@ -101,6 +104,9 @@ class SettingsDialog(QDialog):
         self.general_layout.addRow(QLabel("Colorization Color:"), self.colorization_color_edit)
         self.general_layout.addRow(self.color_picker_button, QLabel())
         
+        if sys.platform.startswith("linux"):
+            self.general_layout.addRow(self.dark_mode_checkbox)
+            
         # Discord settings
         self.connect_to_discord_checkbox = QCheckBox("Connect to Discord")
         self.connect_to_discord_checkbox.setChecked(self.settings.get("connect_to_discord", True))
@@ -200,6 +206,9 @@ class SettingsDialog(QDialog):
         self.settings["use_playing_status"] = self.use_playing_status_edit.isChecked()
         self.settings["google_client_secret_file"] = self.google_client_secret_edit.text()
         
+        if sys.platform.startswith("linux"):
+            self.settings["dark_mode"] = self.dark_mode_checkbox.isChecked()
+            
         # Validate volume input
         volume_input = self.volume_percentage_edit.text()
         try:

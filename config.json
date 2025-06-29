@@ -5,7 +5,8 @@
     "large_image_key": "default_image",
     "root_playlist_folder": "/home/vorlie/Apps/IotaPlayerData/",
     "default_playlist": "Redeem me bro",
-    "colorization_color": "automatic",
+    "colorization_color": "#aa00ff",
     "volume_percentage": 15,
-    "google_client_secret_file": ""
+    "google_client_secret_file": "",
+    "dark_mode": true
 }

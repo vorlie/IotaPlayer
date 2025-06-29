@@ -41,6 +41,7 @@ from core.google import (
 )
 from config import discord_cdn_images
 from fuzzywuzzy import process
+import platform
 
 
 class YouTubeUploadThread(QThread):
@@ -1132,17 +1133,15 @@ class MusicPlayer(QMainWindow):
 
         # Update Discord presence
         if self.config["connect_to_discord"]:  # Check if Discord connection is enabled
-            if self.current_song["picture_link"]:  # Check if there is a picture link
+            # Compose system info string
+            sys_info = f"{platform.system()} {platform.release()} | Python {platform.python_version()}"
+            image_text = sys_info
+            if self.current_song["picture_link"]:
                 big_image = self.current_song["picture_link"]
             else:
                 big_image = (
                     self.current_playlist_image if self.current_playlist else None
                 )
-
-            if self.current_song["album"]:  # Check if there is an album
-                image_text = f"Album: {self.current_song['album']}"
-            else:
-                image_text = f"Playlist: {self.current_playlist}"
 
         if self.is_playing:
             current_position = self.media_player.position() // 1000

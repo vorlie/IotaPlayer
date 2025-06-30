@@ -12,17 +12,17 @@ Iota Player is a feature-rich desktop music player for Windows and Linux. It's d
 
 ## Table of Contents
 
-  - [Gallery](https://www.google.com/search?q=%23gallery)
-  - [Core Features](https://www.google.com/search?q=%23core-features)
-  - [Installation](https://www.google.com/search?q=%23installation)
-  - [Usage](https://www.google.com/search?q=%23usage)
-  - [Playlist Maker](https://www.google.com/search?q=%23playlist-maker)
-  - [Configuration](https://www.google.com/search?q=%23configuration)
-  - [Troubleshooting](https://www.google.com/search?q=%23troubleshooting)
-  - [Shortcuts](https://www.google.com/search?q=%23shortcuts)
-  - [Advanced](https://www.google.com/search?q=%23advanced)
-  - [Acknowledgments](https://www.google.com/search?q=%23acknowledgments)
-  - [License](https://www.google.com/search?q=%23license)
+  - [Gallery](#gallery)
+  - [Core Features](#core-features)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Playlist Maker](#playlist-maker)
+  - [Configuration](#configuration)
+  - [Troubleshooting](#troubleshooting)
+  - [Shortcuts](#shortcuts)
+  - [Advanced](#advanced)
+  - [Acknowledgments](#acknowledgments)
+  - [License](#license)
 
 -----
 
@@ -46,7 +46,7 @@ Iota Player comes packed with features to enhance your music listening experienc
 
 ### Playlist Management
 
-  - **Create & Edit:** Use the dedicated [Playlist Maker](https://www.google.com/search?q=%23playlist-maker) to build or modify playlists.
+  - **Create & Edit:** Use the dedicated [Playlist Maker](#playlist-maker) to build or modify playlists.
   - **Load & Reload:** Load playlists from your library and refresh the list on demand.
   - **Combine:** Merge songs from multiple playlists into a single, unified playlist.
   - **Delete:** Easily remove playlists you no longer need.

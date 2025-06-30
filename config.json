@@ -8,5 +8,6 @@
     "colorization_color": "automatic",
     "volume_percentage": 15,
     "google_client_secret_file": "",
+    "font_name": "Noto Sans",
     "dark_mode": true
 }

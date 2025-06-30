@@ -8,6 +8,7 @@ import os
 from time import sleep
 import utils
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtNetwork import QLocalServer, QLocalSocket
 from core.musicPlayer import MusicPlayer
@@ -153,6 +154,12 @@ def main():
 
     IotaSrv.setup_server()
     config = load_config()
+    font_name_from_config = config.get("font_name", "Noto Sans")
+    font_size = 10
+    font_weight = QFont.Normal
+    custom_font_family = font_name_from_config
+    global_font = QFont(custom_font_family, font_size, font_weight)
+    app.setFont(global_font)
     color = config.get("colorization_color", "automatic")  
 
     dark_mode = config.get("dark_mode", False)

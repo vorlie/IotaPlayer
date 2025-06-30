@@ -78,6 +78,10 @@ class SettingsDialog(QDialog):
         self.default_playlist_edit = QLineEdit()
         self.default_playlist_edit.setPlaceholderText("default")
         self.default_playlist_edit.setText(self.settings.get("default_playlist", "default"))
+        
+        self.font_name_edit = QLineEdit()
+        self.font_name_edit.setPlaceholderText("Noto Sans")
+        self.font_name_edit.setText(self.settings.get("font_name", "Noto Sans"))
 
         self.colorization_color_edit = QLineEdit()
         self.colorization_color_edit.setPlaceholderText("automatic or #RRGGBB")
@@ -96,6 +100,8 @@ class SettingsDialog(QDialog):
         
         self.dark_mode_checkbox = QCheckBox("Enable Dark Mode")
         self.dark_mode_checkbox.setChecked(self.settings.get("dark_mode", False))
+        
+        self.general_layout.addRow(QLabel("Font Name:"), self.font_name_edit)
         
         self.general_layout.addRow(QLabel("Volume Percentage:"), self.volume_percentage_edit)
         self.general_layout.addRow(QLabel("Root Playlist Folder:"), self.root_playlist_folder_edit)
@@ -205,6 +211,7 @@ class SettingsDialog(QDialog):
         self.settings["large_image_key"] = self.large_image_key_edit.text()
         self.settings["use_playing_status"] = self.use_playing_status_edit.isChecked()
         self.settings["google_client_secret_file"] = self.google_client_secret_edit.text()
+        self.settings["font_name"] = self.font_name_edit.text()
         
         if sys.platform.startswith("linux"):
             self.settings["dark_mode"] = self.dark_mode_checkbox.isChecked()

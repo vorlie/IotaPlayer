@@ -16,6 +16,7 @@ default_settings = {
     "default_playlist": "default",
     "colorization_color": "automatic",
     "volume_percentage": 100,
+    "font_name": "Noto Sans",
 }
 
 discord_cdn_images = {

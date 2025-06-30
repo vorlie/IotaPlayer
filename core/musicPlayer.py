@@ -468,6 +468,28 @@ class MusicPlayer(QMainWindow):
         self.settings_button.clicked.connect(self.open_settings)
         self.upload_youtube_button.clicked.connect(self.initiate_youtube_upload_dialog)
         self.progress_bar.sliderReleased.connect(self.seek_in_song)
+        """
+        self.next_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.playlist_combine_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.playlist_maker_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.settings_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.youtube_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.reload_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.delete_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.upload_youtube_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.toggle_play_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.toggle_pause_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.prev_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.song_album_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.song_genre_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.song_author_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.song_title_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.settings_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.song_list_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.search_bar.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.volume_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        self.time_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
+        """
 
     def seek_in_song(self):
         """Seek to the position in the song based on the slider value."""

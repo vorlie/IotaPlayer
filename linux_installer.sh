@@ -30,7 +30,7 @@ elif [ -f /etc/debian_version ]; then
         gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav \
         libxcb-xinerama0
 else
-    echo "Unknown distro. Please install Python 3.12+, PyQt5, and GStreamer plugins manually."
+    echo "Unknown distro. Please install Python 3.13+, PyQt5, and GStreamer plugins manually."
 fi
 
 # 2. Set up venv and install Python dependencies

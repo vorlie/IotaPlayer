@@ -112,6 +112,7 @@ No pre-built binaries are provided for Linux due to the variety of distributions
 **1. System Requirements:**
 
   - **Python 3.13 or newer.**
+    - Should be installed by default on newer systems, if not install it.
   - **GStreamer:** Required for audio playback.
   - **PyQt5:** For the user interface.
 
@@ -121,8 +122,7 @@ No pre-built binaries are provided for Linux due to the variety of distributions
 
 ```sh
 sudo apt update
-sudo apt install python3 python3-pip python3-venv python3-pyqt5 python3-pyqt5.qtmultimedia \
-  gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
   gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav \
   libxcb-xinerama0
 ```
@@ -130,8 +130,7 @@ sudo apt install python3 python3-pip python3-venv python3-pyqt5 python3-pyqt5.qt
 #### Arch Linux:
 
 ```sh
-sudo pacman -Syu python python-pip python-virtualenv python-pyqt5 \
-  gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
+sudo pacman -Syu gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
   qt5-multimedia
 ```
 

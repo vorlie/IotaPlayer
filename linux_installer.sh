@@ -4,8 +4,8 @@ set -e
 echo "IotaPlayer Linux Installer"
 echo "-------------------------"
 
-if [ ! -f main.py ]; then
-    echo "Project files not found in current directory."
+if [ ! -d IotaPlayer ]; then
+    echo "Project directory 'IotaPlayer' not found in current directory."
     read -p "Clone the IotaPlayer repository here? (y/n): " clone_repo
     if [[ "$clone_repo" =~ ^[Yy]$ ]]; then
         git clone https://github.com/vorlie/IotaPlayer.git
@@ -14,6 +14,8 @@ if [ ! -f main.py ]; then
         echo "Please run this installer from the IotaPlayer project directory."
         exit 1
     fi
+else
+    cd IotaPlayer
 fi
 
 # 1. Detect distro and install system dependencies

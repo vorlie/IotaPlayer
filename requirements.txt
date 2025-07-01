@@ -25,7 +25,7 @@ numpy==2.3.1
 oauthlib==3.3.1
 packaging==25.0
 pefile==2024.8.26
-pillow==11.2.1
+pillow==11.3.0
 pip==25.1.1
 proto-plus==1.26.1
 protobuf==6.31.1

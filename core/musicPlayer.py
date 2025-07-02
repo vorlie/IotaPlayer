@@ -1180,7 +1180,7 @@ class MusicPlayer(QMainWindow):
         if self.config["connect_to_discord"]:  # Check if Discord connection is enabled
             # Compose system info string
             #sys_info = f"{platform.system()} {platform.release()} | Python {platform.python_version()}"
-            image_text = self.current_song["album"]
+            image_text = self.current_song.get("album") or self.current_playlist
             if self.current_song["picture_link"]:
                 big_image = self.current_song["picture_link"]
             else:

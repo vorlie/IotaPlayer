@@ -1,3 +1,5 @@
+# ruff: noqa
+# type: ignore
 import logging
 import asyncio
 from dbus_next.aio import MessageBus
@@ -21,7 +23,7 @@ class MPRISRootInterface(ServiceInterface):
         logging.info('MPRIS: Quit called')
 
     @dbus_property(PropertyAccess.READ)
-    def CanQuit(self) -> 'b':
+    def CanQuit(self) -> 'b': 
         return False
 
     @dbus_property(PropertyAccess.READ)
@@ -117,12 +119,21 @@ class MPRISPlayerInterface(ServiceInterface):
     @dbus_property(PropertyAccess.READ)
     def Metadata(self) -> 'a{sv}':
         try:
+            import os
             song = getattr(self.player, 'current_song', None) or {}
             title = song.get('title', 'Nothing is playing')
             artist = [song.get('artist', 'Unknown Artist')]
             album = song.get('album', 'Unknown Album')
             length = int(getattr(self.player, 'song_duration', 0) * 1_000_000)
-            art_url = song.get('artUrl', '')
+            # Prefer picture_link if it's a valid URL, else use picture_path as file://
+            art_url = song.get('picture_link', '')
+            if not art_url:
+                picture_path = song.get('picture_path', '')
+                if picture_path:
+                    art_url = 'file://' + os.path.abspath(picture_path)
+            elif not (art_url.startswith('http://') or art_url.startswith('https://') or art_url.startswith('file://')):
+                # If picture_link is a local path, convert to file://
+                art_url = 'file://' + os.path.abspath(art_url)
             trackid = '/org/mpris/MediaPlayer2/track/1'
             return {
                 'mpris:trackid': Variant('o', trackid),

@@ -83,7 +83,7 @@ Iota Player comes packed with features to enhance your music listening experienc
 
 ### Windows
 
-  - **Recommended:** Download the latest `.exe` or `.zip` file from the [**Releases Page**](https://github.com/vorlie/IotaPlayer/releases). Simply run the installer or extract the zip file to get started.
+  - **Recommended:** Download the latest `.exe` or `.zip` file from the [**Releases Page**](https://github.com/vorlie/IotaPlayer/releases). Simply extract the archive and run the executable.
   - **From Source:** You can also run it from the source code by following the Linux instructions below, ensuring you have Python 3.13+ and all required dependencies.
 
 ### Linux (and other platforms)

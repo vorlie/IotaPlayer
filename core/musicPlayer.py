@@ -1009,20 +1009,16 @@ class MusicPlayer(QMainWindow):
             pass
 
     def stop_music(self):
-        self.media_player.stop()
-        self.is_playing = False
-        self.is_paused = False
-        self.has_started = False
-        self.update_song_info()  # Handle Discord presence
-
-        # Toggle Stop button to Play
-        self.toggle_play_button.setText("Play")
-
-        # --- MPRIS: Update playback status ---
-        if hasattr(self, "mpris_player_iface") and self.mpris_player_iface:
-            self.mpris_player_iface.update_playback_status("Stopped")
-
-        logging.info("Music stopped.")
+        try:
+            self.media_player.stop()
+            self.is_playing = False
+            self.is_paused = False
+            self.has_started = False
+            self.update_song_info()
+            self.toggle_play_button.setText("Play")
+            logging.info("Music stopped.")
+        except Exception as e:
+            logging.error(f"Error in stop_music: {e}")
 
     def toggle_play(self):
         if self.is_playing:
@@ -1043,10 +1039,6 @@ class MusicPlayer(QMainWindow):
             # Toggle Pause button to Resume
             self.toggle_pause_button.setText("Resume")
 
-            # --- MPRIS: Update playback status ---
-            if hasattr(self, "mpris_player_iface") and self.mpris_player_iface:
-                self.mpris_player_iface.update_playback_status("Paused")
-
             logging.info("Music paused.")
         else:
             # logging.warning("Music is either not playing or already paused.")
@@ -1065,10 +1057,6 @@ class MusicPlayer(QMainWindow):
 
             # Toggle Resume button to Pause
             self.toggle_pause_button.setText("Pause")
-
-            # --- MPRIS: Update playback status ---
-            if hasattr(self, "mpris_player_iface") and self.mpris_player_iface:
-                self.mpris_player_iface.update_playback_status("Playing")
 
             logging.info(f"Music resumed: {self.current_song['title']}")
         else:
@@ -1345,16 +1333,16 @@ class MusicPlayer(QMainWindow):
         return f"{int(minutes):02}:{int(seconds):02}"
 
     def handle_song_end(self):
-        # logging.info("Handling song end.")
-        if self.is_looping == "Song":
-            # logging.info(f"Looping current song: {self.current_song}")
-            self.play_music()
-        elif self.is_looping == "Playlist":
-            # logging.info("Looping playlist.")
-            self.next_song()
-        else:
-            # logging.info("No looping is set.")
-            self.stop_music()
+        try:
+            logging.info(f"Song ended. Looping: {self.is_looping}")
+            if self.is_looping == "Song":
+                self.play_music()
+            elif self.is_looping == "Playlist":
+                self.next_song()
+            else:
+                self.stop_music()
+        except Exception as e:
+            logging.error(f"Error in handle_song_end: {e}")
 
     def open_youtube(self):
         """Open the YouTube video for the current song."""

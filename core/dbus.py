@@ -1,0 +1,157 @@
+import logging
+import asyncio
+from dbus_next.aio import MessageBus
+from dbus_next.service import (ServiceInterface, method, dbus_property, PropertyAccess)
+from dbus_next import Variant
+
+MPRIS_BUS_NAME = 'org.mpris.MediaPlayer2.IotaPlayer'
+MPRIS_OBJECT_PATH = '/org/mpris/MediaPlayer2'
+
+class MPRISRootInterface(ServiceInterface):
+    def __init__(self, player):
+        super().__init__('org.mpris.MediaPlayer2')
+        self.player = player
+
+    @method()
+    def Raise(self):
+        logging.info('MPRIS: Raise called')
+
+    @method()
+    def Quit(self):
+        logging.info('MPRIS: Quit called')
+
+    @dbus_property(PropertyAccess.READ)
+    def CanQuit(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def CanRaise(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def HasTrackList(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def Identity(self) -> 's':
+        return 'IotaPlayer'
+
+    @dbus_property(PropertyAccess.READ)
+    def DesktopEntry(self) -> 's':
+        return 'iotaplayer'
+
+    @dbus_property(PropertyAccess.READ)
+    def SupportedUriSchemes(self) -> 'as':
+        return ['file']
+
+    @dbus_property(PropertyAccess.READ)
+    def SupportedMimeTypes(self) -> 'as':
+        return ['audio/mpeg', 'audio/mp3', 'audio/x-wav', 'audio/flac']
+
+class MPRISPlayerInterface(ServiceInterface):
+    def __init__(self, player):
+        super().__init__('org.mpris.MediaPlayer2.Player')
+        self.player = player
+
+    @dbus_property(PropertyAccess.READ)
+    def PlaybackStatus(self) -> 's':
+        if getattr(self.player, 'is_playing', False):
+            return 'Playing'
+        elif getattr(self.player, 'is_paused', False):
+            return 'Paused'
+        else:
+            return 'Stopped'
+
+    @dbus_property(PropertyAccess.READ)
+    def LoopStatus(self) -> 's':
+        return 'None'
+
+    @dbus_property(PropertyAccess.READ)
+    def Rate(self) -> 'd':
+        return 1.0
+
+    @dbus_property(PropertyAccess.READ)
+    def Shuffle(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def Volume(self) -> 'd':
+        return 1.0
+
+    @dbus_property(PropertyAccess.READ)
+    def Position(self) -> 'x':
+        return int(getattr(self.player, 'current_position', 0) * 1_000_000)
+
+    @dbus_property(PropertyAccess.READ)
+    def MinimumRate(self) -> 'd':
+        return 1.0
+
+    @dbus_property(PropertyAccess.READ)
+    def MaximumRate(self) -> 'd':
+        return 1.0
+
+    @dbus_property(PropertyAccess.READ)
+    def CanGoNext(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def CanGoPrevious(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def CanPlay(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def CanPause(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def CanSeek(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def CanControl(self) -> 'b':
+        return False
+
+    @dbus_property(PropertyAccess.READ)
+    def Metadata(self) -> 'a{sv}':
+        try:
+            song = getattr(self.player, 'current_song', None) or {}
+            title = song.get('title', 'Nothing is playing')
+            artist = [song.get('artist', 'Unknown Artist')]
+            album = song.get('album', 'Unknown Album')
+            length = int(getattr(self.player, 'song_duration', 0) * 1_000_000)
+            art_url = song.get('artUrl', '')
+            trackid = '/org/mpris/MediaPlayer2/track/1'
+            return {
+                'mpris:trackid': Variant('o', trackid),
+                'xesam:title': Variant('s', title),
+                'xesam:artist': Variant('as', artist),
+                'xesam:album': Variant('s', album),
+                'mpris:length': Variant('x', length),
+                'mpris:artUrl': Variant('s', art_url),
+            }
+        except Exception as e:
+            logging.error(f'MPRIS: Metadata error: {e}')
+            return {
+                'mpris:trackid': Variant('o', '/org/mpris/MediaPlayer2/track/0'),
+                'xesam:title': Variant('s', 'Nothing is playing'),
+                'xesam:artist': Variant('as', ['Unknown Artist']),
+                'xesam:album': Variant('s', 'Unknown Album'),
+                'mpris:length': Variant('x', 0),
+            }
+    def update_metadata(self):
+        self.emit_properties_changed({'Metadata': self.Metadata})
+
+async def run_mpris(player):
+    bus = await MessageBus().connect()
+    root_iface = MPRISRootInterface(player)
+    player_iface = MPRISPlayerInterface(player)
+    bus.export(MPRIS_OBJECT_PATH, root_iface)
+    bus.export(MPRIS_OBJECT_PATH, player_iface)
+    await bus.request_name(MPRIS_BUS_NAME)
+    # Attach the player_iface to the player for metadata updates
+    player.mpris_player_iface = player_iface
+    logging.info(f"MPRIS: Service published on D-Bus (dbus-next) as {MPRIS_BUS_NAME}")
+    await asyncio.get_event_loop().create_future()  # Run forever

@@ -14,6 +14,7 @@ from PyQt5.QtNetwork import QLocalServer, QLocalSocket
 from core.musicPlayer import MusicPlayer
 from core.logger import setup_logging
 from config import ICON_PATH, default_settings
+from core.mprisThread import start_mpris
 
 setup_logging()
 
@@ -185,6 +186,10 @@ def main():
     )
     player.show()
     player.adjust_volume(player.get_volume)
+
+    # Start MPRIS integration (Linux only)
+    if platform.system() == "Linux":
+        start_mpris(player)
 
     def handle_color_change(normal, dark, dark_alt, light, light_alt):
         current_theme = darkdetect.theme().lower()

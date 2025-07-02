@@ -975,6 +975,10 @@ class MusicPlayer(QMainWindow):
             else:
                 logging.warning(f"Invalid song format selected: {song_text}")
 
+    def set_mpris_player_iface(self, mpris_iface):
+        """Inject the MPRIS player interface for D-Bus updates."""
+        self.mpris_player_iface = mpris_iface
+
     def play_music(self):
         logging.info(f"Playing music: {self.current_song}")
         if self.current_song:
@@ -995,6 +999,10 @@ class MusicPlayer(QMainWindow):
             # Toggle Play button to Stop
             self.toggle_play_button.setText("Stop")
 
+            # --- MPRIS: Update metadata ---
+            if hasattr(self, "mpris_player_iface") and self.mpris_player_iface:
+                self.mpris_player_iface.update_metadata()
+
             logging.info(f"Music started: {self.current_song['title']}")
         else:
             # logging.warning("No song selected for playback.")
@@ -1009,6 +1017,10 @@ class MusicPlayer(QMainWindow):
 
         # Toggle Stop button to Play
         self.toggle_play_button.setText("Play")
+
+        # --- MPRIS: Update playback status ---
+        if hasattr(self, "mpris_player_iface") and self.mpris_player_iface:
+            self.mpris_player_iface.update_playback_status("Stopped")
 
         logging.info("Music stopped.")
 
@@ -1031,6 +1043,10 @@ class MusicPlayer(QMainWindow):
             # Toggle Pause button to Resume
             self.toggle_pause_button.setText("Resume")
 
+            # --- MPRIS: Update playback status ---
+            if hasattr(self, "mpris_player_iface") and self.mpris_player_iface:
+                self.mpris_player_iface.update_playback_status("Paused")
+
             logging.info("Music paused.")
         else:
             # logging.warning("Music is either not playing or already paused.")
@@ -1049,6 +1065,10 @@ class MusicPlayer(QMainWindow):
 
             # Toggle Resume button to Pause
             self.toggle_pause_button.setText("Pause")
+
+            # --- MPRIS: Update playback status ---
+            if hasattr(self, "mpris_player_iface") and self.mpris_player_iface:
+                self.mpris_player_iface.update_playback_status("Playing")
 
             logging.info(f"Music resumed: {self.current_song['title']}")
         else:
@@ -1077,6 +1097,9 @@ class MusicPlayer(QMainWindow):
             self.song_index = (self.song_index + 1) % len(self.songs)
             self.current_song = self.songs[self.song_index]
         self.play_music()
+        # --- MPRIS: Update metadata ---
+        if hasattr(self, "mpris_player_iface") and self.mpris_player_iface:
+            self.mpris_player_iface.update_metadata()
 
     def prev_song(self):
         # logging.info("Skipping to previous song.")
@@ -1095,6 +1118,9 @@ class MusicPlayer(QMainWindow):
             self.song_index = (self.song_index - 1) % len(self.songs)
             self.current_song = self.songs[self.song_index]
         self.play_music()
+        # --- MPRIS: Update metadata ---
+        if hasattr(self, "mpris_player_iface") and self.mpris_player_iface:
+            self.mpris_player_iface.update_metadata()
 
     def highlight_current_song(self):
         """Highlight the currently playing song in the song list."""
@@ -1126,14 +1152,10 @@ class MusicPlayer(QMainWindow):
             self.song_info_var = "Nothing is playing"
             self.clear_right_frame_info()  # Clear the right frame info
 
-        # Temporarily disconnect the signal while updating the selection
-        self.song_list.currentItemChanged.disconnect(self.play_selected_song)
-
-        # Update UI elements
+        # --- Avoid disconnecting/reconnecting signals; use a flag instead ---
+        self._ignore_song_list_signal = True
         self.highlight_current_song()
-
-        # Reconnect the signal
-        self.song_list.currentItemChanged.connect(self.play_selected_song)
+        self._ignore_song_list_signal = False
 
         self.setWindowTitle(
             f"Iota Player • {self.current_playlist} • {self.song_info_var}"

@@ -1,3 +1,10 @@
+# core/logger.py
+# =============
+# This module configures logging for IotaPlayer, including console and file handlers.
+# It also sets up a Discord logger for integration with Discord Rich Presence.
+# The log files are stored in a user-specific configuration directory,
+# which varies based on the operating system (Windows or Unix-like).
+# =============
 import logging
 from logging.handlers import RotatingFileHandler
 import os

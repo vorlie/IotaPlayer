@@ -1,3 +1,9 @@
+# core/mprisThread.py
+# =============
+# This module implements the MPRIS (Media Player Remote Interfacing Specification)
+# D-Bus interface for IotaPlayer using dbus-next.
+# It runs in a separate QThread to avoid blocking the main GUI thread.
+# =============
 import logging
 import asyncio
 from core.dbus import run_mpris

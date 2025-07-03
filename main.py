@@ -1,3 +1,9 @@
+# ./main.py
+# =============
+# This is the main entry point for IotaPlayer, initializing the application,
+# setting up the GUI, and managing the main event loop.
+# It handles configuration loading, theme management, and server setup for single instance enforcement.
+# =============
 import qdarktheme as qdt
 import sys
 import json

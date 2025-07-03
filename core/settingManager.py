@@ -1,3 +1,8 @@
+## core/settingManager.py
+# =============
+# This module provides the settings dialog UI 
+# and logic for IotaPlayer, including configuration tabs and saving/loading settings.
+# =============
 import os
 import json
 import subprocess

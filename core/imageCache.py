@@ -1,3 +1,10 @@
+# core/imageCache.py
+# =============
+# This module manages caching and processing of cover art images for songs.
+# It handles image resizing, cropping, and caching to improve performance
+# and reduce redundant processing.
+# The cache is stored in a user-specific directory based on the platform.
+# =============
 import os
 import platform
 from PIL import Image, ImageQt

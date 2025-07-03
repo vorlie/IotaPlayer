@@ -1,5 +1,20 @@
 # ruff: noqa
 # type: ignore
+# core/dbus.py
+# =============
+# D-Bus Interface for MPRIS:
+#
+# This module implements the MPRIS (Media Player Remote Interfacing Specification) D-Bus interface
+# for IotaPlayer using dbus-next. It exposes player metadata (title, artist, album, cover art, etc.)
+# and playback status to Linux desktop environments and compatible widgets.
+#
+# The implementation is read-only: playback controls (play, pause, next, etc.) are disabled,
+# and only metadata and status are provided. This ensures maximum compatibility and stability
+# with desktop integrations such as playerctl, KDE Plasma, GNOME Shell, and Waybar.
+#
+# The MPRIS service is started asynchronously and updates metadata in real time as songs change.
+# =============
+
 import logging
 import asyncio
 from dbus_next.aio import MessageBus

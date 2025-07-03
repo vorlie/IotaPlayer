@@ -1,3 +1,10 @@
+# =============
+# Music Player Core Logic
+#
+# This module implements the main player window, playback controls, UI updates,
+# and state management for IotaPlayer. It handles song loading, playlist navigation,
+# cover art display, Discord integration, and MPRIS metadata updates.
+# =============
 import os
 import webbrowser
 import threading

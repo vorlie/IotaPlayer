@@ -1,3 +1,10 @@
+# core/playlistMaker.py
+# =============
+# This module implements the Playlist Maker dialog for IotaPlayer.
+# It allows users to create and manage playlists of songs.
+# It provides functionality to select folders, add songs manually,
+# edit and delete songs, and save playlists.
+# =============
 import platform
 import re
 import logging

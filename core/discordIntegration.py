@@ -1,3 +1,10 @@
+# core/discordIntegration.py
+# =============
+# Discord Integration for IotaPlayer
+## This module implements Discord Rich Presence integration for IotaPlayer,
+# allowing the player to display current song information,
+# artist details, and playback status in Discord.
+# =============
 import os
 import platform
 from pypresence import Presence, ActivityType

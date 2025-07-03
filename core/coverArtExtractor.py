@@ -1,3 +1,10 @@
+# core/coverArtExtractor.py
+# =============
+# Cover Art Extraction
+#
+# Extracts embedded album art from audio files (MP3, FLAC, etc.) and saves them
+# to the cover art cache. Skips files that already have cached images.
+# =============
 from PyQt5.QtCore import QThread, pyqtSignal
 from mutagen import File
 from mutagen.id3 import APIC

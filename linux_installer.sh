@@ -32,7 +32,7 @@ fi
 # 1. Detect distro and install system dependencies
 if [ -f /etc/arch-release ]; then
     echo -e "${GREEN}Detected Arch Linux.${NC}"
-    sudo pacman -Syu --needed gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
+    sudo pacman -S --needed gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
         qt5-multimedia
 elif [ -f /etc/debian_version ]; then
     echo -e "${GREEN}Detected Debian/Ubuntu.${NC}"

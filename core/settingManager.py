@@ -55,15 +55,41 @@ class SettingsDialog(QDialog):
         self.root_playlist_folder_edit = QLineEdit()
         self.root_playlist_folder_edit.setPlaceholderText("playlists")
         self.root_playlist_folder_edit.setText(self.settings.get("root_playlist_folder", "playlists"))
+        self.root_playlist_browse_button = QPushButton("Browse")
+        def browse_root_playlist_folder():
+            from PyQt5.QtWidgets import QFileDialog
+            folder = QFileDialog.getExistingDirectory(self, "Select Root Playlist Folder")
+            if folder:
+                self.root_playlist_folder_edit.setText(folder)
+        self.root_playlist_browse_button.clicked.connect(browse_root_playlist_folder)
+        root_playlist_layout = QHBoxLayout()
+        root_playlist_layout.addWidget(self.root_playlist_folder_edit)
+        root_playlist_layout.addWidget(self.root_playlist_browse_button)
+        self.general_layout.addRow(QLabel("Root Playlist Folder:"), root_playlist_layout)
+
         self.default_playlist_edit = QLineEdit()
         self.default_playlist_edit.setPlaceholderText("default")
         self.default_playlist_edit.setText(self.settings.get("default_playlist", "default"))
         self.volume_percentage_edit = QSpinBox()
         self.volume_percentage_edit.setRange(0, 100)
         self.volume_percentage_edit.setValue(self.settings.get("volume_percentage", 100))
-        self.general_layout.addRow(QLabel("Root Playlist Folder:"), self.root_playlist_folder_edit)
         self.general_layout.addRow(QLabel("Default Playlist:"), self.default_playlist_edit)
         self.general_layout.addRow(QLabel("Volume Percentage:"), self.volume_percentage_edit)
+
+        self.unsorted_music_folder_edit = QLineEdit()
+        self.unsorted_music_folder_edit.setPlaceholderText("Path to your unsorted music folder")
+        self.unsorted_music_folder_edit.setText(self.settings.get("unsorted_music_folder", ""))
+        self.unsorted_music_browse_button = QPushButton("Browse")
+        def browse_unsorted_folder():
+            from PyQt5.QtWidgets import QFileDialog
+            folder = QFileDialog.getExistingDirectory(self, "Select Unsorted Music Folder")
+            if folder:
+                self.unsorted_music_folder_edit.setText(folder)
+        self.unsorted_music_browse_button.clicked.connect(browse_unsorted_folder)
+        unsorted_layout = QHBoxLayout()
+        unsorted_layout.addWidget(self.unsorted_music_folder_edit)
+        unsorted_layout.addWidget(self.unsorted_music_browse_button)
+        self.general_layout.addRow(QLabel("Unsorted Music Folder:"), unsorted_layout)
 
         # --- Appearance Tab ---
         self.appearance_tab = QWidget()
@@ -210,6 +236,7 @@ class SettingsDialog(QDialog):
         self.settings["use_playing_status"] = self.use_playing_status_edit.isChecked()
         self.settings["google_client_secret_file"] = self.google_client_secret_edit.text()
         self.settings["font_name"] = self.font_name_edit.text()
+        self.settings["unsorted_music_folder"] = self.unsorted_music_folder_edit.text()
         
         if sys.platform.startswith("linux"):
             self.settings["dark_mode"] = self.dark_mode_checkbox.isChecked()

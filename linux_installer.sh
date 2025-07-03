@@ -46,9 +46,9 @@ fi
 
 # 2. Set up venv and install Python dependencies
 echo -e "${BLUE}Setting up Python virtual environment...${NC}"
-python3 -m venv venv
+python3 -m venv .venv
 echo -e "${BLUE}Activating venv and installing requirements...${NC}"
-source venv/bin/activate
+source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt --ignore-requires-python
 

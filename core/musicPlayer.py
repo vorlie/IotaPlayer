@@ -690,12 +690,23 @@ class MusicPlayer(QMainWindow):
         self.upload_youtube_button.setEnabled(True)  # Re-enable button
         #self.statusBar().showMessage("Upload failed.")
 
+    def display_song_text(self, song):
+        """Return a display string for a song, avoiding duplicate artist in title."""
+        artist = str(song.get('artist', '')).strip()
+        title = str(song.get('title', '')).strip()
+        # Remove punctuation and lowercase for comparison
+        def normalize(s):
+            return re.sub(r'[^\w]', '', s).lower()
+        if artist and normalize(title).startswith(normalize(artist)):
+            return title
+        return f"{artist} - {title}" if artist else title
+
     def search_songs(self, query):
         search_type = self.search_type_dropdown.currentText()
         if not query:
             self.song_list.clear()
             for song in self.songs:
-                self.song_list.addItem(f"{song['artist']} - {song['title']}")
+                self.song_list.addItem(self.display_song_text(song))
             return
 
         results = []
@@ -715,7 +726,7 @@ class MusicPlayer(QMainWindow):
 
         self.song_list.clear()
         for song in results:
-            self.song_list.addItem(f"{song['artist']} - {song['title']}")
+            self.song_list.addItem(self.display_song_text(song))
 
     def combine_playlists_mp(self):
         self.playlist_manager.combine_playlists()
@@ -732,17 +743,22 @@ class MusicPlayer(QMainWindow):
         self.settings_manager.show()
 
     def get_playlist_names(self):
-        """Retrieve available playlist names and song counts from the predefined directory."""
+        """Retrieve available playlist names and song counts from the predefined directory, plus Unsorted Music if set."""
         playlist_folder = self.config.get("root_playlist_folder", "playlists")
-
-        # Check if the playlist folder exists
-        if not os.path.exists(playlist_folder):
-            logging.warning(f"Playlist folder does not exist: {playlist_folder}")
-            return []
+        unsorted_folder = self.config.get("unsorted_music_folder", "")
 
         playlists = []
         default_playlist_name = self.config.get("default_playlist", "default")
 
+        # Add Unsorted Music as a virtual playlist if set and exists
+        if unsorted_folder and os.path.exists(unsorted_folder):
+            # Count audio files
+            count = 0
+            for root, _, files in os.walk(unsorted_folder):
+                count += len([f for f in files if f.lower().endswith((".mp3", ".flac", ".ogg", ".wav", ".m4a"))])
+            playlists.append(("Unsorted Music", None, count, None))
+
+        # ...existing code for loading .json playlists...
         for f in os.listdir(playlist_folder):
             if f.endswith(".json"):
                 playlist_path = os.path.join(playlist_folder, f)
@@ -752,21 +768,16 @@ class MusicPlayer(QMainWindow):
                         name = data.get("playlist_name", os.path.splitext(f)[0])
                         playlist_image = data.get("playlist_large_image_key", None)
                         song_count = data.get("song_count", 0)
-                        # Store both name and file path for later use
-                        playlists.append(
-                            (name, playlist_path, song_count, playlist_image)
-                        )
+                        playlists.append((name, playlist_path, song_count, playlist_image))
                 except json.JSONDecodeError:
-                    logging.error(
-                        f"Error decoding JSON in playlist file: {playlist_path}"
-                    )
+                    logging.error(f"Error decoding JSON in playlist file: {playlist_path}")
                 except IOError as e:
                     logging.error(f"Error reading playlist file: {playlist_path}; {e}")
 
         if not playlists:
             logging.info("No playlists found in the folder.")
 
-        # Move the default playlist to the top
+        # Move the default playlist to the top (after Unsorted Music)
         playlists = sorted(
             playlists, key=lambda x: x[0] == default_playlist_name, reverse=True
         )
@@ -777,19 +788,76 @@ class MusicPlayer(QMainWindow):
     def load_playlist_from_list(self, current, previous):
         if current:
             selected_playlist = current.text()
+            if selected_playlist.startswith("Unsorted Music"):
+                self.load_unsorted_music()
+                return
+            # ...existing code...
             playlist_folder = self.config.get("root_playlist_folder", "playlists")
-
-            # Find the playlist path
-            playlist_name = re.match(r"(.*) \(\d+ Songs\)", selected_playlist).group(1)
+            playlist_name = re.match(r"(.*) \\(\d+ Songs\\)", selected_playlist).group(1)
             playlist_file = f"{playlist_name}.json"
             playlist_path = os.path.join(playlist_folder, playlist_file)
-
             if os.path.exists(playlist_path):
                 self.load_playlist(playlist_name)
             else:
-                logging.error(
-                    f"Error loading playlist: Playlist file not found: {playlist_path}"
-                )
+                logging.error(f"Error loading playlist: Playlist file not found: {playlist_path}")
+
+    def load_unsorted_music(self):
+        """Scan the unsorted music folder and build a song list on the fly."""
+        unsorted_folder = self.config.get("unsorted_music_folder", "")
+        if not unsorted_folder or not os.path.exists(unsorted_folder):
+            QMessageBox.warning(self, "Unsorted Music", "Unsorted music folder is not set or does not exist.")
+            return
+        songs = []
+        for root, _, files in os.walk(unsorted_folder):
+            for f in files:
+                if f.lower().endswith((".mp3", ".flac", ".ogg", ".wav", ".m4a")):
+                    path = os.path.join(root, f)
+                    # Try to extract metadata
+                    try:
+                        audio = MP3(path)
+                        title = audio.get("TIT2", os.path.splitext(f)[0])
+                        artist = audio.get("TPE1", "Unknown Artist")
+                        album = audio.get("TALB", "Unknown Album")
+                        genre = audio.get("TCON", "Unknown Genre")
+                        song = {
+                            "title": str(title),
+                            "artist": str(artist),
+                            "album": str(album),
+                            "genre": str(genre),
+                            "path": path,
+                            "picture_path": "",
+                            "picture_link": "",
+                        }
+                    except Exception:
+                        song = {
+                            "title": os.path.splitext(f)[0],
+                            "artist": "Unknown Artist",
+                            "album": "Unknown Album",
+                            "genre": "Unknown Genre",
+                            "path": path,
+                            "picture_path": "",
+                            "picture_link": "",
+                        }
+                    songs.append(song)
+        self.current_playlist = "Unsorted Music"
+        self.current_playlist_image = None
+        self.playlist_name_var = "Unsorted Music"
+        self.songs = songs
+        self.song_list.clear()
+        for song in self.songs:
+            self.song_list.addItem(self.display_song_text(song))
+        if self.songs:
+            self.song_index = 0
+            self.current_song = self.songs[self.song_index]
+            self.update_song_info()
+        else:
+            self.current_song = None
+            self.update_song_info()
+        self.shuffled_songs = []
+        self.shuffled_index = 0
+        self.is_shuffling = False
+        self.shuffle_button.setText("Shuffle Off")
+        logging.info(f"Loaded Unsorted Music with {len(self.songs)} songs.")
 
     def load_playlist(self, playlist_name):
         logging.info(f"Loading playlist: {playlist_name}")
@@ -812,7 +880,7 @@ class MusicPlayer(QMainWindow):
         self.song_list.clear()
         if self.songs:
             for song in self.songs:
-                self.song_list.addItem(f"{song['artist']} - {song['title']}")
+                self.song_list.addItem(self.display_song_text(song))
             if self.media_player.state() == QMediaPlayer.PlayingState:
                 logging.info(
                     "Current song is playing, not updating title and song info."
@@ -1139,9 +1207,7 @@ class MusicPlayer(QMainWindow):
 
     def update_song_info(self):
         if self.current_song:
-            self.song_info_var = (
-                f"{self.current_song['artist']} - {self.current_song['title']}"
-            )
+            self.song_info_var = self.display_song_text(self.current_song)
             self.update_right_frame_info()  # Update the right frame with the song info
         else:
             self.song_info_var = "Nothing is playing"
@@ -1175,13 +1241,17 @@ class MusicPlayer(QMainWindow):
         if self.config["connect_to_discord"]:  # Check if Discord connection is enabled
             # Compose system info string
             #sys_info = f"{platform.system()} {platform.release()} | Python {platform.python_version()}"
-            image_text = self.current_song.get("album") or self.current_playlist
-            if self.current_song["picture_link"]:
-                big_image = self.current_song["picture_link"]
+            if self.current_playlist == "Unsorted Music":
+                image_text = "Unsorted Music"
+                big_image = discord_cdn_images.get("default_image")
             else:
-                big_image = (
-                    self.current_playlist_image if self.current_playlist else None
-                )
+                image_text = self.current_song.get("album") or self.current_playlist
+                if self.current_song.get("picture_link"):
+                    big_image = self.current_song["picture_link"]
+                else:
+                    big_image = (
+                        self.current_playlist_image if self.current_playlist else None
+                    )
 
         if self.is_playing:
             current_position = self.media_player.position() // 1000

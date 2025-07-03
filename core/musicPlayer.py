@@ -793,13 +793,17 @@ class MusicPlayer(QMainWindow):
                 return
             # ...existing code...
             playlist_folder = self.config.get("root_playlist_folder", "playlists")
-            playlist_name = re.match(r"(.*) \\(\d+ Songs\\)", selected_playlist).group(1)
-            playlist_file = f"{playlist_name}.json"
-            playlist_path = os.path.join(playlist_folder, playlist_file)
-            if os.path.exists(playlist_path):
-                self.load_playlist(playlist_name)
+            match = re.match(r"^(.*) \((\d+) Songs\)$", selected_playlist)
+            if match:
+                playlist_name = match.group(1)
+                playlist_file = f"{playlist_name}.json"
+                playlist_path = os.path.join(playlist_folder, playlist_file)
+                if os.path.exists(playlist_path):
+                    self.load_playlist(playlist_name)
+                else:
+                    logging.error(f"Error loading playlist: Playlist file not found: {playlist_path}")
             else:
-                logging.error(f"Error loading playlist: Playlist file not found: {playlist_path}")
+                logging.error(f"Could not parse playlist name from: {selected_playlist}")
 
     def load_unsorted_music(self):
         """Scan the unsorted music folder and build a song list on the fly."""
@@ -1188,9 +1192,7 @@ class MusicPlayer(QMainWindow):
     def highlight_current_song(self):
         """Highlight the currently playing song in the song list."""
         if self.is_shuffling:
-            current_song_title = (
-                f"{self.current_song['artist']} - {self.current_song['title']}"
-            )
+            current_song_title = self.display_song_text(self.current_song)
             items = [
                 self.song_list.item(i).text() for i in range(self.song_list.count())
             ]

@@ -140,9 +140,15 @@ class DiscordIntegration(QObject):
 
     @retry(stop=stop_after_attempt(2), wait=wait_fixed(2))
     def _handle_update_error(self, error: Exception, data: PresenceUpdateData):
-        if "rate limit" in str(error).lower():
+        error_str = str(error).lower()
+        if "rate limit" in error_str:
             discord_logger.warning(f"Rate limited: {error}. Retrying...")
             time.sleep(15)
+            self.update_presence(data)
+        elif "pipe was closed" in error_str or "the pipe was closed" in error_str:
+            discord_logger.warning(f"Discord pipe closed: {error}. Reconnecting...")
+            self.connect()
+            # After reconnect, try updating presence again
             self.update_presence(data)
         else:
             discord_logger.error(f"Update failed: {error}")

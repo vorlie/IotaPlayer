@@ -23,6 +23,12 @@ class CoverArtExtractor(QThread):
                         files.append(os.path.join(root, f))
         total = len(files)
         for idx, path in enumerate(files, 1):
+            # --- Skip if cover already cached ---
+            cache_key = f"{os.path.basename(path)}_{self.size}"
+            cache_file = os.path.join(self.cache.cache_dir, cache_key + ".png")
+            if os.path.exists(cache_file):
+                self.progress.emit(idx, total)
+                continue
             cover = self.extract_cover(path)
             if cover:
                 self.cache.save_cover_from_bytes(path, cover, self.size)

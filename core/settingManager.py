@@ -41,48 +41,34 @@ class SettingsDialog(QDialog):
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs)
 
-        # Create tabs
+        # --- General Tab ---
         self.general_tab = QWidget()
-        self.discord_tab = QWidget()
-        self.google_tab = QWidget()
-        self.cover_tab = QWidget()
-        
-        self.tabs.addTab(self.general_tab, "General")
-        self.tabs.addTab(self.discord_tab, "Discord")
-        self.tabs.addTab(self.google_tab, "Google")
-        self.tabs.addTab(self.cover_tab, "Cover Art")
-
-        # Layouts for each tab
         self.general_layout = QFormLayout()
-        self.discord_layout = QFormLayout()
-        self.google_layout = QFormLayout()
-        self.cover_layout = QVBoxLayout()
-
         self.general_tab.setLayout(self.general_layout)
-        self.discord_tab.setLayout(self.discord_layout)
-        self.google_tab.setLayout(self.google_layout)
-        self.cover_tab.setLayout(self.cover_layout)
+        self.tabs.addTab(self.general_tab, "General")
 
-        # General settings
-        self.volume_percentage_edit = QSpinBox()
-        self.volume_percentage_edit.setRange(0, 100)  # Set min/max range for the volume
-        self.volume_percentage_edit.setValue(self.settings.get("volume_percentage", 100))
-        
-        self.tray_checkbox = QCheckBox("Minimize to Tray")
-        self.tray_checkbox.setChecked(self.settings.get("minimize_to_tray", False))
-        
         self.root_playlist_folder_edit = QLineEdit()
         self.root_playlist_folder_edit.setPlaceholderText("playlists")
         self.root_playlist_folder_edit.setText(self.settings.get("root_playlist_folder", "playlists"))
-        
         self.default_playlist_edit = QLineEdit()
         self.default_playlist_edit.setPlaceholderText("default")
         self.default_playlist_edit.setText(self.settings.get("default_playlist", "default"))
-        
+        self.volume_percentage_edit = QSpinBox()
+        self.volume_percentage_edit.setRange(0, 100)
+        self.volume_percentage_edit.setValue(self.settings.get("volume_percentage", 100))
+        self.general_layout.addRow(QLabel("Root Playlist Folder:"), self.root_playlist_folder_edit)
+        self.general_layout.addRow(QLabel("Default Playlist:"), self.default_playlist_edit)
+        self.general_layout.addRow(QLabel("Volume Percentage:"), self.volume_percentage_edit)
+
+        # --- Appearance Tab ---
+        self.appearance_tab = QWidget()
+        self.appearance_layout = QFormLayout()
+        self.appearance_tab.setLayout(self.appearance_layout)
+        self.tabs.addTab(self.appearance_tab, "Appearance")
+
         self.font_name_edit = QLineEdit()
         self.font_name_edit.setPlaceholderText("Noto Sans")
         self.font_name_edit.setText(self.settings.get("font_name", "Noto Sans"))
-
         self.colorization_color_edit = QLineEdit()
         self.colorization_color_edit.setPlaceholderText("automatic or #RRGGBB")
         color = self.settings.get("colorization_color", "automatic")
@@ -90,73 +76,80 @@ class SettingsDialog(QDialog):
             self.colorization_color_edit.setText(color)
         else:
             self.colorization_color_edit.setText("")
-        
         self.color_picker_button = QPushButton("Pick Color")
         self.color_picker_button.clicked.connect(self.open_color_picker)
-        
         self.use_system_accent_checkbox = QCheckBox("Use System Accent Color")
         self.use_system_accent_checkbox.setChecked(color == "automatic")
         self.use_system_accent_checkbox.stateChanged.connect(self.toggle_colorization_color)
-        
         self.dark_mode_checkbox = QCheckBox("Enable Dark Mode")
         self.dark_mode_checkbox.setChecked(self.settings.get("dark_mode", False))
-        
-        self.general_layout.addRow(QLabel("Font Name:"), self.font_name_edit)
-        
-        self.general_layout.addRow(QLabel("Volume Percentage:"), self.volume_percentage_edit)
-        self.general_layout.addRow(QLabel("Root Playlist Folder:"), self.root_playlist_folder_edit)
-        self.general_layout.addRow(QLabel("Default Playlist:"), self.default_playlist_edit)
-        self.general_layout.addRow(self.use_system_accent_checkbox)
-        self.general_layout.addRow(QLabel("Colorization Color:"), self.colorization_color_edit)
-        self.general_layout.addRow(self.color_picker_button, QLabel())
-        
+        self.appearance_layout.addRow(QLabel("Font Name:"), self.font_name_edit)
+        self.appearance_layout.addRow(self.use_system_accent_checkbox)
+        self.appearance_layout.addRow(QLabel("Colorization Color:"), self.colorization_color_edit)
+        self.appearance_layout.addRow(self.color_picker_button, QLabel())
         if sys.platform.startswith("linux"):
-            self.general_layout.addRow(self.dark_mode_checkbox)
-            
-        # Discord settings
+            self.appearance_layout.addRow(self.dark_mode_checkbox)
+
+        # --- Discord Tab ---
+        self.discord_tab = QWidget()
+        self.discord_layout = QFormLayout()
+        self.discord_tab.setLayout(self.discord_layout)
+        self.tabs.addTab(self.discord_tab, "Discord")
+
         self.connect_to_discord_checkbox = QCheckBox("Connect to Discord")
         self.connect_to_discord_checkbox.setChecked(self.settings.get("connect_to_discord", True))
-        
         self.discord_client_id_edit = QLineEdit()
         self.discord_client_id_edit.setText(self.settings.get("discord_client_id", "1150680286649143356"))
-        
         self.large_image_key_edit = QLineEdit()
         self.large_image_key_edit.setText(self.settings.get("large_image_key", "https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg"))
-        
         self.use_playing_status_edit = QCheckBox("Use Playing Status")
         self.use_playing_status_edit.setChecked(self.settings.get("use_playing_status", False))
-        
-        self.discord_layout.addRow(self.connect_to_discord_checkbox, QLabel())
-        self.discord_layout.addRow(self.use_playing_status_edit, QLabel())
+        self.discord_layout.addRow(self.connect_to_discord_checkbox)
+        self.discord_layout.addRow(self.use_playing_status_edit)
         self.discord_layout.addRow(QLabel("Discord Client ID:"), self.discord_client_id_edit)
         self.discord_layout.addRow(QLabel("Large Image Key:"), self.large_image_key_edit)
-        
+
+        # --- Google Tab ---
+        self.google_tab = QWidget()
+        self.google_layout = QFormLayout()
+        self.google_tab.setLayout(self.google_layout)
+        self.tabs.addTab(self.google_tab, "Google")
+
         self.google_client_secret_edit = QLineEdit()
         self.google_client_secret_edit.setPlaceholderText("Path to client_secret.json")
         self.google_client_secret_edit.setText(self.settings.get("google_client_secret_file", ""))
-
         self.google_layout.addRow(QLabel("Client Secret File:"), self.google_client_secret_edit)
 
-        # Cover Art settings
-        self.extract_button = QPushButton("Extract & Cache Covers")
-        self.cover_layout.addWidget(self.extract_button)
+        # --- Cover Art Tab ---
+        self.cover_tab = QWidget()
+        self.cover_layout = QVBoxLayout()
+        self.cover_tab.setLayout(self.cover_layout)
+        self.tabs.addTab(self.cover_tab, "Cover Art")
 
+        # Add a title/description
+        self.cover_layout.addWidget(QLabel("<b>Cover Art Extraction & Caching</b>"))
+        self.cover_layout.addWidget(QLabel("Extract and cache album art for your music library. Existing covers will be skipped."))
+
+        # Use a horizontal layout for button and progress bar
+        cover_controls_layout = QHBoxLayout()
+        self.extract_button = QPushButton("Extract & Cache Covers")
+        cover_controls_layout.addWidget(self.extract_button)
         self.cover_progress = QProgressBar()
         self.cover_progress.setValue(0)
-        self.cover_layout.addWidget(self.cover_progress)
+        self.cover_progress.setMinimumWidth(200)
+        cover_controls_layout.addWidget(self.cover_progress)
+        self.cover_layout.addLayout(cover_controls_layout)
 
         self.extract_button.clicked.connect(self.start_cover_extraction)
-        
-        # Buttons
+        self.cover_layout.addStretch(1)  # Add stretch to push controls to the top
+
+        # --- Save/Cancel Buttons ---
         button_layout = QHBoxLayout()
         layout.addLayout(button_layout)
-        
         self.save_button = QPushButton("Save")
         self.cancel_button = QPushButton("Cancel")
-
         button_layout.addWidget(self.save_button)
         button_layout.addWidget(self.cancel_button)
-        
         self.save_button.clicked.connect(self.save_settings)
         self.cancel_button.clicked.connect(self.close)
 

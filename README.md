@@ -58,13 +58,15 @@ Iota Player comes packed with features to enhance your music listening experienc
   - **Seek Bar:** Instantly jump to any point in a song with a draggable progress bar.
   - **Volume Control:** Adjust volume with a simple slider.
   - **Reliable Engine:** Uses PyQt5's native `QMediaPlayer` for stable and integrated playback.
+  - **Media Key Support:** Control playback using your keyboard's media keys (play/pause, next, previous).
 
 ### Display & Interface
 
   - **Song Information:** View the artist, title, album, and genre of the current track.
   - **Dynamic Window Title:** The window title updates to show the currently playing song.
-  - **Customizable Accent Color:** Personalize the UI by setting a custom accent color or using your system's default (Windows & macOS).
-  - **Cover Art:** Automatically extracts, caches, and crops embedded album art to a 1:1 aspect ratio for a clean, uniform look.
+  - **Customizable Accent Color:** Personalize the UI by setting a custom accent color or using your system's default.
+  - **Cover Art Extraction & Caching:** Automatically extracts, caches, and crops embedded album art to a 1:1 aspect ratio for a clean, uniform look. Skips already-cached covers for efficiency.
+  - **Modern Settings Dialog:** Settings are organized into clear tabs (General, Appearance, Discord, Google, Cover Art) for easy navigation and configuration.
 
 ### Integrations
 
@@ -72,10 +74,14 @@ Iota Player comes packed with features to enhance your music listening experienc
       - Broadcast your current song as your Discord status.
       - Status updates instantly when you seek, pause, or change tracks.
       - Display custom playlist images.
+      - Robust reconnection if Discord restarts or disconnects.
   - **YouTube:**
       - Upload your local playlists directly to your YouTube account.
       - Open the YouTube video for the currently playing song in your browser.
-  - **Media Key Support:** Control playback using your keyboard's media keys (play/pause, next, previous).
+  - **MPRIS (Linux):**
+      - Exposes metadata (artist, title, album, cover art, etc.) to Linux desktop environments and widgets.
+      - Read-only mode for maximum compatibility and stability.
+  - **Google Integration:** Supports Google API credentials for YouTube upload.
 
 -----
 

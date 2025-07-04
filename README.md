@@ -137,7 +137,7 @@ sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
 
 ```sh
 sudo pacman -Syu gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
-  qt5-multimedia
+  qt6-multimedia
 ```
 
 > **Note for Arch/Manjaro:**

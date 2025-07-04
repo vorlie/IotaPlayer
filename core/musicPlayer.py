@@ -30,7 +30,6 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QInputDialog,
 )
-from utils import hex_to_rgba
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl, QByteArray
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput

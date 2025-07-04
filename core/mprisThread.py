@@ -7,7 +7,7 @@
 import logging
 import asyncio
 from core.dbus import run_mpris
-from PyQt5.QtCore import QThread
+from PyQt6.QtCore import QThread
 
 
 class MPRISServiceThread(QThread):

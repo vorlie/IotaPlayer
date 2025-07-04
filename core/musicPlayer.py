@@ -12,7 +12,7 @@ import logging
 import json
 import re
 import time
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QDialog,
     QMainWindow,
     QVBoxLayout,
@@ -30,10 +30,9 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QInputDialog,
 )
-from utils import hex_to_rgba
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl, QByteArray
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl, QByteArray
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from pynput import keyboard
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
@@ -139,7 +138,6 @@ class MusicPlayer(QMainWindow):
             logging.info(f"Created playlist folder: {playlist_folder}")
 
         self.initUI()
-        self.set_stylesheet(theme, normal)
         self.cover_cache = CoverArtCache()
         self.listener = keyboard.Listener(on_press=self.on_key_press)
         self.listener_thread = threading.Thread(target=self.listener.start)
@@ -183,6 +181,9 @@ class MusicPlayer(QMainWindow):
         self.connection_check_timer.start(10000)  # Check every 10 seconds
 
         self.media_player = QMediaPlayer()
+        self.audio_output = QAudioOutput()
+        self.media_player.setAudioOutput(self.audio_output)
+        
         self.on_start()
         self.has_started = False
         self.is_paused = False
@@ -194,28 +195,6 @@ class MusicPlayer(QMainWindow):
         self.volume_update_timer = QTimer()
         self.volume_update_timer.timeout.connect(self.update_volume_slider)
         self.volume_update_timer.start(1000)
-
-    def set_stylesheet(self, theme, normal):
-        if theme == "dark":
-            stylesheet = f"""
-                QPushButton {{
-                    color: #FFFFFF;
-                }}
-                QListWidget {{
-                    background-color: {hex_to_rgba(normal, 0.1)};
-                }}
-            """
-        else:  # Light mode
-            stylesheet = f"""
-                QPushButton {{
-                    color: #000000;
-                }}
-                QListWidget {{
-                    background-color: {hex_to_rgba(normal, 0.1)};
-                }}
-                
-            """
-        self.setStyleSheet(stylesheet)
 
     def initUI(self):
         # Main widget and layout
@@ -235,7 +214,7 @@ class MusicPlayer(QMainWindow):
         self.left_frame_layout.setSpacing(10)
         self.left_frame.setLayout(self.left_frame_layout)
         self.left_frame.setFixedWidth(300)
-        self.top_layout.addWidget(self.left_frame, alignment=Qt.AlignTop | Qt.AlignLeft)
+        self.top_layout.addWidget(self.left_frame, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.left_frame_scnd_layout = QHBoxLayout()
         self.left_frame_layout.addLayout(self.left_frame_scnd_layout)
 
@@ -301,7 +280,7 @@ class MusicPlayer(QMainWindow):
         self.time_label = QLabel("00:00 / 00:00")
         self.sliders_layout.addWidget(self.time_label)
 
-        self.progress_bar = QSlider(Qt.Horizontal)
+        self.progress_bar = QSlider(Qt.Orientation.Horizontal)
         self.progress_bar.setRange(0, 100)
         self.sliders_layout.addWidget(self.progress_bar)
 
@@ -309,12 +288,12 @@ class MusicPlayer(QMainWindow):
         self.volume_label = QLabel(f"Volume: {self.get_volume}%")
         self.sliders_layout.addWidget(self.volume_label)
 
-        self.volume_slider = QSlider(Qt.Horizontal)
+        self.volume_slider = QSlider(Qt.Orientation.Horizontal)
         self.volume_slider.setMinimum(0)
         self.volume_slider.setMaximum(100)
 
         self.volume_slider.setValue(self.get_volume)
-        self.volume_slider.setTickPosition(QSlider.TicksBelow)
+        self.volume_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.volume_slider.setTickInterval(10)
         self.volume_slider.setSingleStep(1)
         self.volume_slider.valueChanged.connect(self.adjust_volume)
@@ -361,56 +340,35 @@ class MusicPlayer(QMainWindow):
         self.right_frame.setLayout(self.right_frame_layout)
         self.right_frame.setFixedWidth(270)
 
-        # Apply the background color and border
-        if self.clr_theme == "dark":
-            self.right_frame.setStyleSheet(
-                f"background-color: {hex_to_rgba(self.clr_nrm, 0.1)}; border: 1px solid #3f4042; border-radius: 5px;"
-            )
-        else:
-            self.right_frame.setStyleSheet(
-                f"background-color: {hex_to_rgba(self.clr_nrm, 0.1)}; border: 1px solid #dadce0; border-radius: 5px;"
-            )
-
         self.top_layout.addWidget(
-            self.right_frame, alignment=Qt.AlignTop | Qt.AlignRight
+            self.right_frame, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight
         )
 
         # Song Info (Song picture, title, author, etc.)
         self.song_picture = QLabel()
         self.song_picture.setContentsMargins(0, 9, 0, 0)
-        self.song_picture.setPixmap(QPixmap("").scaled(250, 250, Qt.KeepAspectRatio))
-        self.song_picture.setStyleSheet("border: none; background-color: none;")
+        self.song_picture.setPixmap(QPixmap("").scaled(250, 250, Qt.AspectRatioMode.KeepAspectRatio))
 
-        self.right_frame_layout.addWidget(self.song_picture, alignment=Qt.AlignCenter)
-
-        # Style labels
-        if self.clr_theme == "dark":
-            label_stylesheet = "border: none; background: none; color: #FFFFFF;"
-        else:
-            label_stylesheet = "border: none; background: none; color: #000000;"
+        self.right_frame_layout.addWidget(self.song_picture, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.song_title_label = QLabel("Title:")
-        self.song_title_label.setAlignment(Qt.AlignLeft)
+        self.song_title_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.song_title_label.setContentsMargins(10, 0, 0, 0)
-        self.song_title_label.setStyleSheet(label_stylesheet)
         self.right_frame_layout.addWidget(self.song_title_label)
 
         self.song_author_label = QLabel("Author:")
-        self.song_author_label.setAlignment(Qt.AlignLeft)
+        self.song_author_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.song_author_label.setContentsMargins(10, 0, 0, 0)
-        self.song_author_label.setStyleSheet(label_stylesheet)
         self.right_frame_layout.addWidget(self.song_author_label)
 
         self.song_album_label = QLabel("Album:")
-        self.song_album_label.setAlignment(Qt.AlignLeft)
+        self.song_album_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.song_album_label.setContentsMargins(10, 0, 0, 0)
-        self.song_album_label.setStyleSheet(label_stylesheet)
         self.right_frame_layout.addWidget(self.song_album_label)
 
         self.song_genre_label = QLabel("Genre:")
-        self.song_genre_label.setAlignment(Qt.AlignLeft)
+        self.song_genre_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.song_genre_label.setContentsMargins(10, 0, 0, 10)
-        self.song_genre_label.setStyleSheet(label_stylesheet)
         self.right_frame_layout.addWidget(self.song_genre_label)
 
         # Bottom Layout: Music Control, Progress, Volume
@@ -424,7 +382,7 @@ class MusicPlayer(QMainWindow):
 
         # Add a left spacer
         self.left_spacer = QSpacerItem(
-            20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum
+            20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
         )
         self.music_control_layout.addItem(self.left_spacer)
 
@@ -449,7 +407,7 @@ class MusicPlayer(QMainWindow):
 
         # Add a right spacer
         self.right_spacer = QSpacerItem(
-            20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum
+            20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
         )
         self.music_control_layout.addItem(self.right_spacer)
 
@@ -475,28 +433,6 @@ class MusicPlayer(QMainWindow):
         self.settings_button.clicked.connect(self.open_settings)
         self.upload_youtube_button.clicked.connect(self.initiate_youtube_upload_dialog)
         self.progress_bar.sliderReleased.connect(self.seek_in_song)
-        """
-        self.next_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.playlist_combine_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.playlist_maker_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.settings_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.youtube_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.reload_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.delete_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.upload_youtube_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.toggle_play_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.toggle_pause_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.prev_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.song_album_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.song_genre_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.song_author_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.song_title_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.settings_button.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.song_list_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.search_bar.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.volume_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        self.time_label.setFont(QFont(self.config.get("font_name", "Noto Sans"), 10, QFont.Normal))
-        """
 
     def seek_in_song(self):
         """Seek to the position in the song based on the slider value."""
@@ -885,7 +821,7 @@ class MusicPlayer(QMainWindow):
         if self.songs:
             for song in self.songs:
                 self.song_list.addItem(self.display_song_text(song))
-            if self.media_player.state() == QMediaPlayer.PlayingState:
+            if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
                 logging.info(
                     "Current song is playing, not updating title and song info."
                 )
@@ -982,22 +918,22 @@ class MusicPlayer(QMainWindow):
 
     def adjust_volume(self, value):
         """Adjusts the volume of the music player."""
-        volume = value / 100.
-        self.media_player.setVolume(int(volume * 100))  # QMediaPlayer expects 0-100
+        volume = value / 100.0
+        self.audio_output.setVolume(volume)  # QAudioOutput expects 0.0 - 1.0
         self.volume_label.setText(f"Volume: {value}%")
         # logging.info(f"Volume set to: {value}%")
 
     def update_volume_slider(self):
         """Updates the volume slider based on the current system volume."""
-        current_volume = self.media_player.volume()
+        current_volume = self.audio_output.volume() * 100
         self.volume_slider.blockSignals(True)
         self.volume_slider.setValue(int(current_volume))
         self.volume_slider.blockSignals(False)
         self.volume_label.setText(f"Volume: {int(current_volume)}%")
 
     def keyPressEvent(self, event):
-        """Handle key press events within the PyQt5 application."""
-        if event.key() == Qt.Key_Delete:
+        """Handle key press events within the PyQt6 application."""
+        if event.key() == Qt.Key.Key_Delete:
             self.delete_playlist()
         super().keyPressEvent(event)
 
@@ -1026,7 +962,7 @@ class MusicPlayer(QMainWindow):
         if self.is_paused:
             logging.info("Music is paused, attempting to resume...")
             self.resume_music()  # Should resume music
-        elif self.media_player.state() == QMediaPlayer.PlayingState:
+        elif self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
             logging.info("Music is playing, attempting to pause...")
             self.pause_music()
         else:
@@ -1062,7 +998,7 @@ class MusicPlayer(QMainWindow):
         logging.info(f"Playing music: {self.current_song}")
         if self.current_song:
             url = QUrl.fromLocalFile(self.current_song["path"])
-            self.media_player.setMedia(QMediaContent(url))
+            self.media_player.setSource(url)
             self.media_player.play()
 
             # Track the start time and reset time played
@@ -1321,11 +1257,11 @@ class MusicPlayer(QMainWindow):
                 picture_path = self.current_song.get("picture_path", "default.png")
                 if os.path.exists(picture_path):
                     self.song_picture.setPixmap(
-                        QPixmap(picture_path).scaled(250, 250, Qt.KeepAspectRatio)
+                        QPixmap(picture_path).scaled(250, 250, Qt.AspectRatioMode.KeepAspectRatio)
                     )
                 else:
                     self.song_picture.setPixmap(
-                        QPixmap("default.png").scaled(250, 250, Qt.KeepAspectRatio)
+                        QPixmap("default.png").scaled(250, 250, Qt.AspectRatioMode.KeepAspectRatio)
                     )
 
             # Update the labels with song information
@@ -1347,7 +1283,7 @@ class MusicPlayer(QMainWindow):
     def clear_right_frame_info(self):
         """Clear the information displayed in the right frame."""
         self.song_picture.setPixmap(
-            QPixmap("default.png").scaled(250, 250, Qt.KeepAspectRatio)
+            QPixmap("default.png").scaled(250, 250, Qt.AspectRatioMode.KeepAspectRatio)
         )
         self.song_title_label.setText("Title:")
         self.song_author_label.setText("Author:")
@@ -1355,7 +1291,7 @@ class MusicPlayer(QMainWindow):
         self.song_genre_label.setText("Genre:")
 
     def update_progress(self):
-        if self.media_player.state() == QMediaPlayer.PlayingState:
+        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
             elapsed_time = self.media_player.position() // 1000  # milliseconds to seconds
             total_time = self.media_player.duration() // 1000
             elapsed_str = self.format_time(elapsed_time)
@@ -1368,7 +1304,7 @@ class MusicPlayer(QMainWindow):
             )
 
     def check_song_end(self):
-        if self.has_started and self.media_player.state() != QMediaPlayer.PlayingState and self.current_song:
+        if self.has_started and self.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState and self.current_song:
             if not self.is_paused:
                 self.handle_song_end()
             else:

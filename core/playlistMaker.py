@@ -11,9 +11,9 @@ import logging
 import json
 import os
 import random
-from PyQt5.QtWidgets import QDialog, QFileDialog, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QLabel, QTableWidget, QTableWidgetItem, QMessageBox, QListWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QDialog, QFileDialog, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QLabel, QTableWidget, QTableWidgetItem, QMessageBox, QListWidget
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt
 
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
@@ -177,7 +177,7 @@ class PlaylistMaker(QDialog):
         self.left_layout.setSpacing(10)
         self.left_frame.setLayout(self.left_layout)
         self.left_frame.setFixedWidth(300)
-        self.layout.addWidget(self.left_frame, alignment=Qt.AlignTop | Qt.AlignLeft)
+        self.layout.addWidget(self.left_frame, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
 
         self.folder_label = QLabel("Select folder containing songs:")
         self.left_layout.addWidget(self.folder_label)
@@ -499,7 +499,7 @@ class PlaylistMaker(QDialog):
         select_button.clicked.connect(on_select)
         cancel_button.clicked.connect(on_cancel)
 
-        dialog.exec_()
+        dialog.exec()
                 
     def load_playlist(self, playlist_name):
         """Load a playlist into the UI."""

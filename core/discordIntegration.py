@@ -11,7 +11,7 @@ from pypresence import Presence, ActivityType
 import time
 import logging
 import json
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 from threading import Lock
 from pydantic import BaseModel
 from typing import Optional

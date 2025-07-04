@@ -8,7 +8,7 @@
 import os
 import platform
 from PIL import Image, ImageQt
-from PyQt5.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap
 import io
 
 def get_config_dir():

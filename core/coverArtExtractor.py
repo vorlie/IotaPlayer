@@ -5,7 +5,8 @@
 # Extracts embedded album art from audio files (MP3, FLAC, etc.) and saves them
 # to the cover art cache. Skips files that already have cached images.
 # =============
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import QThread, pyqtSignal, Qt
+from PyQt6.QtGui import QPixmap
 from mutagen import File
 from mutagen.id3 import APIC
 from mutagen.flac import Picture
@@ -67,3 +68,7 @@ class CoverArtExtractor(QThread):
         except Exception as e:
             print(f"Error extracting cover from {filepath}: {e}")
         return None
+
+    def set_cover_art(self, image_path):
+        self.coverLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.coverLabel.setPixmap(QPixmap(image_path))

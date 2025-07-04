@@ -4,19 +4,18 @@
 # setting up the GUI, and managing the main event loop.
 # It handles configuration loading, theme management, and server setup for single instance enforcement.
 # =============
-import qdarktheme as qdt
 import sys
 import json
 import platform
 import logging
 import darkdetect
 import os
-from time import sleep
 import utils
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
-from PyQt5.QtNetwork import QLocalServer, QLocalSocket
+import qdarktheme
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QFont
+from PyQt6.QtCore import QObject, pyqtSlot
+from PyQt6.QtNetwork import QLocalServer, QLocalSocket
 from core.musicPlayer import MusicPlayer
 from core.logger import setup_logging
 from config import ICON_PATH, default_settings
@@ -35,39 +34,6 @@ CONFIG_PATH = get_config_path()
 DEFAULT_ACCENT_COLOR = "#ff50aa"
 DEFAULT_BACKGROUND_COLOR = "#4d1833"
 
-class ColorChangeListener(QThread):
-    color_changed = pyqtSignal(str, str, str, str, str)  # Emit color only
-    
-    def __init__(self, parent: QObject | None = None):
-        super().__init__(parent)
-
-    def run(self):
-        logging.info("ColorChangeListener started.")
-        utils.listener(self.on_color_change)
-
-    def on_color_change(self, normal, dark, dark_alt, light, light_alt):
-        logging.info(f"Detected color change: {normal}, {dark}, {dark_alt}, {light}, {light_alt}")
-        self.color_changed.emit(normal, dark, dark_alt, light, light_alt)
-
-class ThemeChangeListener(QThread):
-    theme_changed = pyqtSignal(str)  # Emit theme only
-    
-    def __init__(self, parent: QObject | None = None):
-        super().__init__(parent)
-        self.current_theme = darkdetect.theme().lower()
-
-    def run(self):
-        logging.info("ThemeChangeListener started.")
-        while True:
-            new_theme = darkdetect.theme().lower()
-            if new_theme != self.current_theme:
-                self.current_theme = new_theme
-                self.on_theme_change(new_theme)
-            sleep(5)
-
-    def on_theme_change(self, theme):
-        logging.info(f"Detected theme change: {theme}")
-        self.theme_changed.emit(theme)
 
 class Iota(QObject):
     def __init__(self):
@@ -115,28 +81,6 @@ def load_config():
         logging.error(f"Error loading config: {e}")
         return default_settings
 
-def update_theme(normal, dark, dark_alt, light, light_alt, theme):
-    logging.info(f"Updating theme to: {theme}")
-    if theme == 'dark':
-        qdt.setup_theme('dark', 
-            custom_colors={
-                "primary": normal, 
-                "background": dark, 
-                #"border": dark_alt,
-                "input.background": dark,
-                "foreground>input.placeholder": "#bababa",
-                "foreground": "#ffffff"})
-    else:
-        qdt.setup_theme('light', 
-            custom_colors={
-                "primary": normal, 
-                "background": light, 
-                #"border": light_alt, 
-                "input.background": light,
-                "foreground>input.placeholder": "#313131",
-                "border":"#3f4042",
-                "foreground": "#000000"})
-
 def is_instance_running(server_name="IotaPlayerInstance"):
     socket = QLocalSocket()
     socket.connectToServer(server_name)
@@ -150,7 +94,6 @@ def is_instance_running(server_name="IotaPlayerInstance"):
     return is_running
         
 def main():
-    qdt.enable_hi_dpi()
     app = QApplication(sys.argv)
     
     if is_instance_running():
@@ -163,7 +106,7 @@ def main():
     config = load_config()
     font_name_from_config = config.get("font_name", "Noto Sans")
     font_size = 10
-    font_weight = QFont.Normal
+    font_weight = QFont.Weight.Normal
     custom_font_family = font_name_from_config
     global_font = QFont(custom_font_family, font_size, font_weight)
     app.setFont(global_font)
@@ -196,35 +139,10 @@ def main():
     # Start MPRIS integration (Linux only)
     if platform.system() == "Linux":
         start_mpris(player)
-
-    def handle_color_change(normal, dark, dark_alt, light, light_alt):
-        current_theme = darkdetect.theme().lower()
-        logging.info(f"Handling color change: {normal}, {dark}, {dark_alt}, {light}, {light_alt} for theme: {current_theme}")
-        normal, dark, dark_alt, light, light_alt = utils.get_colorization_colors()
-        update_theme(normal, dark, dark_alt, light, light_alt, current_theme)
-        player.set_stylesheet(current_theme, normal)
-
-    def handle_theme_change(theme):
-        logging.info(f"Handling theme change to: {theme}")
-        normal, dark, dark_alt, light, light_alt = utils.get_colorization_colors()
-        update_theme(normal, dark, dark_alt, light, light_alt, theme)
-        player.set_stylesheet(theme, normal)
-        
-    if color == "automatic" and platform.system() == "Windows":
-        normal, dark, dark_alt, light, light_alt = utils.get_colorization_colors()
-        handle_color_change(normal, dark, dark_alt, light, light_alt)
-
-        color_change_listener = ColorChangeListener()
-        color_change_listener.color_changed.connect(handle_color_change)
-        color_change_listener.start()
-
-        theme_change_listener = ThemeChangeListener()
-        theme_change_listener.theme_changed.connect(handle_theme_change)
-        theme_change_listener.start()
-    else:
-        qdt.setup_theme(theme, custom_colors={"primary": clr})
     
-    sys.exit(app.exec_())
+    qdarktheme.setup_theme(custom_colors={"primary": clr})
+    
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()

@@ -7,13 +7,13 @@ import os
 import json
 import subprocess
 import sys
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QDialog, QLabel, QLineEdit, 
     QPushButton, QVBoxLayout, QHBoxLayout, 
     QWidget, QTabWidget, QFormLayout, QCheckBox, 
     QMessageBox, QApplication, QColorDialog, QSpinBox, QProgressBar 
 )
-from PyQt5.QtGui import QIcon
+from PyQt6.QtGui import QIcon
 from core.coverArtExtractor import CoverArtExtractor
 from core.imageCache import CoverArtCache
 
@@ -57,7 +57,7 @@ class SettingsDialog(QDialog):
         self.root_playlist_folder_edit.setText(self.settings.get("root_playlist_folder", "playlists"))
         self.root_playlist_browse_button = QPushButton("Browse")
         def browse_root_playlist_folder():
-            from PyQt5.QtWidgets import QFileDialog
+            from PyQt6.QtWidgets import QFileDialog
             folder = QFileDialog.getExistingDirectory(self, "Select Root Playlist Folder")
             if folder:
                 self.root_playlist_folder_edit.setText(folder)
@@ -81,7 +81,7 @@ class SettingsDialog(QDialog):
         self.unsorted_music_folder_edit.setText(self.settings.get("unsorted_music_folder", ""))
         self.unsorted_music_browse_button = QPushButton("Browse")
         def browse_unsorted_folder():
-            from PyQt5.QtWidgets import QFileDialog
+            from PyQt6.QtWidgets import QFileDialog
             folder = QFileDialog.getExistingDirectory(self, "Select Unsorted Music Folder")
             if folder:
                 self.unsorted_music_folder_edit.setText(folder)
@@ -260,10 +260,10 @@ class SettingsDialog(QDialog):
         reply = QMessageBox.question(
             self, 'Restart Required',
             'Changes will not take effect until the application is restarted. Do you want to restart now?',
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
-        
-        if reply == QMessageBox.Yes:
+
+        if reply == QMessageBox.StandardButton.Yes:
             self.restart_application()
         else:
             self.accept()  # Close the dialog

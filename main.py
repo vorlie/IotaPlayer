@@ -11,7 +11,7 @@ import logging
 import darkdetect
 import os
 import utils
-import qdarktheme
+import qdarktheme # noqa: F401
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import QObject, pyqtSlot
@@ -140,7 +140,8 @@ def main():
     if platform.system() == "Linux":
         start_mpris(player)
     
-    qdarktheme.setup_theme(custom_colors={"primary": clr})
+    # Uncomment if you prefer to not use system qt6 theme
+    #qdarktheme.setup_theme(custom_colors={"primary": clr})
     
     sys.exit(app.exec())
 

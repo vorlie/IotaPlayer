@@ -96,6 +96,21 @@ class SettingsDialog(QDialog):
         self.appearance_layout = QFormLayout()
         self.appearance_tab.setLayout(self.appearance_layout)
         self.tabs.addTab(self.appearance_tab, "Appearance")
+        
+        self.color_disclaimer_label = QLabel(
+            "Note: Custom themes require 'qdarktheme' to be enabled "
+            "for the application's overall theme."
+        )
+        self.color_disclaimer_label2 = QLabel(
+            "To enable 'qdarktheme', please uncomment line 144 in 'main.py'."
+        )
+
+        self.color_disclaimer_label3 = QLabel(
+            "A rebuild of the application is required for changes to take effect."
+        )
+        self.color_disclaimer_label.setStyleSheet("font-weight: bold;")
+        self.color_disclaimer_label2.setStyleSheet("font-weight: bold;")
+        self.color_disclaimer_label3.setStyleSheet("font-weight: bold;")
 
         self.font_name_edit = QLineEdit()
         self.font_name_edit.setPlaceholderText("Noto Sans")
@@ -114,6 +129,10 @@ class SettingsDialog(QDialog):
         self.use_system_accent_checkbox.stateChanged.connect(self.toggle_colorization_color)
         self.dark_mode_checkbox = QCheckBox("Enable Dark Mode")
         self.dark_mode_checkbox.setChecked(self.settings.get("dark_mode", False))
+
+        self.appearance_layout.addRow(self.color_disclaimer_label)
+        self.appearance_layout.addRow(self.color_disclaimer_label2)
+        self.appearance_layout.addRow(self.color_disclaimer_label3)
         self.appearance_layout.addRow(QLabel("Font Name:"), self.font_name_edit)
         self.appearance_layout.addRow(self.use_system_accent_checkbox)
         self.appearance_layout.addRow(QLabel("Colorization Color:"), self.colorization_color_edit)

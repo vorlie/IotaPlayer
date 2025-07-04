@@ -57,7 +57,7 @@ Iota Player comes packed with features to enhance your music listening experienc
   - **Loop & Shuffle:** Toggle repeat and shuffle modes for your playlists.
   - **Seek Bar:** Instantly jump to any point in a song with a draggable progress bar.
   - **Volume Control:** Adjust volume with a simple slider.
-  - **Reliable Engine:** Uses PyQt5's native `QMediaPlayer` for stable and integrated playback.
+  - **Reliable Engine:** Uses PyQt6's native `QMediaPlayer` for stable and integrated playback.
   - **Media Key Support:** Control playback using your keyboard's media keys (play/pause, next, previous).
 
 ### Display & Interface
@@ -120,7 +120,7 @@ No pre-built binaries are provided for Linux due to the variety of distributions
   - **Python 3.13 or newer.**
     - Should be installed by default on newer systems, if not install it.
   - **GStreamer:** Required for audio playback.
-  - **PyQt5:** For the user interface.
+  - **PyQt6:** For the user interface.
 
 **2. Install System Dependencies**
 
@@ -310,7 +310,7 @@ If you wish to build a standalone `.exe` file on Windows:
 
 This project is built with the help of these libraries:
 
-  - **[PyQt5](https://www.riverbankcomputing.com/software/pyqt/intro)**: For the graphical user interface.
+  - **[PyQt6](https://www.riverbankcomputing.com/software/pyqt/intro)**: For the graphical user interface.
   - **[qdarktheme](https://github.com/vorlie/PyQtDarkTheme)**: For easy dark/light theme integration.
   - **[pypresence](https://pypi.org/project/pypresence/)**: For Discord Rich Presence integration.
   - **[mutagen](https://mutagen.readthedocs.io/en/latest/)**: For reading and handling audio metadata.

@@ -33,7 +33,7 @@ fi
 if [ -f /etc/arch-release ]; then
     echo -e "${GREEN}Detected Arch Linux.${NC}"
     sudo pacman -S --needed gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
-        qt5-multimedia
+        qt6-multimedia
 elif [ -f /etc/debian_version ]; then
     echo -e "${GREEN}Detected Debian/Ubuntu.${NC}"
     sudo apt update
@@ -41,7 +41,7 @@ elif [ -f /etc/debian_version ]; then
         gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav \
         libxcb-xinerama0
 else
-    echo -e "${RED}Unknown distro. Please install Python 3.13+, PyQt5, and GStreamer plugins manually.${NC}"
+    echo -e "${RED}Unknown distro. Please install Python 3.13+, PyQt6, and GStreamer plugins manually.${NC}"
 fi
 
 # 2. Set up venv and install Python dependencies

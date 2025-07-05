@@ -298,7 +298,7 @@ class PlaylistMaker(QDialog):
         self.songs = []
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Delete:
+        if event.key() == Qt.Key.Key_Delete:
             selected_indexes = self.song_table.selectionModel().selectedRows()
             if selected_indexes:
                 for index in sorted(selected_indexes, reverse=True):
@@ -306,6 +306,7 @@ class PlaylistMaker(QDialog):
                     self.song_table.removeRow(row)
                     if row < len(self.songs):
                         del self.songs[row]
+        super().keyPressEvent(event)
 
     def select_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder")

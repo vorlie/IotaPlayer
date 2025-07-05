@@ -887,11 +887,11 @@ class MusicPlayer(QMainWindow):
             self,
             "Delete Playlist",
             f"Are you sure you want to delete the playlist '{playlist_name}'?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
 
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             if os.path.exists(playlist_path):
                 try:
                     os.remove(playlist_path)

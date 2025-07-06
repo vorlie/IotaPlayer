@@ -17,6 +17,7 @@ from PyQt6.QtCore import Qt
 
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
+from mutagen import File
 
 def get_config_path():
     if platform.system() == "Windows":
@@ -316,37 +317,45 @@ class PlaylistMaker(QDialog):
     
     def process_folder(self, folder):
         self.songs = []
-        self.song_table.setRowCount(0)
-        song_files = [f for f in os.listdir(folder) if f.endswith(".mp3")]
+        if self.song_table:
+            self.song_table.setRowCount(0)
+
+        ACCEPTED_AUDIO_EXTENSIONS = (".mp3", ".wav", ".flac", ".ogg", ".m4a") 
+
+        song_files = [f for f in os.listdir(folder) if f.lower().endswith(ACCEPTED_AUDIO_EXTENSIONS)]
 
         for filename in song_files:
             song_path = os.path.join(folder, filename)
             artist = title = album = genre = picture_path = picture_link = youtube_id = ""
-
-            # Try to extract metadata first
             try:
-                audio = MP3(song_path, ID3=ID3)
-                tags = audio.tags
-                if tags:
-                    artist = tags.get('TPE1', [None])[0] if tags.get('TPE1') else ""
-                    title = tags.get('TIT2', [None])[0] if tags.get('TIT2') else ""
-                    album = tags.get('TALB', [None])[0] if tags.get('TALB') else ""
-                    genre = tags.get('TCON', [None])[0] if tags.get('TCON') else ""
+                audio = File(song_path)
+                if audio:
+                    artist = audio.get('artist', [None])[0] if audio.get('artist') else ""
+                    title = audio.get('title', [None])[0] if audio.get('title') else ""
+                    album = audio.get('album', [None])[0] if audio.get('album') else ""
+                    genre = audio.get('genre', [None])[0] if audio.get('genre') else ""
+
+                    if isinstance(audio, MP3) and audio.tags:
+                        tags = audio.tags
+                        artist = tags.get('TPE1', [None])[0] if tags.get('TPE1') else artist
+                        title = tags.get('TIT2', [None])[0] if tags.get('TIT2') else title
+                        album = tags.get('TALB', [None])[0] if tags.get('TALB') else album
+                        genre = tags.get('TCON', [None])[0] if tags.get('TCON') else genre
+                
                 artist = str(artist) if artist else ""
                 title = str(title) if title else ""
                 album = str(album) if album else ""
                 genre = str(genre) if genre else ""
+
             except Exception as e:
                 logging.error(f"Error reading metadata for {filename}: {e}")
-                # If metadata extraction fails, fallback to regex
                 artist = title = album = genre = ""
                 picture_path = ""
             
-            # If metadata is missing, fallback to filename regex
             if not artist or not title:
-                match = re.match(r'(.+) - (.+) \[([^\]]*)\]\.mp3$', filename)
+                match = re.match(r'(.+) - (.+) \[([^\]]*)\]\.(mp3|wav|flac|ogg|m4a)$', filename, re.IGNORECASE)
                 if match:
-                    artist, title, youtube_id = match.groups()
+                    artist, title, youtube_id, _ = match.groups()
                 else:
                     artist = "Unknown Artist"
                     title = os.path.splitext(filename)[0]
@@ -363,7 +372,8 @@ class PlaylistMaker(QDialog):
                 "path": song_path.replace("\\", "/")
             })
 
-        self.add_song_to_table()
+        if hasattr(self, 'add_song_to_table') and callable(self.add_song_to_table):
+            self.add_song_to_table()
 
     def add_song_to_table(self):
         self.song_table.setRowCount(len(self.songs))

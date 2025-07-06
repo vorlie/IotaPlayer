@@ -16,7 +16,6 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 
 from mutagen.mp3 import MP3
-from mutagen.id3 import ID3
 from mutagen import File
 
 def get_config_path():

@@ -796,6 +796,7 @@ class MusicPlayer(QMainWindow):
         self.shuffled_songs = []
         self.shuffled_index = 0
         self.is_shuffling = False
+        self.shuffle_button.setEnabled(False)
         self.shuffle_button.setText("Shuffle Off")
         logging.info(f"Loaded Unsorted Music with {len(self.songs)} songs.")
 
@@ -839,6 +840,7 @@ class MusicPlayer(QMainWindow):
         # Reset shuffle state
         self.shuffled_songs = []
         self.shuffled_index = 0
+        self.shuffle_button.setEnabled(True)
         self.toggle_shuffle()  # If shuffle was enabled, reapply shuffle
 
     def load_playlist_dialog(self):

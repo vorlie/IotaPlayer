@@ -96,20 +96,34 @@ Iota Player comes packed with features to enhance your music listening experienc
 
 #### Option 1: One-Command Installer (Recommended)
 
-Download and run the installer script:
+This script provides a convenient way to install or update IotaPlayer on Linux. It operates in two modes: `install` and `update`.
 
-```sh
-curl -O https://raw.githubusercontent.com/vorlie/IotaPlayer/master/linux_installer.sh
-bash linux_installer.sh
-```
+1.  **Download the installer script:**
+    ```sh
+    curl -O https://raw.githubusercontent.com/vorlie/IotaPlayer/main/linux_installer.sh
+    ```
 
-This script will:
-- Install all required system dependencies (Arch or Debian/Ubuntu)
-- Set up a Python virtual environment and install Python dependencies
-- Build the app with PyInstaller
-- Prompt you for an installation directory
-- Copy all necessary files and generate a launcher script
-- Optionally create a desktop shortcut
+2.  **Make the script executable:**
+    ```sh
+    chmod +x linux_installer.sh
+    ```
+
+3.  **Run the script:**
+    * **To install IotaPlayer:**
+        (Run this command in the directory where you want the `IotaPlayer` source code to be cloned, or from within the `IotaPlayer` directory if you've already cloned it manually.)
+        ```sh
+        ./linux_installer.sh install
+        ```
+        *(Note: Running `./linux_installer.sh` without any arguments will also default to the `install` mode.)*
+
+    * **To update an existing IotaPlayer installation:**
+        (Run this command from within your `IotaPlayer` source directory, ensuring you have pulled the latest changes from the repository.)
+        ```sh
+        ./linux_installer.sh update
+        ```
+
+The script will then guide you through the process, prompting for installation paths and confirmations as needed.
+
 
 #### Option 2: Manual Installation
 

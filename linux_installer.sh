@@ -14,9 +14,10 @@ echo -e "${CYAN}--------------------------------${NC}"
 
 # Function to display usage instructions
 usage() {
-    echo "Usage: $0 [install|update]"
+    echo "Usage: $0 [install|update|uninstall]"
     echo "  install: Performs a fresh installation of IotaPlayer."
     echo "  update: Updates an existing IotaPlayer installation (removes old files and installs new)."
+    echo "  uninstall: Removes the IotaPlayer installation."
     exit 1
 }
 
@@ -27,7 +28,7 @@ ACTION="install"
 if [ "$#" -gt 0 ]; then
     ACTION="$1"
     # Validate the provided action
-    if [[ "$ACTION" != "install" && "$ACTION" != "update" ]]; then
+    if [[ "$ACTION" != "install" && "$ACTION" != "update" && "$ACTION" != "uninstall" ]]; then
         usage # Show usage if an invalid action is given
     fi
 fi
@@ -192,6 +193,29 @@ elif [ "$ACTION" = "update" ]; then
         fi
     else
         echo -e "${RED}Error: No existing installation found at '$install_path'. Please run with 'install' first or specify the correct path.${NC}"
+        exit 1 # Exit with an error code
+    fi
+elif [ "$ACTION" = "uninstall" ]; then
+    echo -e "${CYAN}Performing uninstallation.${NC}"
+    echo -en "${CYAN}Enter the installation directory to remove (default: $HOME/Apps/IotaPlayer): ${NC}"
+    read -e install_path # Read user input for the installation path to remove
+    install_path=${install_path:-$HOME/Apps/IotaPlayer} # Use default if input is empty
+
+    # Check if the specified installation directory exists for uninstallation
+    if [ -d "$install_path" ]; then
+        echo -e "${YELLOW}Found existing installation at '$install_path'.${NC}"
+        echo -en "${CYAN}Are you sure you want to uninstall? This will remove all existing files in this directory. (y/n): ${NC}"
+        read confirm_uninstall
+        if [[ "$confirm_uninstall" =~ ^[Yy]$ ]]; then
+            echo -e "${BLUE}Removing installation from $install_path...${NC}"
+            rm -rf "$install_path" # Remove the entire installation directory
+            echo -e "${GREEN}Uninstallation complete. IotaPlayer has been removed from $install_path.${NC}"
+        else
+            echo -e "${YELLOW}Uninstallation cancelled.${NC}"
+            exit 0 # Exit gracefully if user cancels
+        fi
+    else
+        echo -e "${RED}Error: No existing installation found at '$install_path'. Please check the path or run with 'install' first.${NC}"
         exit 1 # Exit with an error code
     fi
 fi

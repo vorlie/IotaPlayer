@@ -518,7 +518,7 @@ class MusicPlayer(QMainWindow):
         select_button.clicked.connect(on_select)
         cancel_button.clicked.connect(on_cancel)
 
-        dialog.exec_()
+        dialog.exec()
 
     def process_playlist_for_upload(self, playlist_name):
         playlist_path = os.path.join(
@@ -570,10 +570,10 @@ class MusicPlayer(QMainWindow):
                 self,
                 "Missing IDs",
                 f"Warning: {len(missing_ids_info)} song(s) are missing YouTube IDs and will be skipped.\nProceed anyway?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
-            if reply == QMessageBox.No:
+            if reply == QMessageBox.StandardButton.No:
                 return
 
         # --- Get YouTube Playlist Name ---

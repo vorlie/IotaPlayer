@@ -28,7 +28,9 @@ def get_token_pickle_file():
 
 def load_client_secrets_path():
     """Load the client secret file path from config.json."""
-    config_path = "config.json"
+    
+    config = get_config_dir()
+    config_path = os.path.join(config, "config.json")
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)

@@ -1,4 +1,3 @@
-# Maintainer: vorlie <vorlie0961@gmail.com>
 pkgname=iotaplayer-git
 _pkgname=IotaPlayer
 pkgver=0

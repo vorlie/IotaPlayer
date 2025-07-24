@@ -134,7 +134,6 @@ perform_installation_steps() {
             fi
         else
             echo -e "${YELLOW}Warning: System Breeze theme plugin not found at ${SYSTEM_BREEZE_PLUGIN}. Skipping symlink creation.${NC}"
-            echo -e "${YELLOW}Ensure 'qt6-styleplugins' or 'breeze-qt6' is installed on your system.${NC}"
         fi
     else
         echo -e "${YELLOW}Non-KDE desktop environment detected. Skipping Breeze theme symlink creation.${NC}"

@@ -111,6 +111,35 @@ perform_installation_steps() {
         cp icon.png "$install_path/icon.png" # Copy the application icon if it exists
     fi
 
+    echo -e "${BLUE}Checking desktop environment for Breeze theme symlink...${NC}"
+    # Check if KDE Plasma is the current desktop environment
+    if [[ "$XDG_CURRENT_DESKTOP" == *"KDE"* || "$DESKTOP_SESSION" == *"plasma"* || "$KDE_FULL_SESSION" == "true" ]]; then
+        echo -e "${GREEN}KDE Plasma desktop environment detected. Attempting to symlink Breeze theme plugin.${NC}"
+        SYSTEM_BREEZE_PLUGIN="/usr/lib/qt6/plugins/styles/breeze6.so"
+        APP_BREEZE_PLUGIN_DIR="$install_path/_internal/PyQt6/Qt6/plugins/styles"
+        APP_BREEZE_PLUGIN_TARGET="$APP_BREEZE_PLUGIN_DIR/breeze6.so"
+
+        # Ensure the destination directory exists within the installed app structure
+        mkdir -p "$APP_BREEZE_PLUGIN_DIR"
+
+        if [ -f "$SYSTEM_BREEZE_PLUGIN" ]; then
+            if [ ! -f "$APP_BREEZE_PLUGIN_TARGET" ] || [ ! -L "$APP_BREEZE_PLUGIN_TARGET" ]; then
+                # Check if the target is not a regular file and not already a symlink
+                echo -e "${BLUE}Creating symlink for Breeze theme: ${SYSTEM_BREEZE_PLUGIN} -> ${APP_BREEZE_PLUGIN_TARGET}${NC}"
+                # Use -f to force overwrite if a broken symlink or old file exists
+                ln -sf "$SYSTEM_BREEZE_PLUGIN" "$APP_BREEZE_PLUGIN_TARGET"
+                echo -e "${GREEN}Breeze theme symlink created successfully.${NC}"
+            else
+                echo -e "${YELLOW}Breeze theme plugin already exists or is symlinked in the installation directory. Skipping symlink creation.${NC}"
+            fi
+        else
+            echo -e "${YELLOW}Warning: System Breeze theme plugin not found at ${SYSTEM_BREEZE_PLUGIN}. Skipping symlink creation.${NC}"
+            echo -e "${YELLOW}Ensure 'qt6-styleplugins' or 'breeze-qt6' is installed on your system.${NC}"
+        fi
+    else
+        echo -e "${YELLOW}Non-KDE desktop environment detected. Skipping Breeze theme symlink creation.${NC}"
+    fi
+
     echo -e "${BLUE}Generating launcher script...${NC}"
     # 5. Generate the run_iotaplayer.sh launcher script
     cat > "$install_path/run_iotaplayer.sh" <<EOF

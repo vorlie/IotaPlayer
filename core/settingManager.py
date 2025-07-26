@@ -98,24 +98,17 @@ class SettingsDialog(QDialog):
         self.tabs.addTab(self.appearance_tab, "Appearance")
         
         self.color_disclaimer_label = QLabel(
-            "Note: Custom themes require 'qdarktheme' to be enabled "
-            "for the application's overall theme."
-        )
-        self.color_disclaimer_label2 = QLabel(
-            "To enable 'qdarktheme', please uncomment line 144 in 'main.py'."
+            "Note: Custom themes require 'qdarktheme' to be enabled for the application's overall theme.\n"
+            "If 'qdarktheme' is disabled, the application will use the system's Qt6 theme (common on Linux/KDE).\n"
+            "To enable 'qdarktheme', uncomment line 144 in 'main.py' and rebuild the application for changes to take effect."
         )
 
-        self.color_disclaimer_label3 = QLabel(
-            "A rebuild of the application is required for changes to take effect."
-        )
-        self.color_disclaimer_label.setStyleSheet("font-weight: bold;")
-        self.color_disclaimer_label2.setStyleSheet("font-weight: bold;")
-        self.color_disclaimer_label3.setStyleSheet("font-weight: bold;")
+        self.color_disclaimer_label.setStyleSheet("font-weight: bold; border-radius: 5px; padding: 5px; background-color: #333333; ")
 
         self.font_name_edit = QLineEdit()
         self.font_name_edit.setPlaceholderText("Noto Sans")
         self.font_name_edit.setText(self.settings.get("font_name", "Noto Sans"))
-        self.colorization_color_edit = QLineEdit()
+        self.colorization_color_edit = QLineEdit()  
         self.colorization_color_edit.setPlaceholderText("automatic or #RRGGBB")
         color = self.settings.get("colorization_color", "automatic")
         if color.startswith("#"):
@@ -130,16 +123,15 @@ class SettingsDialog(QDialog):
         self.dark_mode_checkbox = QCheckBox("Enable Dark Mode")
         self.dark_mode_checkbox.setChecked(self.settings.get("dark_mode", False))
 
-        self.appearance_layout.addRow(self.color_disclaimer_label)
-        self.appearance_layout.addRow(self.color_disclaimer_label2)
-        self.appearance_layout.addRow(self.color_disclaimer_label3)
         self.appearance_layout.addRow(QLabel("Font Name:"), self.font_name_edit)
         self.appearance_layout.addRow(self.use_system_accent_checkbox)
         self.appearance_layout.addRow(QLabel("Colorization Color:"), self.colorization_color_edit)
         self.appearance_layout.addRow(self.color_picker_button, QLabel())
         if sys.platform.startswith("linux"):
             self.appearance_layout.addRow(self.dark_mode_checkbox)
-
+        
+        self.appearance_layout.addRow(self.color_disclaimer_label)
+        
         # --- Discord Tab ---
         self.discord_tab = QWidget()
         self.discord_layout = QFormLayout()

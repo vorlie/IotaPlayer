@@ -335,4 +335,4 @@ This project is built with the help of these libraries:
 
 ## License
 
-This project is licensed under the MIT License. See the [**LICENSE**](https://www.google.com/search?q=LICENSE) file for details.
+This project is licensed under the GNU GPLv3 License. See the [**LICENSE**](LICENSE) file for details.

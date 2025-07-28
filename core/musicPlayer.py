@@ -241,7 +241,14 @@ class MusicPlayer(QMainWindow):
                 ]
                 for term in terminals:
                     if shutil.which(term):
-                        subprocess.Popen([term, "-e", f"bash {script_path} update"])
+                        if term == "xterm":
+                            subprocess.Popen([term, "-hold", "-e", f"{script_path} update"])
+                        elif term == "konsole":
+                            subprocess.Popen([term, "--hold", "-e", f"{script_path} update"])
+                        elif term == "gnome-terminal":
+                            subprocess.Popen([term, "--", "bash", "-c", f"{script_path} update; echo; read -n 1 -s -r -p 'Press any key to close...';"])
+                        else:
+                            subprocess.Popen([term, "-e", f"{script_path} update"])
                         sys.exit(0)
                 # Fallback
                 QMessageBox.warning(self, "Update", "No terminal emulator found. Please run linux_installer.sh update manually.")

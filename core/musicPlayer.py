@@ -165,7 +165,7 @@ class AboutDialog(QDialog):
             "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
         )
         license_info.setWordWrap(True)
-        license_info.setStyleSheet("margin: 10px; padding: 10px; background-color: #f0f0f0; border-radius: 5px;")
+        license_info.setStyleSheet("margin: 10px; padding: 10px; background-color: #333333; border-radius: 5px;")
         layout.addWidget(license_info)
         
         # Buttons

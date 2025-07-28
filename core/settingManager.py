@@ -98,12 +98,12 @@ class SettingsDialog(QDialog):
         self.tabs.addTab(self.appearance_tab, "Appearance")
         
         self.color_disclaimer_label = QLabel(
-            "Note: Custom themes require 'qdarktheme' to be enabled for the application's overall theme.\n"
-            "If 'qdarktheme' is disabled, the application will use the system's Qt6 theme (common on Linux/KDE).\n"
-            "To enable 'qdarktheme', uncomment line 144 in 'main.py' and rebuild the application for changes to take effect."
+            "Note: 'qdarktheme' is optional. If disabled, IotaPlayer will use your system's Qt6 theme (recommended for Linux/KDE/GNOME users).\n"
+            "Enable 'qdarktheme' for a consistent dark/light look across platforms."
         )
-
-        self.color_disclaimer_label.setStyleSheet("font-weight: bold; border-radius: 5px; padding: 5px; background-color: #333333; ")
+        self.color_disclaimer_label.setStyleSheet(
+            "font-weight: bold; border-radius: 5px; padding: 5px; background-color: #333333;"
+        )
 
         self.font_name_edit = QLineEdit()
         self.font_name_edit.setPlaceholderText("Noto Sans")
@@ -122,6 +122,11 @@ class SettingsDialog(QDialog):
         self.use_system_accent_checkbox.stateChanged.connect(self.toggle_colorization_color)
         self.dark_mode_checkbox = QCheckBox("Enable Dark Mode")
         self.dark_mode_checkbox.setChecked(self.settings.get("dark_mode", False))
+
+        self.use_qdarktheme_checkbox = QCheckBox("Enable qdarktheme (optional)")
+        self.use_qdarktheme_checkbox.setChecked(self.settings.get("use_qdarktheme", False))
+        self.use_qdarktheme_checkbox.stateChanged.connect(self.toggle_appearance_options)
+        self.appearance_layout.addRow(self.use_qdarktheme_checkbox)
 
         self.appearance_layout.addRow(QLabel("Font Name:"), self.font_name_edit)
         self.appearance_layout.addRow(self.use_system_accent_checkbox)
@@ -197,7 +202,19 @@ class SettingsDialog(QDialog):
 
         # Initialize UI state
         self.toggle_colorization_color()
-
+        self.toggle_appearance_options()
+        
+    def toggle_appearance_options(self):
+        use_qdark = self.use_qdarktheme_checkbox.isChecked()
+        # Only font is always enabled
+        self.font_name_edit.setEnabled(True)
+        # All other appearance options depend on qdarktheme
+        self.use_system_accent_checkbox.setEnabled(use_qdark)
+        self.colorization_color_edit.setEnabled(use_qdark and not self.use_system_accent_checkbox.isChecked())
+        self.color_picker_button.setEnabled(use_qdark and not self.use_system_accent_checkbox.isChecked())
+        self.dark_mode_checkbox.setEnabled(use_qdark and sys.platform.startswith("linux"))
+        self.color_disclaimer_label.setEnabled(use_qdark)
+        
     def start_cover_extraction(self):
         music_dirs = [self.root_playlist_folder_edit.text()]
         self.cover_cache = CoverArtCache()  # You may want to pass a custom cache dir
@@ -248,6 +265,7 @@ class SettingsDialog(QDialog):
         self.settings["google_client_secret_file"] = self.google_client_secret_edit.text()
         self.settings["font_name"] = self.font_name_edit.text()
         self.settings["unsorted_music_folder"] = self.unsorted_music_folder_edit.text()
+        self.settings["use_qdarktheme"] = self.use_qdarktheme_checkbox.isChecked()
         
         if sys.platform.startswith("linux"):
             self.settings["dark_mode"] = self.dark_mode_checkbox.isChecked()

@@ -254,7 +254,7 @@ class MusicPlayer(QMainWindow):
         self.delete_button = QPushButton("Delete")
         self.shuffle_button = QPushButton("Shuffle Off")
         self.loop_button = QPushButton("Loop Off")
-        self.youtube_button = QPushButton("Open current song on Youtube")
+        self.youtube_button = QPushButton("Open song on Youtube")
         self.upload_youtube_button = QPushButton("Upload to YouTube")
 
         self.three_button_layout.addWidget(self.load_button)

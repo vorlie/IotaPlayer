@@ -140,8 +140,8 @@ def main():
     if platform.system() == "Linux":
         start_mpris(player)
     
-    # Uncomment if you prefer to not use system qt6 theme
-    #qdarktheme.setup_theme(custom_colors={"primary": clr})
+    if config.get("use_qdarktheme", False):
+        qdarktheme.setup_theme("dark" if config.get("dark_mode", False) else "light")
     
     sys.exit(app.exec())
 

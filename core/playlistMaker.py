@@ -250,7 +250,7 @@ class PlaylistMaker(QDialog):
         self.save_playlist_button.clicked.connect(self.save_playlist)
         self.button_layout.addWidget(self.save_playlist_button)
         
-        self.open_playlist_button = QPushButton("Open Existing Playlist")
+        self.open_playlist_button = QPushButton("Open Existing")
         self.open_playlist_button.clicked.connect(self.open_playlist)
         self.button_layout.addWidget(self.open_playlist_button)
 

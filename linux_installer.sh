@@ -111,32 +111,65 @@ perform_installation_steps() {
         cp icon.png "$install_path/icon.png" # Copy the application icon if it exists
     fi
 
-    echo -e "${BLUE}Checking desktop environment for Breeze theme symlink...${NC}"
-    # Check if KDE Plasma is the current desktop environment
+    echo -e "${BLUE}Checking for available Qt6 style plugins...${NC}"
+    QT6_PLUGIN_DIR="/usr/lib/qt6/plugins/styles"
+    AVAILABLE_PLUGINS=()
+    if [ -d "$QT6_PLUGIN_DIR" ]; then
+        for f in "$QT6_PLUGIN_DIR"/*.so; do
+            [ -e "$f" ] || continue
+            plugin_name=$(basename "$f" .so)
+            AVAILABLE_PLUGINS+=("$plugin_name")
+        done
+    fi
+
     if [[ "$XDG_CURRENT_DESKTOP" == *"KDE"* || "$DESKTOP_SESSION" == *"plasma"* || "$KDE_FULL_SESSION" == "true" ]]; then
-        echo -e "${GREEN}KDE Plasma desktop environment detected. Attempting to symlink Breeze theme plugin.${NC}"
-        SYSTEM_BREEZE_PLUGIN="/usr/lib/qt6/plugins/styles/breeze6.so"
-        APP_BREEZE_PLUGIN_DIR="$install_path/_internal/PyQt6/Qt6/plugins/styles"
-        APP_BREEZE_PLUGIN_TARGET="$APP_BREEZE_PLUGIN_DIR/breeze6.so"
+        echo -e "${GREEN}KDE Plasma desktop environment detected.${NC}"
+        DEFAULT_QT6_THEME="breeze6"
+    else
+        echo -e "${YELLOW}Non-KDE desktop environment detected. Skipping theme symlink creation.${NC}"
+        DEFAULT_QT6_THEME=""
+    fi
 
-        # Ensure the destination directory exists within the installed app structure
-        mkdir -p "$APP_BREEZE_PLUGIN_DIR"
-
-        if [ -f "$SYSTEM_BREEZE_PLUGIN" ]; then
-            if [ ! -f "$APP_BREEZE_PLUGIN_TARGET" ] || [ ! -L "$APP_BREEZE_PLUGIN_TARGET" ]; then
-                # Check if the target is not a regular file and not already a symlink
-                echo -e "${BLUE}Creating symlink for Breeze theme: ${SYSTEM_BREEZE_PLUGIN} -> ${APP_BREEZE_PLUGIN_TARGET}${NC}"
-                # Use -f to force overwrite if a broken symlink or old file exists
-                ln -sf "$SYSTEM_BREEZE_PLUGIN" "$APP_BREEZE_PLUGIN_TARGET"
-                echo -e "${GREEN}Breeze theme symlink created successfully.${NC}"
+    if [ ${#AVAILABLE_PLUGINS[@]} -gt 0 ]; then
+        echo -e "${CYAN}Available Qt6 style plugins:${NC}"
+        select plugin in "${AVAILABLE_PLUGINS[@]}" "Skip"; do
+            if [[ "$plugin" == "Skip" ]]; then
+                qt6_theme=""
+                break
+            elif [[ -n "$plugin" ]]; then
+                qt6_theme="$plugin"
+                break
             else
-                echo -e "${YELLOW}Breeze theme plugin already exists or is symlinked in the installation directory. Skipping symlink creation.${NC}"
+                echo "Invalid selection."
+            fi
+        done
+        # If nothing selected, fallback to default
+        qt6_theme=${qt6_theme:-$DEFAULT_QT6_THEME}
+    else
+        echo -e "${YELLOW}No Qt6 style plugins found in $QT6_PLUGIN_DIR.${NC}"
+        qt6_theme="$DEFAULT_QT6_THEME"
+    fi
+
+    if [ -n "$qt6_theme" ]; then
+        SYSTEM_QT6_PLUGIN="$QT6_PLUGIN_DIR/${qt6_theme}.so"
+        APP_QT6_PLUGIN_DIR="$install_path/_internal/PyQt6/Qt6/plugins/styles"
+        APP_QT6_PLUGIN_TARGET="$APP_QT6_PLUGIN_DIR/${qt6_theme}.so"
+
+        mkdir -p "$APP_QT6_PLUGIN_DIR"
+
+        if [ -f "$SYSTEM_QT6_PLUGIN" ]; then
+            if [ ! -f "$APP_QT6_PLUGIN_TARGET" ] || [ ! -L "$APP_QT6_PLUGIN_TARGET" ]; then
+                echo -e "${BLUE}Creating symlink for Qt6 theme: ${SYSTEM_QT6_PLUGIN} -> ${APP_QT6_PLUGIN_TARGET}${NC}"
+                ln -sf "$SYSTEM_QT6_PLUGIN" "$APP_QT6_PLUGIN_TARGET"
+                echo -e "${GREEN}Qt6 theme symlink created successfully.${NC}"
+            else
+                echo -e "${YELLOW}Qt6 theme plugin already exists or is symlinked in the installation directory. Skipping symlink creation.${NC}"
             fi
         else
-            echo -e "${YELLOW}Warning: System Breeze theme plugin not found at ${SYSTEM_BREEZE_PLUGIN}. Skipping symlink creation.${NC}"
+            echo -e "${YELLOW}Warning: System Qt6 theme plugin not found at ${SYSTEM_QT6_PLUGIN}. Skipping symlink creation.${NC}"
         fi
     else
-        echo -e "${YELLOW}Non-KDE desktop environment detected. Skipping Breeze theme symlink creation.${NC}"
+        echo -e "${YELLOW}No Qt6 theme plugin specified. Skipping symlink creation.${NC}"
     fi
 
     echo -e "${BLUE}Generating launcher script...${NC}"

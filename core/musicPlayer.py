@@ -232,7 +232,11 @@ class MusicPlayer(QMainWindow):
                 import sys
                 import os
                 import shutil
-                base_path = os.path.dirname(__file__)
+                if getattr(sys, 'frozen', False):
+                    base_path = os.path.dirname(sys.executable)
+                else:
+                    base_path = os.path.dirname(os.path.abspath(__file__))
+
                 script_path = os.path.join(base_path, "linux_installer.sh")
                 # Try to find a terminal emulator
                 terminals = [

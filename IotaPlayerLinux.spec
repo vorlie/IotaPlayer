@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('icon.png', '.')],
+    datas=[('icon.png', '.'), ('linux_installer.sh', '.')],
     hiddenimports=['PyQt6.QtMultimedia', 'PyQt6.QtMultimediaWidgets'],
     hookspath=[],
     hooksconfig={},

@@ -127,9 +127,9 @@ def main():
         clr = color
     global player
     player = MusicPlayer(
-        settings=default_settings, 
-        icon_path=ICON_PATH, 
-        config_path=CONFIG_PATH, 
+        settings=default_settings,
+        icon_path=ICON_PATH,
+        config_path=CONFIG_PATH,
         theme=theme,
         normal=clr
     )
@@ -139,10 +139,10 @@ def main():
     # Start MPRIS integration (Linux only)
     if platform.system() == "Linux":
         start_mpris(player)
-    
+
     if config.get("use_qdarktheme", False):
         qdarktheme.setup_theme("dark" if config.get("dark_mode", False) else "light")
-    
+
     sys.exit(app.exec())
 
 if __name__ == "__main__":

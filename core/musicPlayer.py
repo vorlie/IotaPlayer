@@ -45,7 +45,7 @@ from core.google import (
     create_youtube_playlist,
     add_videos_to_youtube_playlist,
 )
-from config import discord_cdn_images
+from config import discord_cdn_images, __version__
 from fuzzywuzzy import process
 
 
@@ -98,6 +98,20 @@ class YouTubeUploadThread(QThread):
 
         except Exception as e:
             self.error.emit(f"An unexpected error occurred: {str(e)}")
+
+
+class UpdateCheckThread(QThread):
+    update_found = pyqtSignal(str)  # emits latest version string
+
+    def __init__(self, current_version, parent=None):
+        super().__init__(parent)
+        self.current_version = current_version
+
+    def run(self):
+        from config import is_update_available
+        update_available, latest = is_update_available(self.current_version)
+        if update_available:
+            self.update_found.emit(latest)
 
 
 class MusicPlayer(QMainWindow):
@@ -195,6 +209,27 @@ class MusicPlayer(QMainWindow):
         self.volume_update_timer = QTimer()
         self.volume_update_timer.timeout.connect(self.update_volume_slider)
         self.volume_update_timer.start(1000)
+
+        # Start update check in background
+        self.update_thread = UpdateCheckThread(__version__)
+        self.update_thread.update_found.connect(self.on_update_found)
+        self.update_thread.start()
+
+    def on_update_found(self, latest):
+        reply = QMessageBox.question(
+            self,
+            "Update Available",
+            f"Update available! Update to version {latest}.\nDo you want to update now?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            import subprocess
+            import sys
+            import os
+            base_path = os.path.dirname(__file__)
+            script_path = os.path.join(base_path, "linux_installer.sh")
+            subprocess.Popen(["bash", script_path, "update"])
+            sys.exit(0)
 
     def initUI(self):
         # Main widget and layout

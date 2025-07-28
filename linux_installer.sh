@@ -33,31 +33,23 @@ if [ "$#" -gt 0 ]; then
     fi
 fi
 
-# Determine the project root directory (where IotaPlayer source code is)
-PROJECT_ROOT=""
-if [ "$(basename "$PWD")" = "IotaPlayer" ]; then
-    # If currently in the IotaPlayer directory
-    PROJECT_ROOT="$PWD"
-elif [ -d IotaPlayer ]; then
-    # If IotaPlayer directory exists in the current working directory
-    PROJECT_ROOT="$PWD/IotaPlayer"
-else
-    # If IotaPlayer directory is not found, prompt to clone it
-    echo -e "${YELLOW}Project directory 'IotaPlayer' not found in current directory.${NC}"
-    echo -en "${CYAN}Clone the IotaPlayer repository here? (y/n): ${NC}"
-    read clone_repo
-    if [[ "$clone_repo" =~ ^[Yy]$ ]]; then
-        echo -e "${BLUE}Cloning repository...${NC}"
-        git clone https://github.com/vorlie/IotaPlayer.git
-        PROJECT_ROOT="$PWD/IotaPlayer"
-    else
-        echo -e "${RED}Please run this installer from the IotaPlayer project directory or allow cloning.${NC}"
-        exit 1
-    fi
-fi
+# Define a temp path for any temporary repo or files
+TMP_REPO_PATH="/tmp/IotaPlayer_update"
+REPO_URL="https://github.com/vorlie/IotaPlayer.git"
 
-# Change to the project root directory for subsequent operations
-cd "$PROJECT_ROOT"
+# Function to clone the repo into TMP_REPO_PATH if not present
+clone_repo_if_needed() {
+    if [ ! -d "$TMP_REPO_PATH/.git" ]; then
+        echo -e "${BLUE}Cloning IotaPlayer repository into $TMP_REPO_PATH...${NC}"
+        rm -rf "$TMP_REPO_PATH"
+        git clone "$REPO_URL" "$TMP_REPO_PATH"
+    else
+        echo -e "${GREEN}Found existing repo at $TMP_REPO_PATH. Pulling latest changes...${NC}"
+        cd "$TMP_REPO_PATH"
+        git pull
+        cd - > /dev/null
+    fi
+}
 
 # Function to perform the core installation/update steps
 # This function encapsulates the common logic for both install and update
@@ -109,6 +101,15 @@ perform_installation_steps() {
     cp -r dist/IotaPlayer/* "$install_path/" # Copy all contents from dist/IotaPlayer
     if [ -f icon.png ]; then
         cp icon.png "$install_path/icon.png" # Copy the application icon if it exists
+    fi
+    if [ -f linux_installer.sh ]; then
+        cp linux_installer.sh "$install_path/linux_installer.sh" # Copy the update script if it exists
+    fi
+
+    # CLEANUP TEMP FILES/REPO
+    if [ -d "$TMP_REPO_PATH" ]; then
+        echo -e "${BLUE}Cleaning up temporary update files at $TMP_REPO_PATH...${NC}"
+        rm -rf "$TMP_REPO_PATH"
     fi
 
     echo -e "${BLUE}Checking for available Qt6 style plugins...${NC}"
@@ -211,6 +212,19 @@ EOF
 }
 
 # Main logic based on the chosen action (install or update)
+if [ "$ACTION" = "install" ] || [ "$ACTION" = "update" ]; then
+    clone_repo_if_needed
+    PROJECT_ROOT="$TMP_REPO_PATH"
+else
+    # For uninstall, use the install path as before
+    PROJECT_ROOT=""
+fi
+
+# Change to the project root directory for subsequent operations
+if [ -n "$PROJECT_ROOT" ]; then
+    cd "$PROJECT_ROOT"
+fi
+
 if [ "$ACTION" = "install" ]; then
     echo -e "${CYAN}Performing fresh installation.${NC}"
     echo -en "${CYAN}Enter installation directory (default: $HOME/Apps/IotaPlayer): ${NC}"
@@ -271,6 +285,11 @@ elif [ "$ACTION" = "uninstall" ]; then
             echo -e "${BLUE}Removing installation from $install_path...${NC}"
             rm -rf "$install_path" # Remove the entire installation directory
             echo -e "${GREEN}Uninstallation complete. IotaPlayer has been removed from $install_path.${NC}"
+            # CLEANUP TEMP FILES/REPO
+            if [ -d "$TMP_REPO_PATH" ]; then
+                echo -e "${BLUE}Cleaning up temporary update files at $TMP_REPO_PATH...${NC}"
+                rm -rf "$TMP_REPO_PATH"
+            fi
         else
             echo -e "${YELLOW}Uninstallation cancelled.${NC}"
             exit 0 # Exit gracefully if user cancels

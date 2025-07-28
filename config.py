@@ -24,7 +24,7 @@ if platform.system() == "Windows":
 else:
     ICON_PATH = os.path.join(BASE_DIR, 'icon.png')
 
-__version__ = "1.10.6"
+__version__ = "1.10.7"
 
 default_settings = {
     "connect_to_discord": True,
@@ -59,5 +59,30 @@ def get_latest_version():
 def is_update_available(current_version):
     latest = get_latest_version()
     if latest and latest != current_version:
-        return True, latest
+        # Compare versions to ensure latest is actually higher
+        if is_version_higher(latest, current_version):
+            return True, latest
     return False, latest
+
+def is_version_higher(version1, version2):
+    """
+    Compare two version strings and return True if version1 is higher than version2.
+    Supports semantic versioning (e.g., "1.2.3", "1.10.5").
+    """
+    def version_to_tuple(version):
+        # Split version string and convert to integers
+        parts = version.split('.')
+        # Pad with zeros if needed (e.g., "1.2" becomes [1, 2, 0])
+        while len(parts) < 3:
+            parts.append('0')
+        # Convert to integers, handling any non-numeric parts
+        try:
+            return tuple(int(part) for part in parts[:3])
+        except ValueError:
+            # If version format is invalid, treat as lower
+            return (0, 0, 0)
+    
+    v1_tuple = version_to_tuple(version1)
+    v2_tuple = version_to_tuple(version2)
+    
+    return v1_tuple > v2_tuple

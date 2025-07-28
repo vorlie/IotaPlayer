@@ -107,6 +107,9 @@ perform_installation_steps() {
     if [ -f linux_installer.sh ]; then
         cp linux_installer.sh "$install_path/linux_installer.sh" # Copy the update script if it exists
     fi
+    if [ -f LICENSE ]; then
+        cp LICENSE "$install_path/LICENSE" # Copy the license if it exists
+    fi
 
     # CLEANUP TEMP FILES/REPO
     if [ -d "$TMP_REPO_PATH" ]; then

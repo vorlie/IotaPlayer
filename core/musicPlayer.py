@@ -1,3 +1,19 @@
+# IotaPlayer - A feature-rich music player application
+# Copyright (C) 2025 Charlie
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 # =============
 # Music Player Core Logic
 #
@@ -47,6 +63,7 @@ from core.google import (
 )
 from config import discord_cdn_images, __version__
 from fuzzywuzzy import process
+from PyQt6.QtGui import QFont
 
 
 class YouTubeUploadThread(QThread):
@@ -112,6 +129,94 @@ class UpdateCheckThread(QThread):
         update_available, latest = is_update_available(self.current_version)
         if update_available:
             self.update_found.emit(latest)
+
+
+class AboutDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("About IotaPlayer")
+        self.setFixedSize(500, 400)
+        self.setModal(True)
+        
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        
+        # Program info
+        info_label = QLabel("IotaPlayer - A feature-rich music player application")
+        info_label.setStyleSheet("font-size: 16px; font-weight: bold; margin: 10px;")
+        layout.addWidget(info_label)
+        
+        version_label = QLabel(f"Version: {__version__}")
+        version_label.setStyleSheet("margin: 5px;")
+        layout.addWidget(version_label)
+        
+        copyright_label = QLabel("Copyright (C) 2025 Charlie")
+        copyright_label.setStyleSheet("margin: 5px;")
+        layout.addWidget(copyright_label)
+        
+        # License info
+        license_info = QLabel(
+            "This program is free software: you can redistribute it and/or modify "
+            "it under the terms of the GNU General Public License as published by "
+            "the Free Software Foundation, either version 3 of the License, or "
+            "(at your option) any later version.\n\n"
+            "This program is distributed in the hope that it will be useful, "
+            "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+        )
+        license_info.setWordWrap(True)
+        license_info.setStyleSheet("margin: 10px; padding: 10px; background-color: #f0f0f0; border-radius: 5px;")
+        layout.addWidget(license_info)
+        
+        # Buttons
+        button_layout = QHBoxLayout()
+        
+        view_license_button = QPushButton("View Full License")
+        view_license_button.clicked.connect(self.show_full_license)
+        button_layout.addWidget(view_license_button)
+        
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.accept)
+        button_layout.addWidget(close_button)
+        
+        layout.addLayout(button_layout)
+    
+    def show_full_license(self):
+        """Show the full GPL v3 license in a new dialog."""
+        license_dialog = QDialog(self)
+        license_dialog.setWindowTitle("GNU General Public License v3")
+        license_dialog.setModal(True)
+        license_dialog.resize(700, 600)
+        
+        layout = QVBoxLayout()
+        license_dialog.setLayout(layout)
+        
+        # Create text area for license
+        from PyQt6.QtWidgets import QTextEdit, QScrollArea
+        from PyQt6.QtCore import Qt
+        
+        text_edit = QTextEdit()
+        text_edit.setReadOnly(True)
+        text_edit.setFont(QFont("Courier", 9))
+        
+        # Read and display the LICENSE file
+        try:
+            import os
+            license_path = os.path.join(os.path.dirname(__file__), "..", "LICENSE")
+            with open(license_path, 'r', encoding='utf-8') as f:
+                license_text = f.read()
+            text_edit.setPlainText(license_text)
+        except Exception as e:
+            text_edit.setPlainText(f"Error loading license file: {e}\n\nPlease see the LICENSE file in the application directory.")
+        
+        layout.addWidget(text_edit)
+        
+        # Close button
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(license_dialog.accept)
+        layout.addWidget(close_button)
+        
+        license_dialog.exec()
 
 
 class MusicPlayer(QMainWindow):
@@ -393,8 +498,11 @@ class MusicPlayer(QMainWindow):
         self.song_list_label = QLabel("Song List:")
         self.settings_button = QPushButton("Settings")
         self.settings_button.setFixedWidth(70)
+        self.about_button = QPushButton("About")
+        self.about_button.setFixedWidth(70)
         self.middle_frame_scnd_layout.addWidget(self.song_list_label)
         self.middle_frame_scnd_layout.addWidget(self.settings_button)
+        self.middle_frame_scnd_layout.addWidget(self.about_button)
         self.song_list = QListWidget()
         self.song_list.currentItemChanged.connect(self.play_selected_song)
         self.middle_frame_layout.addWidget(self.song_list)
@@ -498,6 +606,7 @@ class MusicPlayer(QMainWindow):
         self.playlist_combine_button.clicked.connect(self.combine_playlists_mp)
         self.playlist_maker_button.clicked.connect(self.open_playlist_maker)
         self.settings_button.clicked.connect(self.open_settings)
+        self.about_button.clicked.connect(self.open_about)
         self.upload_youtube_button.clicked.connect(self.initiate_youtube_upload_dialog)
         self.progress_bar.sliderReleased.connect(self.seek_in_song)
 
@@ -744,6 +853,12 @@ class MusicPlayer(QMainWindow):
         """Open the settings dialog."""
         logging.info("Opening settings dialog.")
         self.settings_manager.show()
+
+    def open_about(self):
+        """Open the about dialog."""
+        logging.info("Opening about dialog.")
+        about_dialog = AboutDialog(self)
+        about_dialog.exec()
 
     def get_playlist_names(self):
         """Retrieve available playlist names and song counts from the predefined directory, plus Unsorted Music if set."""

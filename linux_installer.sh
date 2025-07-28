@@ -60,10 +60,12 @@ perform_installation_steps() {
     echo -e "${BLUE}Detecting distribution and installing system dependencies...${NC}"
     if [ -f /etc/arch-release ]; then
         echo -e "${GREEN}Detected Arch Linux.${NC}"
+        echo -e "${BLUE}Installing system dependencies...${NC}"
         sudo pacman -S --needed gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
             qt6-multimedia
     elif [ -f /etc/debian_version ]; then
         echo -e "${GREEN}Detected Debian/Ubuntu.${NC}"
+        echo -e "${BLUE}Installing system dependencies...${NC}"
         sudo apt update
         sudo apt install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
             gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav \

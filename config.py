@@ -8,7 +8,7 @@ if platform.system() == "Windows":
 else:
     ICON_PATH = os.path.join(BASE_DIR, 'icon.png')
 
-__version__ = "1.10.3"
+__version__ = "1.10.4"
 
 default_settings = {
     "connect_to_discord": True,

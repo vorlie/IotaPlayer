@@ -218,6 +218,7 @@ class MusicPlayer(QMainWindow):
         self.update_thread.start()
 
     def on_update_found(self, latest):
+        import platform
         reply = QMessageBox.question(
             self,
             "Update Available",
@@ -225,13 +226,31 @@ class MusicPlayer(QMainWindow):
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
-            import subprocess
-            import sys
-            import os
-            base_path = os.path.dirname(__file__)
-            script_path = os.path.join(base_path, "linux_installer.sh")
-            subprocess.Popen(["bash", script_path, "update"])
-            sys.exit(0)
+            system = platform.system()
+            if system == "Linux":
+                import subprocess
+                import sys
+                import os
+                import shutil
+                base_path = os.path.dirname(__file__)
+                script_path = os.path.join(base_path, "linux_installer.sh")
+                # Try to find a terminal emulator
+                terminals = [
+                    "x-terminal-emulator", "gnome-terminal", "konsole", "xfce4-terminal", "xterm",
+                    "lxterminal", "mate-terminal", "tilix", "alacritty", "urxvt"
+                ]
+                for term in terminals:
+                    if shutil.which(term):
+                        subprocess.Popen([term, "-e", f"bash {script_path} update"])
+                        sys.exit(0)
+                # Fallback
+                QMessageBox.warning(self, "Update", "No terminal emulator found. Please run linux_installer.sh update manually.")
+            elif system == "Windows":
+                import webbrowser
+                webbrowser.open("https://github.com/vorlie/IotaPlayer?tab=readme-ov-file#option-2-manual-installation")
+                QMessageBox.information(self, "Update", "Please follow the manual update instructions in your browser. No automatic update is available for Windows.")
+            else:
+                QMessageBox.warning(self, "Update", "Automatic update is not supported on this platform.")
 
     def initUI(self):
         # Main widget and layout

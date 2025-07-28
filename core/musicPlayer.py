@@ -123,7 +123,9 @@ class MusicPlayer(QMainWindow):
         self.config_path = config_path
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
-        self.setWindowTitle("Iota Player • Music Player")
+        self.version = __version__
+        self.window_title = f"Iota Player v{self.version}"
+        self.setWindowTitle(self.window_title)
         self.setMinimumSize(1000, 600)
 
         try:
@@ -862,7 +864,7 @@ class MusicPlayer(QMainWindow):
                     "Current song is playing, not updating title and song info."
                 )
             else:
-                self.setWindowTitle(f"Iota Player • {playlist_name}")
+                self.setWindowTitle(f"{self.window_title} • {playlist_name}")
                 self.song_index = 0
                 self.current_song = self.songs[self.song_index]
                 self.update_song_info()
@@ -1194,7 +1196,7 @@ class MusicPlayer(QMainWindow):
         self._ignore_song_list_signal = False
 
         self.setWindowTitle(
-            f"Iota Player • {self.current_playlist} • {self.song_info_var}"
+            f"{self.window_title} • {self.current_playlist} • {self.song_info_var}"
         )
 
         # Determine loop status for Discord presence
@@ -1337,7 +1339,7 @@ class MusicPlayer(QMainWindow):
             if total_time > 0:
                 self.progress_bar.setValue(int((elapsed_time / total_time) * 100))
             self.setWindowTitle(
-                f"Iota Player • {self.current_playlist} ({len(self.songs)} songs) • {self.song_info_var} • {elapsed_str} / {total_str}"
+                f"{self.window_title} • {self.current_playlist} ({len(self.songs)} songs) • {self.song_info_var} • {elapsed_str} / {total_str}"
             )
 
     def check_song_end(self):

@@ -5,7 +5,7 @@ pkgrel=1
 pkgdesc="A cross-platform music player built with Python and Qt (AUR git version)"
 arch=('x86_64')
 url="https://github.com/vorlie/IotaPlayer"
-license=('MIT')
+license=('GNU GPLv3')
 depends=(
   'gstreamer'
   'gst-plugins-base'

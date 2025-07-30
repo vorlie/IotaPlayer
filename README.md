@@ -1,338 +1,157 @@
-# Iota Player
+# IotaPlayer
 
-[](https://ko-fi.com/vorlie)
-[](https://github.com/qwertyquerty/pypresence)
-[](https://github.com/vorlie/IotaPlayer/blob/master/LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 
-Iota Player is a feature-rich desktop music player for Windows and Linux. It's designed for users who want seamless playlist management, powerful playback controls, and deep integration with services like Discord and YouTube.
+A feature-rich desktop music player for Windows and Linux with Discord Rich Presence, YouTube integration, and powerful playlist management.
 
-[**View the To-Do List on GitHub Projects**](https://github.com/users/vorlie/projects/3/views/1)
+## 🎵 Features
 
------
+- **🎵 Playlist Management** - Create, edit, and manage playlists with ease
+- **🎮 Playback Controls** - Full media controls with keyboard shortcuts
+- **🎨 Modern UI** - Dark/light themes with customizable accent colors
+- **🔗 Discord Integration** - Rich Presence showing current song
+- **📺 YouTube Integration** - Upload playlists and open videos
+- **🖼️ Cover Art** - Automatic extraction and caching
+- **🔄 Auto Updates** - In-app update system
+- **🎹 Media Keys** - Full keyboard media key support
 
-## Table of Contents
-
-  - [Gallery](#gallery)
-  - [Core Features](#core-features)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Playlist Maker](#playlist-maker)
-  - [Configuration](#configuration)
-  - [Troubleshooting](#troubleshooting)
-  - [Shortcuts](#shortcuts)
-  - [Advanced](#advanced)
-  - [Acknowledgments](#acknowledgments)
-  - [License](#license)
-
------
-
-## Gallery
-
-<details>
-  <summary>Show Gallery</summary>
-
-| Main Window | Playlist Maker | Settings |
-| :---: | :---: | :---: |
-| ![Main Interface Dark](images/IotaPlayer_MainWindowDark.png) | ![Playlist Maker Dark](images/IotaPlayer_PlaylistMakerDark.png) | ![Settings Dark](images/IotaPlayer_SettingsDark.png) |
-
-
-</details>
-
------
-
-## Core Features
-
-Iota Player comes packed with features to enhance your music listening experience.
-
-### Playlist Management
-
-  - **Create & Edit:** Use the dedicated [Playlist Maker](#playlist-maker) to build or modify playlists.
-  - **Load & Reload:** Load playlists from your library and refresh the list on demand.
-  - **Combine:** Merge songs from multiple playlists into a single, unified playlist.
-  - **Delete:** Easily remove playlists you no longer need.
-
-### Playback & Audio
-
-  - **Standard Controls:** Play, pause, resume, stop, next, and previous track.
-  - **Loop & Shuffle:** Toggle repeat and shuffle modes for your playlists.
-  - **Seek Bar:** Instantly jump to any point in a song with a draggable progress bar.
-  - **Volume Control:** Adjust volume with a simple slider.
-  - **Reliable Engine:** Uses PyQt6's native `QMediaPlayer` for stable and integrated playback.
-  - **Media Key Support:** Control playback using your keyboard's media keys (play/pause, next, previous).
-
-### Display & Interface
-
-  - **Song Information:** View the artist, title, album, and genre of the current track.
-  - **Dynamic Window Title:** The window title updates to show the currently playing song.
-  - **Customizable Accent Color:** Personalize the UI by setting a custom accent color or using your system's default.
-  - **Cover Art Extraction & Caching:** Automatically extracts, caches, and crops embedded album art to a 1:1 aspect ratio for a clean, uniform look. Skips already-cached covers for efficiency.
-  - **Modern Settings Dialog:** Settings are organized into clear tabs (General, Appearance, Discord, Google, Cover Art) for easy navigation and configuration.
-
-### Integrations
-
-  - **Discord Rich Presence:**
-      - Broadcast your current song as your Discord status.
-      - Status updates instantly when you seek, pause, or change tracks.
-      - Display custom playlist images.
-      - Robust reconnection if Discord restarts or disconnects.
-  - **YouTube:**
-      - Upload your local playlists directly to your YouTube account.
-      - Open the YouTube video for the currently playing song in your browser.
-  - **MPRIS (Linux):**
-      - Exposes metadata (artist, title, album, cover art, etc.) to Linux desktop environments and widgets.
-      - Read-only mode for maximum compatibility and stability.
-  - **Google Integration:** Supports Google API credentials for YouTube upload.
-
------
-
-## Installation
+## 🚀 Quick Start
 
 ### Windows
+1. Download from [Releases](https://github.com/vorlie/IotaPlayer/releases)
+2. Extract and run `IotaPlayer.exe`
 
-  - **Recommended:** Download the latest `.exe` or `.zip` file from the [**Releases Page**](https://github.com/vorlie/IotaPlayer/releases). Simply extract the archive and run the executable.
-  - **From Source:** You can also run it from the source code by following the Linux instructions below, ensuring you have Python 3.13+ and all required dependencies.
-
-### Linux (and other platforms)
-
-#### Option 1: One-Command Installer (Recommended)
-
-This script provides a convenient way to install or update IotaPlayer on Linux. It operates in two modes: `install` and `update`.
-
-1.  **Download the installer script:**
-    ```sh
-    curl -O https://raw.githubusercontent.com/vorlie/IotaPlayer/main/linux_installer.sh
-    ```
-
-2.  **Make the script executable:**
-    ```sh
-    chmod +x linux_installer.sh
-    ```
-
-3.  **Run the script:**
-    * **To install IotaPlayer:**
-        (Run this command in the directory where you want the `IotaPlayer` source code to be cloned, or from within the `IotaPlayer` directory if you've already cloned it manually.)
-        ```sh
-        ./linux_installer.sh install
-        ```
-        *(Note: Running `./linux_installer.sh` without any arguments will also default to the `install` mode.)*
-
-    * **To update an existing IotaPlayer installation:**
-        (Run this command from within your `IotaPlayer` source directory, ensuring you have pulled the latest changes from the repository.)
-        ```sh
-        ./linux_installer.sh update
-        ```
-
-The script will then guide you through the process, prompting for installation paths and confirmations as needed.
-
-
-#### Option 2: Manual Installation
-
-No pre-built binaries are provided for Linux due to the variety of distributions. You can also install from source manually by following these steps:
-
-**1. System Requirements:**
-
-  - **Python 3.13 or newer.**
-    - Should be installed by default on newer systems, if not install it.
-  - **GStreamer:** Required for audio playback.
-  - **PyQt6:** For the user interface.
-
-**2. Install System Dependencies**
-
-#### Ubuntu/Debian:
-
-```sh
-sudo apt update
-sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
-  gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav \
-  libxcb-xinerama0
+### Linux
+```bash
+# One-command installer
+curl -O https://raw.githubusercontent.com/vorlie/IotaPlayer/main/linux_installer.sh
+chmod +x linux_installer.sh
+./linux_installer.sh install
 ```
 
-#### Arch Linux:
-
-```sh
-sudo pacman -Syu gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav \
-  qt6-multimedia
-```
-
-> **Note for Arch/Manjaro:**
-> If you use a PyInstaller or AppImage build, you may need to set these environment variables before launching the app to ensure GStreamer plugins are found:
-> ```sh
-> export GST_PLUGIN_SCANNER=/usr/lib/gstreamer-1.0/gst-plugin-scanner
-> export GST_PLUGIN_PATH=/usr/lib/gstreamer-1.0
-> export GST_PLUGIN_SYSTEM_PATH=/usr/lib/gstreamer-1.0
-> ./IotaPlayer
-> ```
-> If launching from a desktop shortcut, use a wrapper script that sets these variables.
-
-> **Note:** You may need to install other packages depending on your distribution. Refer to the [Troubleshooting](#troubleshooting) section for help with potential Qt errors.
-
-**3. Clone the Repository:**
-
-```sh
+### From Source
+```bash
 git clone https://github.com/vorlie/IotaPlayer.git
 cd IotaPlayer
-```
-
-**4. Set up a Virtual Environment (Recommended):**
-
-```sh
 python3 -m venv venv
 source venv/bin/activate
-```
-
-**5. Install Python Dependencies:**
-
-```sh
-pip3 install -r requirements.txt --ignore-requires-python
-```
-
-**6. Run the Application:**
-
-```sh
+pip install -r requirements.txt --ignore-requires-python
 python main.py
 ```
 
------
+## 📖 Documentation
 
-## Usage
+**📚 [Full Documentation Wiki](https://github.com/vorlie/IotaPlayer/wiki)**
 
-1.  **Launch the application** using the executable or by running `python main.py`.
-2.  **Manage Playlists:** Use the UI buttons to load, create, or delete playlists.
-3.  **Control Playback:** Use the on-screen controls or your keyboard's media keys.
-4.  **Customize:** Open the **Settings** dialog to configure Discord integration, accent colors, and other options.
+- **[Installation Guide](https://github.com/vorlie/IotaPlayer/wiki/Installation)** - Detailed setup instructions
+- **[User Guide](https://github.com/vorlie/IotaPlayer/wiki/User-Guide)** - Complete feature walkthrough
+- **[Configuration](https://github.com/vorlie/IotaPlayer/wiki/Configuration)** - Settings and customization
+- **[Troubleshooting](https://github.com/vorlie/IotaPlayer/wiki/Troubleshooting)** - Common issues and solutions
+- **[Contributing](https://github.com/vorlie/IotaPlayer/wiki/Contributing)** - Development guidelines
 
------
+## 🖼️ Screenshots
 
-## Playlist Maker
+<details>
+<summary>View Screenshots</summary>
 
-The `PlaylistMaker` is a built-in tool for creating and managing your `.json` playlists.
+| Main Window | Playlist Maker | Settings |
+|:---:|:---:|:---:|
+| ![Main Interface](images/IotaPlayer_MainWindowDark.png) | ![Playlist Maker](images/IotaPlayer_PlaylistMakerDark.png) | ![Settings](images/IotaPlayer_SettingsDark.png) |
 
-### How to Use
+</details>
 
-1.  **Open Existing Playlist:** Click to load and edit an existing `.json` playlist file.
-2.  **Select Folder:** Automatically add all compatible audio files from a folder. Songs must follow the naming scheme below for metadata to be recognized.
-3.  **Add Songs Manually:** Fill in the fields and click "Add Song" to add a single track.
-4.  **Edit & Delete:** Double-click a song in the list to edit it. Select a song and press the `Delete` key to remove it.
-5.  **Save Playlist:** Enter a playlist name, add an optional cover image link, and click "Save Playlist".
+## 🎯 Key Features
 
-### Naming Scheme for Auto-Recognition
+### Playlist Management
+- Create and edit playlists with the built-in Playlist Maker
+- Load, reload, and combine playlists
+- Support for various audio formats (MP3, FLAC, OGG, WAV, M4A)
 
-For the "Select Folder" feature to work best, your files should be named like this:
-`Artist - Title [YouTube ID].mp3`
+### Playback & Audio
+- Standard controls: play, pause, stop, next, previous
+- Loop and shuffle modes
+- Seek bar for precise navigation
+- Volume control with slider
+- Media key support
 
-**Examples:**
+### Integrations
+- **Discord Rich Presence** - Show current song in Discord status
+- **YouTube Integration** - Upload playlists and open videos
+- **MPRIS Support (Linux)** - Desktop environment integration
 
-  - `Artist - Title [dQw4w9WgXcQ].mp3`
-  - `Artist (feat. Other) - Title (Remix) [abcdef12345].mp3`
+### User Interface
+- Song information display (artist, title, album, genre)
+- Dynamic window title updates
+- Customizable accent colors
+- Cover art extraction and caching
+- Modern settings dialog with organized tabs
 
------
+## 🔧 System Requirements
 
-## Configuration
+- **Python 3.13+** (for source installation)
+- **Windows 10/11** or **Linux** (Ubuntu, Debian, Arch, etc.)
+- **GStreamer** (Linux) or **K-Lite** (Windows) for audio playback
+- **PyQt6** for the user interface
 
-You can configure Iota Player via the in-app **Settings** menu. These settings are stored in a config file in your user configuration directory:
+## 🛠️ Development
 
-- **Linux/macOS:** `~/.config/IotaPlayer/config.json`
-- **Windows:** `%APPDATA%\IotaPlayer\config.json`
+### Prerequisites
+- Python 3.13+
+- Git
+- PyQt6 and dependencies
 
-The file is created automatically with default values if it doesn't exist.
-
-### `config.json` Example
-
-```json
-{
-    "connect_to_discord": true,
-    "discord_client_id": "1150680286649143356",
-    "large_image_key": "default_image",
-    "use_playing_status": false,
-    "root_playlist_folder": "playlists",
-    "default_playlist": "default",
-    "colorization_color": "automatic",
-    "volume_percentage": 100,
-    "google_client_secret_file": "path/to/client_secret.json"
-}
+### Setup
+```bash
+git clone https://github.com/vorlie/IotaPlayer.git
+cd IotaPlayer
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt --ignore-requires-python
+python main.py
 ```
 
-### Google API Setup (for YouTube Upload)
+### Building
+```bash
+# Windows
+pyinstaller IotaPlayerWIN.spec
 
-To use the YouTube playlist upload feature, you need to set up Google API credentials. For full instructions, please see the [**GOOGLE.md**](GOOGLE.md) guide.
+# Linux
+pyinstaller IotaPlayerLinux.spec
+```
 
------
+## 🤝 Contributing
 
-## Troubleshooting
+We welcome contributions! Please see our **[Contributing Guide](https://github.com/vorlie/IotaPlayer/wiki/Contributing)** for details.
 
-  - **Codec Errors:** On Windows, some `.mp3` files may fail to play if they have long ID3 tags. This can cause errors like `DirectShowPlayerService::doRender: Unresolved error code 80040266`. Installing a codec pack like [K-Lite](https://codecguide.com/download_kl.htm) usually resolves this. On Linux, ensure you have installed all the `gstreamer1.0-plugins-*` packages listed in the installation section.
+- 🐛 **Report bugs** on [GitHub Issues](https://github.com/vorlie/IotaPlayer/issues)
+- 💡 **Request features** via GitHub Issues
+- 📝 **Improve documentation** in the wiki
+- 🔧 **Submit pull requests** for code improvements
 
-  - **Python Version:** This app requires **Python 3.13 or newer**. Verify your version with `python3 --version`.
+## 📋 To-Do List
 
-  - **Qt Platform Errors (Linux):** If you see `xcb` or other platform plugin errors, you may need to install additional libraries:
+[**View our To-Do List on GitHub Projects**](https://github.com/users/vorlie/projects/3/views/1)
 
-    ```sh
-    sudo apt install libxcb-xinerama0 libxcb1 libx11-xcb1 libgl1-mesa-glx
-    ```
-
-    If you are using Wayland, you can try forcing the platform to XCB before running the app:
-
-    ```sh
-    export QT_QPA_PLATFORM=xcb
-    python main.py
-    ```
-
-  - **Check Logs:** For detailed error information, check the `combined_app.log` file in the application directory.
-
------
-
-## Shortcuts
-
-  - **Delete Playlist:** Select a playlist and press `Delete`.
-  - **Delete Song (in Playlist Maker):** Select a song and press `Delete`.
-  - **Media Keys:**
-      - **Play/Pause:** `Media Play/Pause` (e.g., FN + F7)
-      - **Next Track:** `Media Next` (e.g., FN + F6)
-      - **Previous Track:** `Media Previous` (e.g., FN + F5)
-
------
-
-## Advanced
-
-### Logging
-
-Logging is configured in `musicPlayer.py`. By default, logs are output to both the console and a rotating file named `combined_app.log`. You can uncomment different logging configurations in the source code if needed.
-
-### Building from Source
-
-If you wish to build a standalone `.exe` file on Windows:
-
-1.  **Install PyInstaller:**
-    ```sh
-    pip install pyinstaller==6.6.0
-    ```
-2.  **Build the Executable:**
-    ```sh
-    pyinstaller IotaPlayerWIN.spec
-    ```
-    > You can set `console=True` in the `.spec` file to create a build with a command-line console for debugging.
-
------
-
-## Acknowledgments
+## 🙏 Acknowledgments
 
 ### Special Thanks
-
-  - **[DarkDetect](https://github.com/albertosottile/darkdetect):** Provided the source code base for detecting Windows dark mode and accent colors.
+- **[DarkDetect](https://github.com/albertosottile/darkdetect)** - Windows dark mode detection
+- **[qdarktheme](https://github.com/vorlie/PyQtDarkTheme)** - Dark theme integration
 
 ### Dependencies
+- **[PyQt6](https://www.riverbankcomputing.com/software/pyqt/intro)** - GUI framework
+- **[pypresence](https://pypi.org/project/pypresence/)** - Discord Rich Presence
+- **[mutagen](https://mutagen.readthedocs.io/)** - Audio metadata handling
+- **[pynput](https://pynput.readthedocs.io/)** - Media key support
+- **[pyinstaller](https://www.pyinstaller.org/)** - Application packaging
 
-This project is built with the help of these libraries:
+## 📄 License
 
-  - **[PyQt6](https://www.riverbankcomputing.com/software/pyqt/intro)**: For the graphical user interface.
-  - **[qdarktheme](https://github.com/vorlie/PyQtDarkTheme)**: For easy dark/light theme integration.
-  - **[pypresence](https://pypi.org/project/pypresence/)**: For Discord Rich Presence integration.
-  - **[mutagen](https://mutagen.readthedocs.io/en/latest/)**: For reading and handling audio metadata.
-  - **[pynput](https://pynput.readthedocs.io/en/latest/)**: For listening to global media key presses.
-  - **[pyinstaller](https://www.pyinstaller.org/)**: For packaging the application into an executable.
+This project is licensed under the **GNU General Public License v3**. See the [LICENSE](LICENSE) file for details.
 
------
+---
 
-## License
+**⭐ Star this repository if you find it useful!**
 
-This project is licensed under the GNU GPLv3 License. See the [**LICENSE**](LICENSE) file for details.
+**📚 [View Full Documentation](https://github.com/vorlie/IotaPlayer/wiki)**

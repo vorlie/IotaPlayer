@@ -876,7 +876,6 @@ class MusicPlayer(QMainWindow):
                 count += len([f for f in files if f.lower().endswith((".mp3", ".flac", ".ogg", ".wav", ".m4a"))])
             playlists.append(("Unsorted Music", None, count, None))
 
-        # ...existing code for loading .json playlists...
         for f in os.listdir(playlist_folder):
             if f.endswith(".json"):
                 playlist_path = os.path.join(playlist_folder, f)

@@ -201,8 +201,16 @@ class AboutDialog(QDialog):
         
         # Read and display the LICENSE file
         try:
-            import os
-            license_path = os.path.join(os.path.dirname(__file__), "..", "LICENSE")
+            import os, sys
+            # Handle both development and PyInstaller environments
+            if getattr(sys, 'frozen', False):
+                # Running in PyInstaller bundle
+                base_path = os.path.dirname(sys.executable)
+                license_path = os.path.join(base_path, "LICENSE")
+            else:
+                # Running in development
+                license_path = os.path.join(os.path.dirname(__file__), "..", "LICENSE")
+            
             with open(license_path, 'r', encoding='utf-8') as f:
                 license_text = f.read()
             text_edit.setPlainText(license_text)

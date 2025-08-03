@@ -165,10 +165,7 @@ class SettingsDialog(QDialog):
         self.discord_client_id_edit.setText(self.settings.get("discord_client_id", "1150680286649143356"))
         self.large_image_key_edit = QLineEdit()
         self.large_image_key_edit.setText(self.settings.get("large_image_key", "https://i.pinimg.com/564x/d5/ed/93/d5ed93e12eab198b830bc91f1ddf2dcb.jpg"))
-        self.use_playing_status_edit = QCheckBox("Use Playing Status")
-        self.use_playing_status_edit.setChecked(self.settings.get("use_playing_status", False))
         self.discord_layout.addRow(self.connect_to_discord_checkbox)
-        self.discord_layout.addRow(self.use_playing_status_edit)
         self.discord_layout.addRow(QLabel("Discord Client ID:"), self.discord_client_id_edit)
         self.discord_layout.addRow(QLabel("Large Image Key:"), self.large_image_key_edit)
 
@@ -277,7 +274,6 @@ class SettingsDialog(QDialog):
         self.settings["connect_to_discord"] = self.connect_to_discord_checkbox.isChecked()
         self.settings["discord_client_id"] = self.discord_client_id_edit.text()
         self.settings["large_image_key"] = self.large_image_key_edit.text()
-        self.settings["use_playing_status"] = self.use_playing_status_edit.isChecked()
         self.settings["google_client_secret_file"] = self.google_client_secret_edit.text()
         self.settings["font_name"] = self.font_name_edit.text()
         self.settings["unsorted_music_folder"] = self.unsorted_music_folder_edit.text()

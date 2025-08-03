@@ -66,7 +66,6 @@ class DiscordConfig:
             'https://cdn.discordapp.com/app-assets/1150680286649143356/1270124442433097780.png'
         )
         self.connect_to_discord = config.get('connect_to_discord', True)
-        self.use_playing_status = config.get('use_playing_status', False)
         self.base_buttons = [{"label": "Source Code", "url": "https://github.com/vorlie/IotaPlayer"}]
 
 class DiscordIntegration(QObject):
@@ -128,7 +127,7 @@ class DiscordIntegration(QObject):
 
     def _create_base_activity(self, data: PresenceUpdateData) -> dict:
         activity = {
-            'activity_type': ActivityType.PLAYING if self.config.use_playing_status else ActivityType.LISTENING,
+            'activity_type': ActivityType.LISTENING,
             'state': data.artist_name,
             'details': data.song_title,
             'large_image': data.image_key or self.current_large_image,

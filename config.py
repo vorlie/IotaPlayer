@@ -24,7 +24,7 @@ if platform.system() == "Windows":
 else:
     ICON_PATH = os.path.join(BASE_DIR, 'icon.png')
 
-__version__ = "1.10.11"
+__version__ = "1.10.12"
 
 default_settings = {
     "connect_to_discord": True,
@@ -46,6 +46,31 @@ discord_cdn_images = {
     "stop":"https://cdn.discordapp.com/app-assets/1150680286649143356/1273717793455603743.png"
 }
 
+def get_changelog_entry(version_to_find):
+    """
+    Fetches the CHANGELOG.md from the repository and returns the entry for the specified version.
+    """
+    changelog_url = "https://raw.githubusercontent.com/vorlie/IotaPlayer/main/CHANGELOG.md"
+    try:
+        with urllib.request.urlopen(changelog_url, timeout=5) as response:
+            full_changelog = response.read().decode().strip()
+    except Exception as e:
+        print("Could not fetch changelog:", e)
+        return None
+
+    # Split the content by the version headers
+    sections = full_changelog.split("## [")
+
+    # Find the section that corresponds to the version we're looking for
+    for section in sections:
+        if section.startswith(f"{version_to_find}]"):
+            # The content of this section is what we want
+            # Remove the version and date from the beginning
+            content = section.split(" - ", 1)[1]
+            return content.strip()
+
+    return "Changelog entry not found for this version."
+
 def get_latest_version():
     url = "https://raw.githubusercontent.com/vorlie/IotaPlayer/main/latest_version.txt"
     try:
@@ -56,12 +81,12 @@ def get_latest_version():
         return None
 
 def is_update_available(current_version):
-    latest = get_latest_version()
+    latest, changelog = get_latest_version()
     if latest and latest != current_version:
         # Compare versions to ensure latest is actually higher
         if is_version_higher(latest, current_version):
-            return True, latest
-    return False, latest
+            return True, latest, changelog
+    return False, latest, changelog
 
 def is_version_higher(version1, version2):
     """

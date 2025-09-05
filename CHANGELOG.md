@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.10.12] - 2025-09-05
+
+### Added
+- Implemented a new in-app update mechanism that launches the installer in a separate terminal. This provides clear, live feedback during updates and prevents conflicts with the running application.
+
 ## [1.10.11] - 2025-09-05
 
 ### Fixed

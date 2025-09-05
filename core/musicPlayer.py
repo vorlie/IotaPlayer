@@ -122,17 +122,18 @@ class YouTubeUploadThread(QThread):
 
 
 class UpdateCheckThread(QThread):
-    update_found = pyqtSignal(str)  # emits latest version string
+    update_found = pyqtSignal(str, str)  # emits latest version string and changelog
 
     def __init__(self, current_version, parent=None):
         super().__init__(parent)
         self.current_version = current_version
 
     def run(self):
-        from config import is_update_available
+        from config import is_update_available, get_changelog_entry
         update_available, latest = is_update_available(self.current_version)
         if update_available:
-            self.update_found.emit(latest)
+            changelog = get_changelog_entry(latest)
+            self.update_found.emit(latest, changelog)
 
 
 class AboutDialog(QDialog):
@@ -392,51 +393,60 @@ class MusicPlayer(QMainWindow):
         self.update_thread.update_found.connect(self.on_update_found)
         self.update_thread.start()
 
-    def on_update_found(self, latest):
-        import platform
+    def on_update_found(self, latest, changelog):
         reply = QMessageBox.question(
             self,
             "Update Available",
-            f"Update available! Update to version {latest}.\nDo you want to update now?",
+            f"Update available! Update to version {latest}.\nDo you want to update now?\n\nChangelog:\n{changelog}",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
+            import platform
             system = platform.system()
             if system == "Linux":
-                import subprocess
-                import sys
-                import os
-                import shutil
-                if getattr(sys, 'frozen', False):
-                    base_path = os.path.dirname(sys.executable)
-                else:
-                    base_path = os.path.dirname(os.path.abspath(__file__))
-
-                script_path = os.path.join(base_path, "linux_installer.sh")
-                # Try to find a terminal emulator
-                terminals = [
-                    "x-terminal-emulator", "gnome-terminal", "konsole", "xfce4-terminal", "xterm",
-                    "lxterminal", "mate-terminal", "tilix", "alacritty", "urxvt"
-                ]
-                for term in terminals:
-                    if shutil.which(term):
-                        if term == "xterm":
-                            subprocess.Popen([term, "-hold", "-e", f"{script_path} update"])
-                        elif term == "konsole":
-                            subprocess.Popen([term, "--hold", "-e", f"{script_path} update"])
-                        elif term == "gnome-terminal":
-                            subprocess.Popen([term, "--", "bash", "-c", f"{script_path} update; echo; read -n 1 -s -r -p 'Press any key to close...';"])
-                        else:
-                            subprocess.Popen([term, "-e", f"{script_path} update"])
-                        sys.exit(0)
-                # Fallback
-                QMessageBox.warning(self, "Update", "No terminal emulator found. Please run linux_installer.sh update manually.")
+                self.run_linux_updater()
             elif system == "Windows":
-                import webbrowser
-                webbrowser.open("https://github.com/vorlie/IotaPlayer?tab=readme-ov-file#option-2-manual-installation")
-                QMessageBox.information(self, "Update", "Please follow the manual update instructions in your browser. No automatic update is available for Windows.")
+                self.show_windows_update_message()
             else:
                 QMessageBox.warning(self, "Update", "Automatic update is not supported on this platform.")
+        
+    def run_linux_updater(self):
+        import subprocess
+        import sys
+        import os
+        
+        if getattr(sys, 'frozen', False):
+            base_path = os.path.dirname(sys.executable)
+        else:
+            base_path = os.path.dirname(os.path.abspath(__file__))
+
+        script_path = os.path.join(base_path, "linux_installer.sh")
+        
+        # Create a small script to keep the terminal open
+        wrapper_script_path = os.path.join(base_path, "update_wrapper.sh")
+        with open(wrapper_script_path, "w") as f:
+            f.write("#!/bin/bash\n")
+            f.write(f'"{script_path}" update\n')
+            f.write("echo\n")
+            f.write("read -n 1 -s -r -p 'Press any key to close...'")
+        os.chmod(wrapper_script_path, 0o755)
+
+        try:
+            # Use xdg-open to let the system handle the terminal, which is more reliable
+            subprocess.Popen(["xdg-open", wrapper_script_path])
+            # Hide the application window to let the update proceed
+            self.hide()
+        except FileNotFoundError:
+            QMessageBox.warning(self, "Update", "Could not open a terminal. Please run linux_installer.sh update manually.")
+
+        # You might not want to exit the application immediately
+        # Let the user close it manually if they prefer
+        # or handle the process completion via signals if necessary
+        
+    def show_windows_update_message(self):
+        import webbrowser
+        webbrowser.open("https://github.com/vorlie/IotaPlayer?tab=readme-ov-file#option-2-manual-installation")
+        QMessageBox.information(self, "Update", "Please follow the manual update instructions in your browser. No automatic update is available for Windows.")
 
     def initUI(self):
         # Main widget and layout

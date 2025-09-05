@@ -81,12 +81,13 @@ def get_latest_version():
         return None
 
 def is_update_available(current_version):
-    latest, changelog = get_latest_version()
+    latest = get_latest_version()
+    changelog = get_changelog_entry(latest) if latest else None
     if latest and latest != current_version:
         # Compare versions to ensure latest is actually higher
         if is_version_higher(latest, current_version):
             return True, latest, changelog
-    return False, latest, changelog
+    return False, latest, None
 
 def is_version_higher(version1, version2):
     """

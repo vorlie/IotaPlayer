@@ -2,8 +2,11 @@
 
 ## [1.10.12] - 2025-09-05
 
+### Refactored
+- Refactored the update dialog into multiple functions for better organization and maintainability.
+
 ### Added
-- Implemented a new in-app update mechanism that launches the installer in a separate terminal. This provides clear, live feedback during updates and prevents conflicts with the running application.
+- Added Changelog to the update dialog.
 
 ## [1.10.11] - 2025-09-05
 

@@ -28,7 +28,6 @@ oauthlib==3.3.1
 packaging==25.0
 pefile==2024.8.26
 pillow==11.2.1
-pip==25.1.1
 proto-plus==1.26.1
 protobuf==6.31.1
 psutil==7.0.0
@@ -45,7 +44,7 @@ pynput==1.8.1
 pyparsing==3.2.3
 pypresence @ git+https://github.com/qwertyquerty/pypresence.git@f856ccaaeb2321f64f9692b75dc3ceda5c927f42
 pyqt6==6.9.1
-pyqt6-qt6==6.9.1
+pyqt6-qt6==6.9.2
 pyqt6-sip==13.10.2
 pyqtdarktheme @ git+https://github.com/vorlie/PyQtDarkTheme.git@9746d1214bb5c096c56d94ab6165a1082c1674e4
 python-dateutil==2.9.0.post0

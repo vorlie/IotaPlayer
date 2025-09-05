@@ -192,8 +192,7 @@ class AboutDialog(QDialog):
         license_dialog.setLayout(layout)
         
         # Create text area for license
-        from PyQt6.QtWidgets import QTextEdit, QScrollArea
-        from PyQt6.QtCore import Qt
+        from PyQt6.QtWidgets import QTextEdit
         
         text_edit = QTextEdit()
         text_edit.setReadOnly(True)
@@ -201,7 +200,8 @@ class AboutDialog(QDialog):
         
         # Read and display the LICENSE file
         try:
-            import os, sys
+            import os
+            import sys
             # Handle both development and PyInstaller environments
             if getattr(sys, 'frozen', False):
                 # Running in PyInstaller bundle

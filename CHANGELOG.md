@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.11] - 2025-09-05
+
+### Fixed
+- Improved the 'About' dialog's layout and functionality for better readability.
+- The version checker is now more robust and can correctly detect a newer system Qt version, even with distribution-specific naming conventions.
+
 ## [1.10.10] - 2025-09-05
 
 ### Fixed

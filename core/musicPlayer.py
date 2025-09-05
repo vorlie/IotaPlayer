@@ -28,6 +28,8 @@ import logging
 import json
 import re
 import time
+import subprocess
+import platform
 from PyQt6.QtWidgets import (
     QDialog,
     QMainWindow,
@@ -45,9 +47,11 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QComboBox,
     QInputDialog,
+    QFormLayout,
+    QDialogButtonBox,
 )
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl, QByteArray
+from PyQt6.QtCore import QTimer, Qt, QThread, pyqtSignal, QUrl, QByteArray, PYQT_VERSION_STR, QT_VERSION_STR
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from pynput import keyboard
 from mutagen.mp3 import MP3
@@ -135,51 +139,109 @@ class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("About IotaPlayer")
-        self.setFixedSize(500, 400)
+        self.setFixedSize(500, 300)
         self.setModal(True)
-        
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        
-        # Program info
-        info_label = QLabel("IotaPlayer - A feature-rich music player application")
-        info_label.setStyleSheet("font-size: 16px; font-weight: bold; margin: 10px;")
-        layout.addWidget(info_label)
-        
-        version_label = QLabel(f"Version: {__version__}")
-        version_label.setStyleSheet("margin: 5px;")
-        layout.addWidget(version_label)
-        
-        copyright_label = QLabel("Copyright (C) 2025 Charlie")
-        copyright_label.setStyleSheet("margin: 5px;")
-        layout.addWidget(copyright_label)
-        
-        # License info
+
+        main_layout = QVBoxLayout(self)
+        main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        header_label = QLabel("IotaPlayer - A feature-rich music player application")
+        header_label.setStyleSheet("font-size: 16px; font-weight: bold;")
+        header_label.setAlignment(Qt.AlignmentFlag.AlignLeft) 
+        main_layout.addWidget(header_label)
+
+        form_layout = QFormLayout()
+        form_layout.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+        form_layout.setFormAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+
+        form_layout.addRow("App Version:", QLabel(__version__))
+        form_layout.addRow("Python Version:", QLabel(platform.python_version()))
+        form_layout.addRow("PyQt6 Version:", QLabel(PYQT_VERSION_STR))
+        form_layout.addRow("Bundled Qt Version:", QLabel(QT_VERSION_STR))
+
+        main_layout.addLayout(form_layout)
+
+        system_qt_version = self.get_system_qt_version()
+        if system_qt_version and self.is_version_higher(system_qt_version, QT_VERSION_STR):
+            warning_label = QLabel(
+                f"<b><font color='red'>A newer system Qt version ({system_qt_version}) is available.</font></b><br>"
+                "An update may be needed to ensure compatibility with your system's theme."
+            )
+            warning_label.setWordWrap(True)
+            main_layout.addWidget(warning_label)
+
         license_info = QLabel(
             "This program is free software: you can redistribute it and/or modify "
             "it under the terms of the GNU General Public License as published by "
             "the Free Software Foundation, either version 3 of the License, or "
-            "(at your option) any later version.\n\n"
-            "This program is distributed in the hope that it will be useful, "
-            "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+            "(at your option) any later version."
         )
         license_info.setWordWrap(True)
-        license_info.setStyleSheet("margin: 10px; padding: 10px; background-color: #333333; border-radius: 5px;")
-        layout.addWidget(license_info)
-        
-        # Buttons
-        button_layout = QHBoxLayout()
-        
+        license_info.setStyleSheet("padding: 10px; background-color: #333333; border-radius: 5px;")
+        main_layout.addWidget(license_info)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        button_box.clicked.connect(self.accept)
+
         view_license_button = QPushButton("View Full License")
         view_license_button.clicked.connect(self.show_full_license)
+
+        button_layout = QHBoxLayout()
         button_layout.addWidget(view_license_button)
+        button_layout.addStretch()
+        button_layout.addWidget(button_box)
+
+        main_layout.addLayout(button_layout)
         
-        close_button = QPushButton("Close")
-        close_button.clicked.connect(self.accept)
-        button_layout.addWidget(close_button)
+    def get_system_qt_version(self):
+        """
+        Gets the system-installed Qt6 version using a shell command.
+        """
+        # 1. Try with qmake6
+        try:
+            process = subprocess.run(
+                ["qmake6", "-v"],
+                capture_output=True, text=True, check=True
+            )
+            for line in process.stdout.splitlines():
+                if line.startswith("Qt version"):
+                    return line.split()[-1]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+
+        # 2. Try with pacman
+        try:
+            process = subprocess.run(
+                ["pacman", "-Q", "qt6-base"],
+                capture_output=True, text=True, check=True
+            )
+            return process.stdout.split()[-1]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+
+        return None
+
+    def is_version_higher(self, version1, version2):
+        """
+        Compare two version strings. Supports semantic versioning and package revisions.
+        """
+        def version_to_tuple(version):
+            if '-' in version:
+                version = version.split('-')[0]
+            
+            parts = version.split('.')
+            while len(parts) < 3:
+                parts.append('0')
+            
+            try:
+                return tuple(int(part) for part in parts[:3])
+            except ValueError:
+                return (0, 0, 0)
         
-        layout.addLayout(button_layout)
+        v1_tuple = version_to_tuple(version1)
+        v2_tuple = version_to_tuple(version2)
+        
+        return v1_tuple > v2_tuple
     
     def show_full_license(self):
         """Show the full GPL v3 license in a new dialog."""

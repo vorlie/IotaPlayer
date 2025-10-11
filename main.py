@@ -28,13 +28,13 @@ import darkdetect
 import os
 import utils
 import qdarktheme # noqa: F401
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMessageBox
 from PyQt6.QtGui import QFont
-from PyQt6.QtCore import QObject, pyqtSlot
+from PyQt6.QtCore import QObject, pyqtSlot, QT_VERSION_STR
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket
 from core.musicPlayer import MusicPlayer
 from core.logger import setup_logging
-from config import ICON_PATH, default_settings
+from config import ICON_PATH, default_settings, get_system_qt_version, is_version_higher
 from core.mprisThread import start_mpris
 
 setup_logging()
@@ -88,6 +88,35 @@ class Iota(QObject):
             player.raise_()
             player.activateWindow()
 
+def check_qt_compatibility(config):
+    """Check Qt version compatibility and show warning if needed."""
+    system_qt = get_system_qt_version()
+    if system_qt and is_version_higher(system_qt, QT_VERSION_STR):
+        if not config.get("use_qdarktheme", False):
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Icon.Warning)
+            msg.setWindowTitle("Qt Version Mismatch")
+            msg.setText(f"System Qt version ({system_qt}) is newer than bundled Qt version ({QT_VERSION_STR})")
+            msg.setInformativeText(
+                "This may cause theme inconsistencies. Would you like to enable QDarkTheme "
+                "for a consistent appearance?"
+            )
+            msg.setDetailedText(
+                "Your system's Qt version is newer than the one bundled with PyQt6. "
+                "This can cause visual glitches when using system themes like Breeze. "
+                "Using QDarkTheme instead will provide a consistent appearance."
+            )
+            enable_button = msg.addButton("Enable QDarkTheme", QMessageBox.ButtonRole.YesRole)
+            msg.addButton("Keep Current Theme", QMessageBox.ButtonRole.NoRole)
+            
+            msg.exec()
+            
+            if msg.clickedButton() == enable_button:
+                config["use_qdarktheme"] = True
+                with open(CONFIG_PATH, 'w') as f:
+                    json.dump(config, f, indent=4)
+                return True
+    return False
 
 def load_config():
     try:
@@ -120,6 +149,16 @@ def main():
 
     IotaSrv.setup_server()
     config = load_config()
+    
+    needs_restart = check_qt_compatibility(config)
+    if needs_restart:
+        QMessageBox.information(
+            None, 
+            "Restart Required",
+            "Please restart IotaPlayer for the theme changes to take effect."
+        )
+        sys.exit(0)
+    
     font_name_from_config = config.get("font_name", "Noto Sans")
     font_size = 10
     font_weight = QFont.Weight.Normal

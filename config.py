@@ -17,6 +17,7 @@
 import os
 import platform
 import urllib.request
+import subprocess
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if platform.system() == "Windows":
@@ -45,6 +46,54 @@ discord_cdn_images = {
     "repeat-one":"https://cdn.discordapp.com/app-assets/1150680286649143356/1273715119733346315.png",
     "stop":"https://cdn.discordapp.com/app-assets/1150680286649143356/1273717793455603743.png"
 }
+
+
+def get_system_qt_version():
+    """Get the system's Qt6 version."""
+    try:
+        # Try qmake6 first
+        process = subprocess.run(
+            ["qmake6", "-v"],
+            capture_output=True, text=True, check=True
+        )
+        for line in process.stdout.splitlines():
+            if line.startswith("Qt version"):
+                return line.split()[-1]
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    try:
+        # Try dpkg query
+        process = subprocess.run(
+            ["dpkg-query", "-W", "-f=${Version}", "libqt6core6"],
+            capture_output=True, text=True, check=True
+        )
+        return process.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    try:
+        # Try rpm query
+        process = subprocess.run(
+            ["rpm", "-q", "qt6-qtbase"],
+            capture_output=True, text=True, check=True
+        )
+        version_part = process.stdout.split('-')[2]
+        return version_part
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    try:
+        # Try pacman query
+        process = subprocess.run(
+            ["pacman", "-Q", "qt6-base"],
+            capture_output=True, text=True, check=True
+        )
+        return process.stdout.split()[-1]
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    return None
 
 def get_changelog_entry(version_to_find):
     """

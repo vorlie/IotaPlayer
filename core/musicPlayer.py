@@ -28,6 +28,7 @@ import logging
 import json
 import re
 import time
+import subprocess
 import platform
 from PyQt6.QtWidgets import (
     QDialog,
@@ -64,7 +65,7 @@ from core.google import (
     create_youtube_playlist,
     add_videos_to_youtube_playlist,
 )
-from config import discord_cdn_images, __version__, get_system_qt_version, is_version_higher
+from config import discord_cdn_images, __version__
 from fuzzywuzzy import process
 from PyQt6.QtGui import QFont
 
@@ -161,8 +162,8 @@ class AboutDialog(QDialog):
 
         main_layout.addLayout(form_layout)
 
-        system_qt_version = get_system_qt_version()
-        if system_qt_version and is_version_higher(system_qt_version, QT_VERSION_STR):
+        system_qt_version = self.get_system_qt_version()
+        if system_qt_version and self.is_version_higher(system_qt_version, QT_VERSION_STR):
             warning_label = QLabel(
                 f"<b><font color='red'>A newer system Qt version ({system_qt_version}) is available.</font></b><br>"
                 "An update may be needed to ensure compatibility with your system's theme."
@@ -193,6 +194,55 @@ class AboutDialog(QDialog):
 
         main_layout.addLayout(button_layout)
         
+    def get_system_qt_version(self):
+        """
+        Gets the system-installed Qt6 version using a shell command.
+        """
+        # 1. Try with qmake6
+        try:
+            process = subprocess.run(
+                ["qmake6", "-v"],
+                capture_output=True, text=True, check=True
+            )
+            for line in process.stdout.splitlines():
+                if line.startswith("Qt version"):
+                    return line.split()[-1]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+
+        # 2. Try with pacman
+        try:
+            process = subprocess.run(
+                ["pacman", "-Q", "qt6-base"],
+                capture_output=True, text=True, check=True
+            )
+            return process.stdout.split()[-1]
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+
+        return None
+
+    def is_version_higher(self, version1, version2):
+        """
+        Compare two version strings. Supports semantic versioning and package revisions.
+        """
+        def version_to_tuple(version):
+            if '-' in version:
+                version = version.split('-')[0]
+            
+            parts = version.split('.')
+            while len(parts) < 3:
+                parts.append('0')
+            
+            try:
+                return tuple(int(part) for part in parts[:3])
+            except ValueError:
+                return (0, 0, 0)
+        
+        v1_tuple = version_to_tuple(version1)
+        v2_tuple = version_to_tuple(version2)
+        
+        return v1_tuple > v2_tuple
     
     def show_full_license(self):
         """Show the full GPL v3 license in a new dialog."""

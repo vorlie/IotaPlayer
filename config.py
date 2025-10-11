@@ -63,27 +63,6 @@ def get_system_qt_version():
         pass
 
     try:
-        # Try dpkg query
-        process = subprocess.run(
-            ["dpkg-query", "-W", "-f=${Version}", "libqt6core6"],
-            capture_output=True, text=True, check=True
-        )
-        return process.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
-
-    try:
-        # Try rpm query
-        process = subprocess.run(
-            ["rpm", "-q", "qt6-qtbase"],
-            capture_output=True, text=True, check=True
-        )
-        version_part = process.stdout.split('-')[2]
-        return version_part
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
-
-    try:
         # Try pacman query
         process = subprocess.run(
             ["pacman", "-Q", "qt6-base"],

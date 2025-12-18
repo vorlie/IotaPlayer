@@ -43,9 +43,9 @@ pyinstaller-hooks-contrib==2025.5
 pynput==1.8.1
 pyparsing==3.2.3
 pypresence @ git+https://github.com/qwertyquerty/pypresence.git@f856ccaaeb2321f64f9692b75dc3ceda5c927f42
-pyqt6==6.10.0
-pyqt6-qt6==6.10.0
-pyqt6-sip==13.10.2
+pyqt6==6.10.1
+pyqt6-qt6==6.10.1
+pyqt6-sip==13.10.3
 pyqtdarktheme @ git+https://github.com/vorlie/PyQtDarkTheme.git@9746d1214bb5c096c56d94ab6165a1082c1674e4
 python-dateutil==2.9.0.post0
 python-xlib==0.33

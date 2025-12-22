@@ -25,33 +25,22 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import os
 import pickle
-import json
-import platform
+from core.configManager import ConfigManager
 
 # Define the scopes required for playlist management
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 CLIENT_SECRETS_FILE = "" # This will be set later, do not set manually
 
-def get_config_dir():
-    if platform.system() == "Windows":
-        base = os.environ.get("APPDATA", os.path.expanduser("~"))
-        return os.path.join(base, "IotaPlayer")
-    else:
-        return os.path.join(os.path.expanduser("~"), ".config", "IotaPlayer")
-
 def get_token_pickle_file():
-    return os.path.join(get_config_dir(), "token.pickle")
+    """Get the path to the token pickle file."""
+    config_manager = ConfigManager.get_instance()
+    return os.path.join(config_manager.get_config_dir(), "token.pickle")
 
 def load_client_secrets_path():
     """Load the client secret file path from config.json."""
-    
-    config = get_config_dir()
-    config_path = os.path.join(config, "config.json")
-    if os.path.exists(config_path):
-        with open(config_path, "r", encoding="utf-8") as f:
-            config = json.load(f)
-            return config.get("google_client_secret_file", "")
-    return ""
+    config_manager = ConfigManager.get_instance()
+    config = config_manager.load_config()
+    return config.get("google_client_secret_file", "")
 
 def get_authenticated_service():
     """Gets an authenticated YouTube Data API service object. Handles OAuth flow."""

@@ -60,12 +60,13 @@ from core.discordIntegration import DiscordIntegration, PresenceUpdateData
 from core.playlistMaker import PlaylistMaker, PlaylistManager
 from core.settingManager import SettingsDialog
 from core.imageCache import CoverArtCache
+from core.playerState import PlayerState, PlayerStateMachine
 from core.google import (
     get_authenticated_service,
     create_youtube_playlist,
     add_videos_to_youtube_playlist,
 )
-from config import discord_cdn_images, __version__
+from config import discord_cdn_images, __version__, is_version_higher
 from fuzzywuzzy import process
 from PyQt6.QtGui import QFont
 
@@ -163,7 +164,7 @@ class AboutDialog(QDialog):
         main_layout.addLayout(form_layout)
 
         system_qt_version = self.get_system_qt_version()
-        if system_qt_version and self.is_version_higher(system_qt_version, QT_VERSION_STR):
+        if system_qt_version and is_version_higher(system_qt_version, QT_VERSION_STR):
             warning_label = QLabel(
                 f"<b><font color='red'>A newer system Qt version ({system_qt_version}) is available.</font></b><br>"
                 "An update may be needed to ensure compatibility with your system's theme."
@@ -222,27 +223,7 @@ class AboutDialog(QDialog):
 
         return None
 
-    def is_version_higher(self, version1, version2):
-        """
-        Compare two version strings. Supports semantic versioning and package revisions.
-        """
-        def version_to_tuple(version):
-            if '-' in version:
-                version = version.split('-')[0]
-            
-            parts = version.split('.')
-            while len(parts) < 3:
-                parts.append('0')
-            
-            try:
-                return tuple(int(part) for part in parts[:3])
-            except ValueError:
-                return (0, 0, 0)
-        
-        v1_tuple = version_to_tuple(version1)
-        v2_tuple = version_to_tuple(version2)
-        
-        return v1_tuple > v2_tuple
+
     
     def show_full_license(self):
         """Show the full GPL v3 license in a new dialog."""
@@ -291,7 +272,12 @@ class AboutDialog(QDialog):
 
 
 class MusicPlayer(QMainWindow):
-    def __init__(self, settings, icon_path, config_path, theme, normal):
+    # Qt signals for keyboard events (thread-safe communication)
+    keyboard_play_pause = pyqtSignal()
+    keyboard_next = pyqtSignal()
+    keyboard_prev = pyqtSignal()
+    
+    def __init__(self, settings, icon_path, config_path, theme, normal, config=None):
         super().__init__()
         self.icon_path = icon_path
         self.clr_theme = theme
@@ -304,25 +290,28 @@ class MusicPlayer(QMainWindow):
         self.setWindowTitle(self.window_title)
         self.setMinimumSize(1000, 600)
 
-        try:
-            with open(self.config_path, "r", encoding="utf-8") as f:
-                self.config = json.load(f)
-        except FileNotFoundError:
-            logging.info(
-                "Config file not found or invalid. Creating a new one with default settings."
-            )
-            self.config = settings
+        if config:
+            self.config = config
+        else:
             try:
-                os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
-                with open(self.config_path, "w", encoding="utf-8") as f:
-                    json.dump(self.config, f, indent=4)
-            except IOError as e:
-                logging.error(f"Error writing to config file: {e}")
-            try:
-                with open(self.config_path, "r") as f:
+                with open(self.config_path, "r", encoding="utf-8") as f:
                     self.config = json.load(f)
-            except IOError as e:
-                logging.error(f"Error reading from config file: {e}")
+            except FileNotFoundError:
+                logging.info(
+                    "Config file not found or invalid. Creating a new one with default settings."
+                )
+                self.config = settings
+                try:
+                    os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
+                    with open(self.config_path, "w", encoding="utf-8") as f:
+                        json.dump(self.config, f, indent=4)
+                except IOError as e:
+                    logging.error(f"Error writing to config file: {e}")
+                try:
+                    with open(self.config_path, "r") as f:
+                        self.config = json.load(f)
+                except IOError as e:
+                    logging.error(f"Error reading from config file: {e}")
 
         playlist_folder = self.config.get("root_playlist_folder", "playlists")
         if not os.path.exists(playlist_folder):
@@ -351,8 +340,10 @@ class MusicPlayer(QMainWindow):
         self.song_index = 0
         self.is_looping = "Off"
         logging.info(f"Initialized Iota Player with is_looping = {self.is_looping}")
-        self.is_playing = False
-        logging.info(f"Initialized Iota Player with is_playing = {self.is_playing}")
+        
+        # Initialize state machine (replaces is_playing, is_paused, has_started)
+        self.state_machine = PlayerStateMachine(initial_state=PlayerState.STOPPED)
+        
         self.is_shuffling = False
         self.shuffled_index = 0
         logging.info(
@@ -377,8 +368,6 @@ class MusicPlayer(QMainWindow):
         self.media_player.setAudioOutput(self.audio_output)
         
         self.on_start()
-        self.has_started = False
-        self.is_paused = False
         
         self.media_player.positionChanged.connect(self.update_progress)
         #self.media_player.durationChanged.connect(self.update_duration)
@@ -392,6 +381,11 @@ class MusicPlayer(QMainWindow):
         self.update_thread = UpdateCheckThread(__version__)
         self.update_thread.update_found.connect(self.on_update_found)
         self.update_thread.start()
+        
+        # Connect keyboard signals to handlers (thread-safe)
+        self.keyboard_play_pause.connect(self.handle_keyboard_playpause)
+        self.keyboard_next.connect(self.next_song)
+        self.keyboard_prev.connect(self.prev_song)
 
     def on_update_found(self, latest, changelog):
         reply = QMessageBox.question(
@@ -1199,32 +1193,29 @@ class MusicPlayer(QMainWindow):
         super().keyPressEvent(event)
 
     def on_key_press(self, key):
+        """Keyboard listener callback - runs in separate thread.
+        
+        Emits Qt signals instead of calling UI methods directly to ensure thread safety.
+        """
         try:
             if key == keyboard.Key.media_play_pause:
-                self.send_playpause_key()
+                self.keyboard_play_pause.emit()
             elif key == keyboard.Key.media_next:
-                self.send_nexttrack_key()
+                self.keyboard_next.emit()
             elif key == keyboard.Key.media_previous:
-                self.send_prevtrack_key()
+                self.keyboard_prev.emit()
         except AttributeError:
             logging.warning(f"Unhandled key press: {key}")
 
-    def send_prevtrack_key(self):
-        logging.info("Sending previous track key")
-        self.prev_song()
+    def handle_keyboard_playpause(self):
+        """Handle play/pause keyboard shortcut - runs on main thread."""
+        logging.info("Handling play/pause keyboard shortcut")
 
-    def send_nexttrack_key(self):
-        logging.info("Sending next track key")
-        self.next_song()
-
-    def send_playpause_key(self):
-        logging.info("Sending play/pause key")
-
-        if self.is_paused:
-            logging.info("Music is paused, attempting to resume...")
-            self.resume_music()  # Should resume music
-        elif self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
-            logging.info("Music is playing, attempting to pause...")
+        if self.state_machine.is_paused():
+            logging.info("Music is paused, resuming...")
+            self.resume_music()
+        elif self.state_machine.is_playing():
+            logging.info("Music is playing, pausing...")
             self.pause_music()
         else:
             logging.info("No music is playing, attempting to start...")
@@ -1266,10 +1257,18 @@ class MusicPlayer(QMainWindow):
             self.start_time = time.time()  # Set the current time as the start time
             self.time_played = 0  # Reset time played when starting a new song
             self.song_duration = self.get_song_length(self.current_song["path"])
-            self.has_started = True
-            self.is_playing = True
-            self.is_paused = False
             self.total_paused_time = 0
+            
+            # Update state machine - transition through required states
+            if self.state_machine.is_stopped():
+                self.state_machine.transition_to(PlayerState.LOADING)
+                self.state_machine.transition_to(PlayerState.READY)
+            elif self.state_machine.is_paused():
+                # If paused, we are effectively ready to restart/play new
+                self.state_machine.transition_to(PlayerState.READY, force=True)
+                
+            self.state_machine.transition_to(PlayerState.PLAYING)
+            
             self.update_song_info()  # Handle Discord presence
 
             # Toggle Play button to Stop
@@ -1287,9 +1286,10 @@ class MusicPlayer(QMainWindow):
     def stop_music(self):
         try:
             self.media_player.stop()
-            self.is_playing = False
-            self.is_paused = False
-            self.has_started = False
+            
+            # Update state machine
+            self.state_machine.transition_to(PlayerState.STOPPED)
+            
             self.update_song_info()
             self.toggle_play_button.setText("Play")
             logging.info("Music stopped.")
@@ -1297,16 +1297,18 @@ class MusicPlayer(QMainWindow):
             logging.error(f"Error in stop_music: {e}")
 
     def toggle_play(self):
-        if self.is_playing:
+        if self.state_machine.is_playing():
             self.stop_music()
         else:
             self.play_music()
 
     def pause_music(self):
         logging.info("Pausing music.")
-        if not self.is_paused:
+        if self.state_machine.can_pause():
             self.media_player.pause()
-            self.is_paused = True
+            
+            # Update state machine
+            self.state_machine.transition_to(PlayerState.PAUSED)
 
             self.time_played += time.time() - self.start_time
 
@@ -1322,9 +1324,11 @@ class MusicPlayer(QMainWindow):
 
     def resume_music(self):
         logging.info("Resuming music.")
-        if self.is_paused:
+        if self.state_machine.is_paused():
             self.media_player.play()
-            self.is_paused = False
+            
+            # Update state machine
+            self.state_machine.transition_to(PlayerState.PLAYING)
 
             # Add the paused duration to total_paused_time
             self.start_time = time.time()  # Restart the timer
@@ -1340,7 +1344,7 @@ class MusicPlayer(QMainWindow):
             pass
 
     def toggle_pause(self):
-        if self.is_paused:
+        if self.state_machine.is_paused():
             self.resume_music()
         else:
             self.pause_music()
@@ -1452,9 +1456,9 @@ class MusicPlayer(QMainWindow):
                         self.current_playlist_image if self.current_playlist else None
                     )
 
-        if self.is_playing:
+        if self.state_machine.is_playing() or self.state_machine.is_paused():
             current_position = self.media_player.position() // 1000
-            if self.is_paused:
+            if self.state_machine.is_paused():
                 update_data = PresenceUpdateData(
                     song_title=self.current_song['title'],
                     artist_name=self.current_song['artist'],
@@ -1565,11 +1569,9 @@ class MusicPlayer(QMainWindow):
             )
 
     def check_song_end(self):
-        if self.has_started and self.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState and self.current_song:
-            if not self.is_paused:
-                self.handle_song_end()
-            else:
-                pass
+        # Check if we think we are playing but the media player has stopped
+        if self.state_machine.is_playing() and self.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState and self.current_song:
+            self.handle_song_end()
 
     def toggle_loop(self):
         if self.is_looping == "Off":

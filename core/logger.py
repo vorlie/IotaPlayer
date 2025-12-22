@@ -24,16 +24,10 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
-import platform
-
-def get_config_dir():
-    if platform.system() == "Windows":
-        base = os.environ.get("APPDATA", os.path.expanduser("~"))
-        return os.path.join(base, "IotaPlayer")
-    else:
-        return os.path.join(os.path.expanduser("~"), ".config", "IotaPlayer")
 
 def setup_logging():
+    from core.configManager import ConfigManager
+    
     # Root logger configuration
     root_logger = logging.getLogger()
     if not root_logger.hasHandlers():  # Check if handlers are already set up
@@ -47,7 +41,8 @@ def setup_logging():
         root_logger.addHandler(console_handler)
 
         # File handler in config dir
-        log_dir = get_config_dir()
+        config_manager = ConfigManager.get_instance()
+        log_dir = config_manager.get_config_dir()
         os.makedirs(log_dir, exist_ok=True)
         log_path = os.path.join(log_dir, 'combined_app.log')
         file_handler = RotatingFileHandler(log_path, maxBytes=5*1024*1024, backupCount=3, encoding='utf-8')

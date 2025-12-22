@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.11.0] - 2025-12-22
+
+### Added
+- **ConfigManager**: Centralized configuration management to ensure consistency and thread safety.
+- **PlayerStateMachine**: Robust enum-based state machine for playback control, replacing inconsistent boolean flags.
+- **Discord Update Queue**: Queue system for Discord Rich Presence to prevent lost updates during disconnections.
+- **File-based Locking**: Robust single-instance enforcement using `fcntl` to prevent race conditions.
+- **Environment Configuration**: Added support for `DISCORD_CLIENT_ID` environment variable.
+
+### Changed
+- **Refactoring**: Removed global `player` variable from `main.py` and introduced `Application` class.
+- **Optimization**: Optimized configuration loading to reduce file I/O by passing config objects.
+- **Startup**: Moved Qt version compatibility check to early startup phase to catch theme issues sooner.
+- **Keyboard Handling**: Migrated keyboard listener to use Qt signals for thread-safe UI interaction.
+
+### Fixed
+- Fixed race condition in single-instance application check.
+- Fixed `AttributeError` crashes caused by removed boolean flags (`has_started`, `is_paused`).
+- Fixed `NameError` in Playlist Maker due to removed `get_config_path` function.
+- Fixed invalid state transitions in playback logic (e.g., `STOPPED` -> `PLAYING`).
+- Fixed application crash when `icon.png` is missing (now logs a warning).
+- Fixed thread safety violations in keyboard listener.
+
 ## [1.10.12] - 2025-09-05
 
 ### Refactored

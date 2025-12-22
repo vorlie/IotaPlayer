@@ -30,16 +30,10 @@ import random
 from PyQt6.QtWidgets import QDialog, QFileDialog, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QLabel, QTableWidget, QTableWidgetItem, QMessageBox, QListWidget
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
+from core.configManager import ConfigManager
 
 from mutagen.mp3 import MP3
 from mutagen import File
-
-def get_config_path():
-    if platform.system() == "Windows":
-        base = os.environ.get("APPDATA", os.path.expanduser("~"))
-        return os.path.join(base, "IotaPlayer", "config.json")
-    else:
-        return os.path.join(os.path.expanduser("~"), ".config", "IotaPlayer", "config.json")
 
 class PlaylistManager:
     def __init__(self):
@@ -47,18 +41,14 @@ class PlaylistManager:
         self.shuffle_states = {}
         self.shuffled_songs = {}
 
-        config_path = get_config_path()
+        config_manager = ConfigManager.get_instance()
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                config = json.load(f)
-        except FileNotFoundError:
-            print("Configuration file not found. Using default settings.")
-            config = {"root_playlist_folder": "playlists"}
-        except json.JSONDecodeError:
-            print("Error decoding the configuration file.")
-            config = {"root_playlist_folder": "playlists"}
+            config = config_manager.load_config()
+            self.playlists_dir = config.get("root_playlist_folder", "playlists")
+        except (FileNotFoundError, json.JSONDecodeError):
+            logging.warning("Could not load config, using default playlists directory")
+            self.playlists_dir = "playlists"
 
-        self.playlists_dir = config.get('root_playlist_folder', 'playlists')
         if not os.path.exists(self.playlists_dir):
             os.makedirs(self.playlists_dir)
             print(f"Created playlists directory: {self.playlists_dir}")
@@ -173,10 +163,9 @@ class PlaylistMaker(QDialog):
             self.setWindowIcon(QIcon(icon_path))
         self.setGeometry(100, 100, 1700, 900)
         
-        config_path = get_config_path()
+        config_manager = ConfigManager.get_instance()
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                self.config = json.load(f)
+            self.config = config_manager.load_config()
         except Exception:
             self.config = {"root_playlist_folder": "playlists"}
         

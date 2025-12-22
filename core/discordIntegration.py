@@ -28,11 +28,12 @@ import time
 import logging
 import json
 from PyQt6.QtCore import QObject, pyqtSignal
-from threading import Lock
+from threading import RLock
 from pydantic import BaseModel
 from typing import Optional
 from config import discord_cdn_images
 from tenacity import retry, stop_after_attempt, wait_fixed
+from core.configManager import ConfigManager
 
 discord_logger = logging.getLogger('discord')
 
@@ -47,18 +48,12 @@ class PresenceUpdateData(BaseModel):
     song_duration: Optional[int] = None
     time_played: Optional[int] = None
 
-def get_config_dir():
-    if platform.system() == "Windows":
-        base = os.environ.get("APPDATA", os.path.expanduser("~"))
-        return os.path.join(base, "IotaPlayer")
-    else:
-        return os.path.join(os.path.expanduser("~"), ".config", "IotaPlayer")
 
 class DiscordConfig:
     def __init__(self):
-        config_dir = get_config_dir()
-        with open(os.path.join(config_dir, 'config.json'), 'r', encoding='utf-8') as f:
-            config = json.load(f)
+        config_manager = ConfigManager.get_instance()
+        config_dir = config_manager.get_config_dir()
+        config = config_manager.load_config()
         
         self.client_id = config.get('discord_client_id', '1150680286649143356')
         self.large_image_key = discord_cdn_images.get(
@@ -73,9 +68,10 @@ class DiscordIntegration(QObject):
 
     def __init__(self):
         super().__init__()
-        self._lock = Lock()
+        self._lock = RLock()
         self.config = DiscordConfig()
         self.RPC = None
+        self._pending_update: Optional[PresenceUpdateData] = None
         self.current_large_image = self.config.large_image_key
         self.small_image_key = ""
         
@@ -94,6 +90,13 @@ class DiscordIntegration(QObject):
                     self.RPC.connect()
                     discord_logger.info("Connected to Discord RPC")
                     self.connection_status_changed.emit(True)
+                    
+                    # Process pending update if any
+                    if self._pending_update:
+                        discord_logger.info("Processing queued presence update")
+                        self.update_presence(self._pending_update)
+                        self._pending_update = None
+                        
                     return
                 except Exception as e:
                     wait_time = 2 ** attempt
@@ -116,6 +119,9 @@ class DiscordIntegration(QObject):
 
         with self._lock:
             if not self._ensure_connection():
+                # Queue update if connection failed
+                self._pending_update = update_data
+                discord_logger.info("Discord not connected. Update queued.")
                 return
 
             try:

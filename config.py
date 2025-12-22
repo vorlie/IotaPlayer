@@ -18,6 +18,7 @@ import os
 import platform
 import urllib.request
 import subprocess
+import logging
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if platform.system() == "Windows":
@@ -29,7 +30,7 @@ __version__ = "1.11.0"
 
 default_settings = {
     "connect_to_discord": True,
-    "discord_client_id": "1150680286649143356",
+    "discord_client_id": os.environ.get("DISCORD_CLIENT_ID", "1150680286649143356"),
     "large_image_key": "default_image",
     "root_playlist_folder": "playlists",
     "default_playlist": "default",
@@ -37,6 +38,7 @@ default_settings = {
     "volume_percentage": 100,
     "font_name": "Noto Sans",
 }
+logging.info(f"Using Discord Client ID: {default_settings['discord_client_id']}")
 
 discord_cdn_images = {
     "default_image":"https://cdn.discordapp.com/app-assets/1150680286649143356/1270124442433097780.png",
@@ -120,9 +122,13 @@ def is_update_available(current_version):
 def is_version_higher(version1, version2):
     """
     Compare two version strings and return True if version1 is higher than version2.
-    Supports semantic versioning (e.g., "1.2.3", "1.10.5").
+    Supports semantic versioning (e.g., "1.2.3", "1.10.5") and package revisions.
     """
     def version_to_tuple(version):
+        # Handle package revisions like "6.7.2-1"
+        if '-' in version:
+            version = version.split('-')[0]
+            
         # Split version string and convert to integers
         parts = version.split('.')
         # Pad with zeros if needed (e.g., "1.2" becomes [1, 2, 0])

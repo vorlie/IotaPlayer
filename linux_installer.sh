@@ -86,6 +86,7 @@ perform_installation_steps() {
     echo -e "${BLUE}Activating venv and installing requirements...${NC}"
     source .venv/bin/activate
     pip install --upgrade pip
+    #export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
     pip install -r requirements.txt --ignore-requires-python
 
     echo -e "${BLUE}Building the executable using PyInstaller...${NC}"

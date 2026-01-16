@@ -31,7 +31,7 @@ pillow==11.2.1
 proto-plus==1.26.1
 protobuf==6.31.1
 psutil==7.0.0
-pyasn1==0.6.1
+pyasn1==0.6.2
 pyasn1-modules==0.4.2
 pycairo==1.28.0
 pycaw==20240210

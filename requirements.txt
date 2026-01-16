@@ -57,7 +57,7 @@ setuptools==80.9.0
 six==1.17.0
 strenum==0.4.15
 tenacity==9.1.2
-typing-extensions==4.14.0
+typing-extensions==4.14.1
 typing-inspection==0.4.1
 unidecode==1.4.0
 uritemplate==4.2.0
